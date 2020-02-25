@@ -101,3 +101,10 @@ var ismail = Insan.new();
     ismail.konusmaYap( "merhaba dünya" );
 ```
 
+## Tür sınama
+```javascript
+ismail.is( Canli );
+// true
+
+ismail.behave( NefesAlma );
+// true
