@@ -69,7 +69,7 @@ var Insan = Type( "Insan" ).extends( Canli ).use( NefesAlma, Konusma ).prototype
         console.log( "Ve adım da " + isim );
         
         this.nefesAl();
-        this.konus( "bunlar ilk sözlerim" );
+        this.konusmaYap( "bunlar ilk sözlerim" );
     }
     
     yasa: function()
