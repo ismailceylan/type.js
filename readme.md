@@ -92,3 +92,10 @@ var Insan = Type( "Insan" ).extends( Canli ).use( NefesAlma, Konusma ).prototype
 * super[arg1, arg2, ...] => Ebeveyn türün `construct` metodunu parametrelerle çalıştırır.
 * super["metot adı"]     => Ebeveyn türün adı verilen bir metodunu çalıştırır.
 * super["metot adı", [arg1, arg2, ...]] => Ebeveyn türün adı verilen bir metodunu parametrelerle çalıştırır.
+
+## Türü örnekleyelim
+```javascript
+var ismail = Insan.new();
+    ismail.yasa();
+```
+
