@@ -3,10 +3,12 @@ türler tarafından miras alınabilir. Tanımlanan yetenekler de türler tarafı
 
 # Örnek kullanım
 
-var Canli = Type( "Canli" ).prototype(
+```var Canli = Type( "Canli" ).prototype(
 {
     construct: function()
     {
       console.log( "Yaşasın! Hayattayım." );
     }
 })
+```
+
