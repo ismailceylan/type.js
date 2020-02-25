@@ -97,5 +97,6 @@ var Insan = Type( "Insan" ).extends( Canli ).use( NefesAlma, Konusma ).prototype
 ```javascript
 var ismail = Insan.new();
     ismail.yasa();
+    ismail.konusmaYap( "merhaba dünya" );
 ```
 
