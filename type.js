@@ -136,9 +136,7 @@ var Type = function( name )
 
 		for( var oldMethodName in AS )
 		{
-			var newMethodName = AS[ oldMethodName ];
-
-			proto[ newMethodName ] = proto[ oldMethodName ];
+			proto[ AS[ oldMethodName ]] = proto[ oldMethodName ];
 			delete proto[ oldMethodName ];
 		}
 
@@ -190,13 +188,11 @@ var Type = function( name )
 
 		for( var prop in context )
 		{
-			var value = context[ prop ];
-
 			if( prop in target )
 
 				continue;
 
-			target[ prop ] = value;
+			target[ prop ] = context[ prop ];
 		}
 	}
 
@@ -230,7 +226,7 @@ var Type = function( name )
 	 */
 	this.igniteConstructMethod = function( instance, initialArgs )
 	{
-		is( instance.construct, "function" ) &&
+		instance.construct instanceof Function &&
 			instance.construct.apply( instance, Array.prototype.slice.call( initialArgs ));
 	}
 
@@ -243,11 +239,8 @@ var Type = function( name )
 	 */
 	this.singleton = function()
 	{
-		if( this.instance )
-
-			return this.instance;
-
-		return this.instance = this.new.apply( this, Array.prototype.slice.call( arguments ));
+		return this.instance ||
+			( this.instance = this.new.apply( this, Array.prototype.slice.call( arguments )));
 	}
 
 	/**
@@ -331,7 +324,7 @@ var Type = function( name )
 	 */
 	this.super = function()
 	{
-		var context = is( this, Type )
+		var context = this instanceof Type
 			? this.parent
 			: this.type.parent;
 
