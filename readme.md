@@ -1,12 +1,12 @@
 **This javascript library allows define types and traits. An identified type can be inherited
 by other types. Defined traits can also be used by types.**
 
-**This library uses the prototype mechanism.**
+**This library adopted the single level prototype mechanism.**
 
 _Bu javascript kütüphanesi türler ve davranışlar tanımlamanızı sağlar. Tanımlanan bir tür başka
 türler tarafından miras alınabilir. Tanımlanan davranışlar da türler tarafından kullanılabilir._
 
-_Bu kütüphane özünde prototype mekanizmasını kullanır._
+_Bu kütüphane özünde tek seviyeli prototype mekanizmasını benimsemiştir._
 
 ## Usage (Örnek Kullanım)
 ### Let's create a trait specific to living things (Canlılara özgü bazı davranışlar oluşturalım)
