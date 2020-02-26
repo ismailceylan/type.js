@@ -112,10 +112,10 @@ var Human = Type( "Human" ).extends( Animal ).use( Speakable ).prototype(
         
         // it should breath immediately otherwise it may die just now
         // hemen nefes almaya başlasın yoksa ölür :|
-        this.nefesAl();
+        this.breath();
         // it should speak just now or it may still die
         // hemen konuşmaya başlasın yoksa yine ölür keh keh :P
-        this.konusmaYap( "Those are my first words." );
+        this.talk( "Those are my first words." );
     }
     
     live: function()
@@ -151,7 +151,7 @@ super()
 
 ### Let's create instances from types (Türü örnekleyelim)
 ```javascript
-var ismail = Human.new();
+var ismail = Human.new( "İsmail" );
 
     ismail.live();
     ismail.talk( "Hello world!" );
@@ -174,17 +174,17 @@ ismail.behave( Breathable );
 ### Creating singleton object from types (Singleton örnekleme)
 ```javascript
 // ## app.js
-var somebody = Human.singleton();
-    somebody.firstName = "Donald";
+var somebody = Human.singleton( "Donald" );
+    somebody.lastName = "Trump";
 
 // ## same runtime (aynı runtime)
 // ## islem.js
-Human.singleton().firstName;
-// Donald
+Human.singleton().lastName;
+// Trump
 ```
 ### Accessing type related meta datas from instances (Instance üzerinden türsel meta bilgilere erişmek)
 ```javascript
-var janedoe = Human.new();
+var janedoe = Human.new( "Jane Doe" );
 
     janedoe.type.name;
     // Human
