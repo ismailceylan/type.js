@@ -163,8 +163,8 @@ var ismail = Human.new( "İsmail" );
 // please remember that the "ismail" object does not directly extends
 // the "Creature" type. It extends the "Animal" intermediate type.
 // --------------
-// ismail'in Canli türünü direkt extends etmediğini
-// hatırlayın Hayvan ara türünü extends etmiştik
+// ismail'in "Creature" türünü direkt extends etmediğini
+// hatırlayın "Hayvan" ara türünü extends etmiştik
 ismail.is( Creature );
 // true
 
