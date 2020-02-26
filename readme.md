@@ -1,10 +1,11 @@
 **This javascript library allows define types and traits. An identified type can be inherited
-by other types. Defined traits can also be used by types.**
+by other types. Defined traits can also be use by other traits (traits are extendable) or used by types.**
 
 **This library adopted the single level prototype mechanism.**
 
 _Bu javascript kütüphanesi türler ve davranışlar tanımlamanızı sağlar. Tanımlanan bir tür başka
-türler tarafından miras alınabilir. Tanımlanan davranışlar da türler tarafından kullanılabilir._
+türler tarafından miras alınabilir. Tanımlanan davranışlar da başka davranışlar tarafından
+genişletilebilir veya türler tarafından alınıp kullanılabilir._
 
 _Bu kütüphane özünde tek seviyeli prototype mekanizmasını benimsemiştir._
 
