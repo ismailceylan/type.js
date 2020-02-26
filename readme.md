@@ -1,7 +1,10 @@
-Bu javascript kütüphanesi türler ve davranışlar tanımlamanızı sağlar. Tanımlanan bir tür başka
-türler tarafından miras alınabilir. Tanımlanan davranışlar da türler tarafından kullanılabilir.
+**This javascript library allows you to define types and behaviors. An identified species can be inherited by other species. Defined behaviors can also be used by species.**
 
-Bu kütüphane özünde prototype mekanizmasını kullanır.
+**This library uses the prototype mechanism.**
+_Bu javascript kütüphanesi türler ve davranışlar tanımlamanızı sağlar. Tanımlanan bir tür başka
+türler tarafından miras alınabilir. Tanımlanan davranışlar da türler tarafından kullanılabilir._
+
+_Bu kütüphane özünde prototype mekanizmasını kullanır._
 
 # Örnek Kullanım
 ## Canlılara özgü bazı davranışlar oluşturalım
