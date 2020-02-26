@@ -21,6 +21,7 @@ var Breathable = Trait( "Breathable" ).prototype(
 ```
 **Traits are added to the prototype area of the types that use it. Therefore, the instance scope
 (this word) refers to the type to which they belong**
+
 _Davranışlar, onu kullanan türlerin prototype alanına eklenirler. Dolayısıyla etki alanı
 (this sözcüğü) ait oldukları türdür._
 
