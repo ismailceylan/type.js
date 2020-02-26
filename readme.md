@@ -127,6 +127,8 @@ var ismail = Insan.new();
 
 ## Tür sınama
 ```javascript
+// ismail'in Canli türünü direkt extends etmediğini
+// hatırlayın Hayvan ara türünü extends etmiştik
 ismail.is( Canli );
 // true
 
@@ -144,4 +146,17 @@ var insanoglu = Insan.singleton();
 // ## islem.js
 Insan.singleton().isim;
 // hıdır
+```
+## Instance üzerinden türsel meta bilgilere erişmek
+```javascript
+var hidir = Insan.new();
+
+    hidir.type.name;
+    // Insan
+    
+    hidir.type.behaviours;
+    // [ "NefesAlma", "Konusma" ]
+    
+    hidir.type.types;
+    // [ "Insan", "Hayvan", "Canlı" ]
 ```
