@@ -4,9 +4,23 @@ türler tarafından miras alınabilir. Tanımlanan davranışlar da türler tara
 Bu kütüphane özünde prototype mekanizmasını kullanır.
 
 # Örnek Kullanım
+## Canlılara özgü bazı davranışlar oluşturalım
+```javascript
+var NefesAlma = Trait( "NefesAlma" ).prototype(
+{
+    nefesAl: function()
+    {
+        console.log( "Ohh! Nefes alabiliyorum." );
+    }
+});
+```
+
+Davranışlar, onu kullanan türlerin prototype alanına eklenirler. Dolayısıyla etki alanı
+(this sözcüğü) ait oldukları türdür.
+
 ## Tür oluşturma
 ```javascript
-var Canli = Type( "Canli" ).prototype(
+var Canli = Type( "Canli" ).use( NefesAlma ).prototype(
 {
     construct: function()
     {
@@ -24,17 +38,22 @@ var Canli = Type( "Canli" ).prototype(
 parametreleri alarak bir defa çalışır. Bu metot içinde kurulumsal işlemleri yapabilir
 ilklendirmemiz gereken özelliklere gerekli değerleri sağlayabiliriz.
 
-## Bazı davranışlar oluşturalım
+## Ara tür oluşturalım
 ```javascript
-var NefesAlma = Trait( "NefesAlma" ).prototype(
+var Hayvan = Type( "Hayvan" ).extends( Canli ).prototype(
 {
-    nefesAl: function()
+    construct: function()
     {
-        console.log( "Ohh! Nefes alabiliyorum." );
+        // önce Canli türünün kurucusu çalışsın
+        this.super( "construct" );
+        
+        // şimdi hayvan türünü ilgilendiren işlemler çalışsın
+        console.log( "Bitki değilim, özümde bir hayvan yatıyor." );
     }
 });
-
-
+```
+## İnsanlara özgü bazı davranışlar oluşturalım
+```javascript
 var Konusma = Trait( "Konusma" ).prototype(
 {
     konus: function( sozler )
@@ -44,39 +63,41 @@ var Konusma = Trait( "Konusma" ).prototype(
 });
 ```
 
-Davranışlar, onu kullanan türlerin prototype alanına eklenirler. Dolayısıyla etki alanı
-(this sözcüğü) ait oldukları türdür.
-
-Ayrıca davranışlar (trait) içinde de `construct` metodu tanımlayabilirsiniz. Bu metot da
-yine davranışı kullanan türün etki alanında çalışacaktır. Davranışa ilişkin ilksel işlemleri
-gerçekleştirmek için kullanışlı bir alan sağlar. Türün kurucusu içinde kirlilik oluşturmak
-gerekmez.
+Davranış (trait) da `construct` metodu tanımlayabilir. Bu metot da yine davranışı
+kullanan türün etki alanında çalışacaktır. Davranışa ilişkin ilksel işlemleri
+gerçekleştirmek için kullanışlı bir alan sağlar. Türün kurucusu içinde kirlilik
+oluşturmak gerekmez.
 
 ## Yeni ve güçlü bir tür oluşturalım
 ```javascript
-var Insan = Type( "Insan" ).extends( Canli ).use( NefesAlma, Konusma ).prototype(
+var Insan = Type( "Insan" ).extends( Hayvan ).use( Konusma ).prototype(
 {
     AS:
     {
         // Konusma isimli trait üzerinden alınan konus isimli
-        // metodu konusmaYap şeklinde ismini değiştirebiliriz
+        // metodu konusmaYap şeklinde yeniden adlandırabiliriz
         konus: "konusmaYap"
     },
     
     construct: function( isim )
     {
+        // önce Hayvan türünün kurucusu çalıştırılsın
         this.super( "construct" );
+        
+        // artık Insan türünün kurulumsal işlemlerini yapabiliriz
         console.log( "Ve adım da " + isim );
         
+        // hemen nefes almaya başlasın yoksa ölür :|
         this.nefesAl();
+        // hemen konuşmaya başlasın yoksa yine ölür keh keh :P
         this.konusmaYap( "bunlar ilk sözlerim" );
     }
     
     yasa: function()
     {
-        // canlı türündeki yasa isimli metodu burada sıfırdan tanımladık
-        
-        // bu metodu sıfırdan tanımlamak istemiyorum, genişletmek istiyorum
+        // Bu metot taa canlı türünden bu noktaya kadar miras yoluyla geldi
+        // ancak biz burada tekrar metodu tanımladık dolayısıyla mirası reddettik
+        // ama reddetmek değil, bu mirası geliştirmek üzerine bir şeyler katmak istiyorum
         this.super( "yasa" );
         
         // şimdi genişleme işlemlerini yapabilirim
@@ -87,11 +108,14 @@ var Insan = Type( "Insan" ).extends( Canli ).use( NefesAlma, Konusma ).prototype
 
 `super` metodu miras alınan türe erişimi sağlar.
 
-* super[]                => Ebeveyn türü oluşturan prototype nesnesini verir, buradaki statik metotlara ve özelliklere erişilebilir.
-* super["construct"]     => Ebeveny türün `construct` metodunu parametre olmadan çalıştırır.
-* super[arg1, arg2, ...] => Ebeveyn türün `construct` metodunu parametrelerle çalıştırır.
-* super["metot adı"]     => Ebeveyn türün adı verilen bir metodunu çalıştırır.
-* super["metot adı", [arg1, arg2, ...]] => Ebeveyn türün adı verilen bir metodunu parametrelerle çalıştırır.
+#### Ebeveynin belli bir metodunu call etmek
+super(String, [...Array])
+
+#### Ebeveynin construct metodunu call etmek
+super(...Params)
+
+#### Ebeneynin bağlamına erişmek
+super()
 
 ## Türü örnekleyelim
 ```javascript
