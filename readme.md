@@ -1,4 +1,5 @@
-**This javascript library allows you to define types and behaviors. An identified species can be inherited by other species. Defined behaviors can also be used by species.**
+**This javascript library allows define types and traits. An identified type can be inherited
+by other types. Defined traits can also be used by types.**
 
 **This library uses the prototype mechanism.**
 _Bu javascript kütüphanesi türler ve davranışlar tanımlamanızı sağlar. Tanımlanan bir tür başka
@@ -6,22 +7,23 @@ türler tarafından miras alınabilir. Tanımlanan davranışlar da türler tara
 
 _Bu kütüphane özünde prototype mekanizmasını kullanır._
 
-# Örnek Kullanım
-## Canlılara özgü bazı davranışlar oluşturalım
+# Usage (Örnek Kullanım)
+## Let's create some behaviors specific to living things (Canlılara özgü bazı davranışlar oluşturalım)
 ```javascript
-var NefesAlma = Trait( "NefesAlma" ).prototype(
+var Breathable = Trait( "Breathable" ).prototype(
 {
-    nefesAl: function()
+    breath: function()
     {
-        console.log( "Ohh! Nefes alabiliyorum." );
+        console.log( "Yay! I can breath." );
     }
 });
 ```
+**Traits are added to the prototype area of the types that use it. Therefore, the instance scope
+(this word) refers to the type to which they belong**
+_Davranışlar, onu kullanan türlerin prototype alanına eklenirler. Dolayısıyla etki alanı
+(this sözcüğü) ait oldukları türdür._
 
-Davranışlar, onu kullanan türlerin prototype alanına eklenirler. Dolayısıyla etki alanı
-(this sözcüğü) ait oldukları türdür.
-
-## Tür oluşturma
+## Implementin Types (Tür oluşturma)
 ```javascript
 var Canli = Type( "Canli" ).use( NefesAlma ).prototype(
 {
