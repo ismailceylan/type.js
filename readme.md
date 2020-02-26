@@ -108,3 +108,16 @@ ismail.is( Canli );
 
 ismail.behave( NefesAlma );
 // true
+```
+
+## Singleton örnekleme
+```javascript
+// ## app.js
+var insanoglu = Insan.singleton();
+    insanoglu.isim = "hıdır";
+
+// ## aynı runtime
+// ## islem.js
+Insan.singleton().isim;
+// hıdır
+```
