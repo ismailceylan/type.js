@@ -167,6 +167,12 @@ var ismail = Human.new( "İsmail" );
 ismail.is( Creature );
 // true
 
+ismail.is( Animal );
+// true
+
+Human.is( Creature );
+// true
+
 ismail.behave( Breathable );
 // true
 ```
