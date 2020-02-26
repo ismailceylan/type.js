@@ -2,13 +2,14 @@
 by other types. Defined traits can also be used by types.**
 
 **This library uses the prototype mechanism.**
+
 _Bu javascript kütüphanesi türler ve davranışlar tanımlamanızı sağlar. Tanımlanan bir tür başka
 türler tarafından miras alınabilir. Tanımlanan davranışlar da türler tarafından kullanılabilir._
 
 _Bu kütüphane özünde prototype mekanizmasını kullanır._
 
-# Usage (Örnek Kullanım)
-## Let's create some behaviors specific to living things (Canlılara özgü bazı davranışlar oluşturalım)
+## Usage (Örnek Kullanım)
+### Let's create some traits specific to living things (Canlılara özgü bazı davranışlar oluşturalım)
 ```javascript
 var Breathable = Trait( "Breathable" ).prototype(
 {
@@ -23,145 +24,173 @@ var Breathable = Trait( "Breathable" ).prototype(
 _Davranışlar, onu kullanan türlerin prototype alanına eklenirler. Dolayısıyla etki alanı
 (this sözcüğü) ait oldukları türdür._
 
-## Implementin Types (Tür oluşturma)
+### Implementin Types (Tür oluşturma)
 ```javascript
-var Canli = Type( "Canli" ).use( NefesAlma ).prototype(
+var Creature = Type( "Creature" ).use( Breathing ).prototype(
 {
     construct: function()
     {
-        console.log( "Yaşasın! Hayattayım." );
+        console.log( "Yay! I'm alive." );
     }
     
-    yasa: function()
+    live: function()
     {
-        console.log( "Canlıyım, yaşıyorum!" );
+        console.log( "Since I'm alive, why can't I live?" );
     }
 });
 ```
+**The `construct` method performs the constructive operations of the type. Each time
+created an instance from a type, it runs once, taking the given parameters. In this
+method, we can perform the installation procedures and provide the necessary values
+to the features we need to initialize.**
 
-`construct` metodu oluşturulan türün kurucu metodudur. Bir türü örneklediğinizde verilen
-parametreleri alarak bir defa çalışır. Bu metot içinde kurulumsal işlemleri yapabilir
-ilklendirmemiz gereken özelliklere gerekli değerleri sağlayabiliriz.
+_`construct` metodu, oluşturulan türün kurucu metodudur. Bir tür her örneklendiğinde
+verilen parametreleri alarak bir defa çalışır. Bu metot içinde kurulumsal işlemleri
+yapabilir ilklendirmemiz gereken özelliklere gerekli değerleri sağlayabiliriz._
 
-## Ara tür oluşturalım
+### Let's create intermediate type (Ara tür oluşturalım)
 ```javascript
-var Hayvan = Type( "Hayvan" ).extends( Canli ).prototype(
+var Animal = Type( "Animal" ).extends( Creature ).prototype(
 {
     construct: function()
     {
-        // önce Canli türünün kurucusu çalışsın
+        // first, let the creature's constructor work
+        // önce Creature türünün kurucusu çalışsın
         this.super( "construct" );
         
+        // now, the actions concerning the Animal type can work
         // şimdi hayvan türünü ilgilendiren işlemler çalışsın
-        console.log( "Bitki değilim, özümde bir hayvan yatıyor." );
+        console.log( "I'm not a veggy, there is an animal inside of me" );
     }
 });
 ```
-## İnsanlara özgü bazı davranışlar oluşturalım
+### Let's create some humanly traits (İnsanlara özgü bazı davranışlar oluşturalım)
 ```javascript
-var Konusma = Trait( "Konusma" ).prototype(
+var Speakable = Trait( "Speakable" ).prototype(
 {
-    konus: function( sozler )
+    speak: function( words )
     {
-        console.log( "Konuşuyorum!", sozler );
+        console.log( "I'm talking!", words );
     }
 });
 ```
 
-Davranış (trait) da `construct` metodu tanımlayabilir. Bu metot da yine davranışı
+**The trait can also define the 'construct' method. This method will also work on
+the instance of the Type that uses the trait. It provides a useful space for
+performing primitive actions related to trait. So it is not necessary to create
+pollution within the constructor of the Type.**
+
+_Davranış (trait) da `construct` metodu tanımlayabilir. Bu metot da yine davranışı
 kullanan türün etki alanında çalışacaktır. Davranışa ilişkin ilksel işlemleri
 gerçekleştirmek için kullanışlı bir alan sağlar. Türün kurucusu içinde kirlilik
-oluşturmak gerekmez.
+oluşturmak gerekmez._
 
-## Yeni ve güçlü bir tür oluşturalım
+### Let's create a new and powerful type (Yeni ve güçlü bir tür oluşturalım)
 ```javascript
-var Insan = Type( "Insan" ).extends( Hayvan ).use( Konusma ).prototype(
+var Human = Type( "Human" ).extends( Animal ).use( Speakable ).prototype(
 {
     AS:
     {
-        // Konusma isimli trait üzerinden alınan konus isimli
-        // metodu konusmaYap şeklinde yeniden adlandırabiliriz
-        konus: "konusmaYap"
+        // we can rename the method "speak" taken from
+        // the trait named "Speakable" as "talk"
+        // -----------------
+        // "Speakable" isimli trait üzerinden alınan "speak" isimli
+        // metodu "talk" adıyla yeniden isimlendirebiliriz
+        speak: "talk"
     },
     
-    construct: function( isim )
+    construct: function( name )
     {
+        // first, let's run animal's constructor
         // önce Hayvan türünün kurucusu çalıştırılsın
         this.super( "construct" );
-        
+
+        // now, we can initialize the Human
         // artık Insan türünün kurulumsal işlemlerini yapabiliriz
-        console.log( "Ve adım da " + isim );
+        console.log( "And my name is " + name );
         
+        // it should breath immediately otherwise it may die just now
         // hemen nefes almaya başlasın yoksa ölür :|
         this.nefesAl();
+        // it should speak just now or it may still die
         // hemen konuşmaya başlasın yoksa yine ölür keh keh :P
-        this.konusmaYap( "bunlar ilk sözlerim" );
+        this.konusmaYap( "Those are my first words." );
     }
     
-    yasa: function()
+    live: function()
     {
+        // this method has been inherited from the "creature" type up to this point, but
+        // we have defined the "live" method here again, so we rejected the inheritance, but
+        // I want to add something on developing this heritage, not to refuse it.
+        // ------------------
         // Bu metot taa canlı türünden bu noktaya kadar miras yoluyla geldi
         // ancak biz burada tekrar metodu tanımladık dolayısıyla mirası reddettik
         // ama reddetmek değil, bu mirası geliştirmek üzerine bir şeyler katmak istiyorum
-        this.super( "yasa" );
+        this.super( "live" );
         
+        // now we can improve our heritage.
         // şimdi genişleme işlemlerini yapabilirim
-        console.log( "İnsan gibi yaşıyorum!" );
+        console.log( "I live like a human!" );
     }
 });
 ```
 
-`super` metodu miras alınan türe erişimi sağlar.
+**The `super` method provides access to the inherited type.**
 
-#### Ebeveynin belli bir metodunu call etmek
+_`super` metodu miras alınan türe erişimi sağlar._
+
+##### Calling a particular method of the parent (Ebeveynin bir metodunu çalıştırmak)
 super(String, [...Array])
 
-#### Ebeveynin construct metodunu call etmek
+##### Calling the construct method of the parent (Ebeveynin construct metodunu çalıştırmak)
 super(...Params)
 
-#### Ebeneynin bağlamına erişmek
+##### Accessing the parent context (Ebeveyn bağlamına erişmek)
 super()
 
-## Türü örnekleyelim
+### Let's create instances from types (Türü örnekleyelim)
 ```javascript
-var ismail = Insan.new();
+var ismail = Human.new();
 
-    ismail.yasa();
-    ismail.konusmaYap( "merhaba dünya" );
+    ismail.live();
+    ismail.talk( "Hello world!" );
 ```
 
-## Tür sınama
+### Testing "Is A" relations (Tür sınama)
 ```javascript
+// please remember that the "ismail" object does not directly extends
+// the "Creature" type. It extends the "Animal" intermediate type.
+// --------------
 // ismail'in Canli türünü direkt extends etmediğini
 // hatırlayın Hayvan ara türünü extends etmiştik
-ismail.is( Canli );
+ismail.is( Creature );
 // true
 
-ismail.behave( NefesAlma );
+ismail.behave( Breathable );
 // true
 ```
 
-## Singleton örnekleme
+### Creating singleton object from types (Singleton örnekleme)
 ```javascript
 // ## app.js
-var insanoglu = Insan.singleton();
-    insanoglu.isim = "hıdır";
+var somebody = Human.singleton();
+    somebody.firstName = "Donald";
 
-// ## aynı runtime
+// ## same runtime (aynı runtime)
 // ## islem.js
-Insan.singleton().isim;
-// hıdır
+Human.singleton().firstName;
+// Donald
 ```
-## Instance üzerinden türsel meta bilgilere erişmek
+### Accessing type related meta datas from instances (Instance üzerinden türsel meta bilgilere erişmek)
 ```javascript
-var hidir = Insan.new();
+var janedoe = Human.new();
 
-    hidir.type.name;
-    // Insan
+    janedoe.type.name;
+    // Human
     
-    hidir.type.behaviours;
-    // [ "NefesAlma", "Konusma" ]
+    janedoe.type.behaviours;
+    // [ "Breathable", "Speakable" ]
     
-    hidir.type.types;
-    // [ "Insan", "Hayvan", "Canlı" ]
+    janedoe.type.types;
+    // [ "Human", "Animal", "Creature" ]
 ```
