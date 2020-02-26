@@ -25,7 +25,7 @@ var Breathable = Trait( "Breathable" ).prototype(
 _Davranışlar, onu kullanan türlerin prototype alanına eklenirler. Dolayısıyla etki alanı
 (this sözcüğü) ait oldukları türdür._
 
-### Implementin Types (Tür oluşturma)
+### Implementing Types (Tür oluşturma)
 ```javascript
 var Creature = Type( "Creature" ).use( Breathing ).prototype(
 {
