@@ -9,7 +9,7 @@ türler tarafından miras alınabilir. Tanımlanan davranışlar da türler tara
 _Bu kütüphane özünde prototype mekanizmasını kullanır._
 
 ## Usage (Örnek Kullanım)
-### Let's create some traits specific to living things (Canlılara özgü bazı davranışlar oluşturalım)
+### Let's create a trait specific to living things (Canlılara özgü bazı davranışlar oluşturalım)
 ```javascript
 var Breathable = Trait( "Breathable" ).prototype(
 {
@@ -20,7 +20,7 @@ var Breathable = Trait( "Breathable" ).prototype(
 });
 ```
 **Traits are added to the prototype area of the types that use it. Therefore, the instance scope
-(this word) refers to the type to which they belong**
+(this word) refers to the type to which they belong.**
 
 _Davranışlar, onu kullanan türlerin prototype alanına eklenirler. Dolayısıyla etki alanı
 (this sözcüğü) ait oldukları türdür._
@@ -180,6 +180,8 @@ var somebody = Human.singleton( "Donald" );
 // ## same runtime (aynı runtime)
 // ## islem.js
 Human.singleton().lastName;
+// -- or - veya --
+Human.instance.lastName;
 // Trump
 ```
 ### Accessing type related meta datas from instances (Instance üzerinden türsel meta bilgilere erişmek)
