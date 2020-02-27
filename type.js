@@ -125,14 +125,13 @@ var Type = function( name )
 	 */
 	this.renameTraitMethods = function()
 	{
+		var AS;
 		var proto = this.constructor.prototype;
 
-		// kurucu prototype'ında use isimli bir property yoksa işlem yok
-		if( ! proto.hasOwnProperty( "AS" ))
+		// kurucu prototype'ında AS isimli bir property yoksa işlem yok
+		if( ! AS = proto.AS )
 
 			return;
-
-		var AS = proto.AS;
 
 		for( var oldMethodName in AS )
 		{
@@ -140,6 +139,8 @@ var Type = function( name )
 			delete proto[ oldMethodName ];
 		}
 
+		// rename işlemleri bitti map eden
+		// nesnenin orada olmasına gerek yok artık
 		delete proto.AS;
 	}
 
