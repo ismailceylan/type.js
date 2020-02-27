@@ -129,7 +129,7 @@ var Type = function( name )
 		var proto = this.constructor.prototype;
 
 		// kurucu prototype'ında AS isimli bir property yoksa işlem yok
-		if( ! AS = proto.AS )
+		if( ! ( AS = proto.AS ))
 
 			return;
 
