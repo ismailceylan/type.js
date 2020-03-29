@@ -286,6 +286,8 @@ var Type = function( name )
 		if( this.type && this.type instanceof Type )
 			
 			return this.type.types.indexOf( target ) > -1;
+		
+		return false;
 	}
 
 	/**
@@ -307,6 +309,8 @@ var Type = function( name )
 		if( this.type && this.type instanceof Type )
 			
 			return this.type.behaviours.indexOf( trait ) > -1;
+		
+		return false;
 	}
 
 	/**
