@@ -28,7 +28,7 @@ _Davranışlar, onu kullanan türlerin prototype alanına eklenirler. Dolayısı
 
 ### Implementing Types (Tür oluşturma)
 ```javascript
-var Creature = Type( "Creature" ).use( Breathing ).prototype(
+var Creature = Type( "Creature" ).use( Breathable ).prototype(
 {
     construct: function()
     {
