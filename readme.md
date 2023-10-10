@@ -3,7 +3,7 @@ by other types. Defined traits can also be use by other traits (traits are exten
 
 This library adopted the single level prototype mechanism.
 
-## Usage (Örnek Kullanım)
+## Usage
 ### Let's create a trait specific to living things
 ```javascript
 var Breathable = Trait( "Breathable" ).prototype(
