@@ -5,13 +5,15 @@
 var Type = function( name )
 {
 	if( ! ( this instanceof Type ))
-
+	{
 		return new Type( name );
-
+	}
+	
 	if( ! typeof( name ) == "string" || ! /^[a-z_$]{1}[a-z0-9_$]*$/i.test( name ))
-
+	{
 		throw TypeError( "To define a type, the first argument should take a valid native function name." );
-
+	}
+	
 	/**
 	 * Türün adı.
 	 * @type {String}
@@ -97,9 +99,10 @@ var Type = function( name )
 		this.extendPrototype( context );
 
 		if( this.parent )
-		
+		{
 			this.inherit( this.parent.constructor.prototype );
-
+		}
+		
 		this.renameTraitMethods();
 		this.upgradePrototype();
 
@@ -130,9 +133,10 @@ var Type = function( name )
 
 		// kurucu prototype'ında AS isimli bir property yoksa işlem yok
 		if( ! ( AS = proto.AS ))
-
+		{
 			return;
-
+		}
+		
 		for( var oldMethodName in AS )
 		{
 			proto[ AS[ oldMethodName ]] = proto[ oldMethodName ];
@@ -190,9 +194,10 @@ var Type = function( name )
 		for( var prop in context )
 		{
 			if( prop in target )
-
+			{
 				continue;
-
+			}
+			
 			target[ prop ] = context[ prop ];
 		}
 	}
@@ -210,8 +215,9 @@ var Type = function( name )
 			var initializer;
 
 			if( initializer = instance[ "construct" + behaviour + "Trait" ])
-			
+			{
 				initializer.call( instance );
+			}
 		});
 	}
 
@@ -227,8 +233,13 @@ var Type = function( name )
 	 */
 	this.igniteConstructMethod = function( instance, initialArgs )
 	{
-		instance.construct instanceof Function &&
-			instance.construct.apply( instance, Array.prototype.slice.call( initialArgs ));
+		if( instance.construct instanceof Function )
+		{
+			instance.construct.apply(
+				instance,
+				Array.prototype.slice.call( initialArgs )
+			);
+		}
 	}
 
 	/**
@@ -276,16 +287,19 @@ var Type = function( name )
 	this.is = function( target )
 	{
 		if( target instanceof Type )
-
+		{
 			target = target.name;
-
+		}
+		
 		if( this instanceof Type )
-
+		{
 			return this.types.indexOf( target ) > -1;
+		}
 		
 		if( this.type && this.type instanceof Type )
-			
+		{	
 			return this.type.types.indexOf( target ) > -1;
+		}
 		
 		return false;
 	}
@@ -299,16 +313,19 @@ var Type = function( name )
 	this.behave = function( trait )
 	{
 		if( trait instanceof Trait )
-
+		{
 			trait = trait.name;
-
+		}
+		
 		if( this instanceof Type )
-
+		{
 			return this.behaviours.indexOf( trait ) > -1;
+		}
 		
 		if( this.type && this.type instanceof Type )
-			
+		{	
 			return this.type.behaviours.indexOf( trait ) > -1;
+		}
 		
 		return false;
 	}
@@ -334,23 +351,26 @@ var Type = function( name )
 			: this.type.parent;
 
 		if( ! context )
-
+		{
 			return;
-
+		}
+		
 		context = context.constructor.prototype;
 
 		// parent bağlamına erişim
 		if( arguments.length == 0 )
-
+		{
 			return context;
-
+		}
+		
 		// varsayacağımız metot adı construct olacak
 		var method = "construct";
 		// parametrelere dizi olarak ihtiyacımız var
 		var arg = Array.prototype.slice.call( arguments );
 
 		// adı verilmiş bir metot call edilecek
-		if( arg.length == 2 &&
+		if(
+			arg.length == 2 &&
 			typeof( arg[ 0 ]) == "string" &&
 			Object.prototype.toString.call( arg[ 1 ]) == "[object Array]"
 		)
@@ -360,9 +380,10 @@ var Type = function( name )
 			arg = arg.shift();
 		}
 		else if( arg.length == 1 && typeof( arg[ 0 ]) == "string" )
-
+		{
 			method = arg.shift();
-
+		}
+		
 		// metot adı ve parametreler elimizde, call edelim
 		return context[ method ].apply( this, arg );
 	}
@@ -375,13 +396,15 @@ var Type = function( name )
 var Trait = function( name )
 {
 	if( ! ( this instanceof Trait ))
-
+	{
 		return new Trait( name );
-
+	}
+	
 	if( ! typeof( name ) == "string" || ! /^[a-z_$]{1}[a-z0-9_$]*$/i.test( name ))
-
+	{
 		throw TypeError( "İlk argüman geçerli bir davranışsal isim olmalıdır!" );
-
+	}
+	
 	/**
 	 * Trait'in adı.
 	 * @type {String}
