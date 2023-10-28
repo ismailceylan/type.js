@@ -1,2 +1,2 @@
-export { default as type } from "./type.js";
-export { default as trait } from "./trait.js";
+export { default as Type } from "./type.js";
+export { default as Trait } from "./trait.js";

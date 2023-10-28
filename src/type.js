@@ -1,13 +1,15 @@
+import { args } from "./utils/index.js";
+
 /**
  * Creates types.
  * 
  * @param {String} name type name
  */
-export default function type( name )
+export default function Type( name )
 {
-	if( ! ( this instanceof type ))
+	if( ! ( this instanceof Type ))
 	{
-		return new type( name );
+		return new Type( name );
 	}
 	
 	if( typeof( name ) !== "string" || /^[a-z_$]{1}[a-z0-9_$]*$/i.test( name ) === false )
@@ -65,12 +67,12 @@ export default function type( name )
 	 * this type, that is, the copied props appear as if they were props of
 	 * this type.
 	 * 
-	 * @param {Trait} ...parents traits list
-	 * @return {this}
+	 * @param {Array} ...parents traits to use
+	 * @return {Type}
 	 */
 	this.use = function( parents )
 	{
-		Array.prototype.slice.call( arguments ).forEach( function( trait )
+		args( arguments ).forEach( function( trait )
 		{
 			renameTraitConstructMethod( trait );
 			extendPrototype( trait.properties );
@@ -151,7 +153,7 @@ export default function type( name )
 	this.singleton = function()
 	{
 		return this.instance ||
-			( this.instance = this.new.apply( this, Array.prototype.slice.call( arguments )));
+			( this.instance = this.new.apply( this, args( arguments )));
 	}
 
 	/**
@@ -211,7 +213,7 @@ export default function type( name )
 	 */
 	this.super = function()
 	{
-		var context = this instanceof type
+		var context = this instanceof Type
 			? this.parent
 			: this.type.parent;
 
@@ -228,7 +230,7 @@ export default function type( name )
 		}
 		
 		var method = "construct";
-		var arg = Array.prototype.slice.call( arguments );
+		var arg = args( arguments );
 
 		if(
 			arg.length == 2 &&
