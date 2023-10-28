@@ -19,6 +19,12 @@ export default function Type( name )
 			"string in the first parameter, which can also be a function name!"
 		);
 	}
+
+	/**
+	 * Singleton instance of the type.
+	 * @type {Object}
+	 */
+	var singletones = {}
 	
 	/**
 	 * Type name.
@@ -47,12 +53,6 @@ export default function Type( name )
 	 * @type {Type}
 	 */
 	this.parent = null;
-
-	/**
-	 * Singleton instance of the type.
-	 * @type {Object}
-	 */
-	this.singletones = {}
 
 	/**
 	 * Constructor method to represent the type natively.
