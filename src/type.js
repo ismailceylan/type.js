@@ -72,8 +72,8 @@ export default function type( name )
 	{
 		Array.prototype.slice.call( arguments ).forEach( function( trait )
 		{
-			this.renameTraitConstructMethod( trait );
-			this.extendPrototype( trait.properties );
+			renameTraitConstructMethod( trait );
+			extendPrototype( trait.properties );
 
 			this.behaviours = this.behaviours.concat( trait.types );
 		},
@@ -82,7 +82,7 @@ export default function type( name )
 		return this;
 	}
 
-	this.renameTraitConstructMethod = function( trait )
+	function renameTraitConstructMethod( trait )
 	{
 		if( trait.properties.construct )
 		{
@@ -91,34 +91,13 @@ export default function type( name )
 		}
 	}
 
-	/**
-	 * Embeds a new context into the type's prototype.
-	 * 
-	 * @param {Object} context
-	 * @return {this}
-	 */
-	this.prototype = function( context )
-	{
-		this.extendPrototype( context );
-
-		if( this.parent )
-		{
-			this.inherit( this.parent.constructor.prototype );
-		}
-		
-		this.renameTraitMethods();
-		this.upgradePrototype();
-
-		return this;
-	}
-
-	this.extendPrototype = function( context )
+	function extendPrototype( context )
 	{
 		Object.assign( this.constructor.prototype, context );
 		return this;
 	}
 
-	this.renameTraitMethods = function()
+	function renameTraitMethods()
 	{
 		var AS;
 		var proto = this.constructor.prototype;
@@ -135,6 +114,73 @@ export default function type( name )
 		}
 
 		delete proto.AS;
+	}
+
+	function inherit( context )
+	{
+		var target = this.constructor.prototype;
+
+		for( var prop in context )
+		{
+			if( prop in target )
+			{
+				continue;
+			}
+			
+			target[ prop ] = context[ prop ];
+		}
+	}
+
+	function callTraitInitializers( instance )
+	{
+		instance.type.behaviours.forEach( behaviour =>
+		{
+			var initializer;
+
+			if( initializer = instance[ "construct" + behaviour + "Trait" ])
+			{
+				initializer.call( instance );
+			}
+		});
+	}
+
+	function igniteConstructMethod( instance, initialArgs )
+	{
+		if( instance.construct instanceof Function )
+		{
+			instance.construct.apply(
+				instance,
+				Array.prototype.slice.call( initialArgs )
+			);
+		}
+	}
+
+	/**
+	 * Embeds a new context into the type's prototype.
+	 * 
+	 * @param {Object} context
+	 * @return {this}
+	 */
+	this.prototype = function( context )
+	{
+		extendPrototype( context );
+
+		if( this.parent )
+		{
+			inherit( this.parent.constructor.prototype );
+		}
+		
+		renameTraitMethods();
+
+		extendPrototype(
+		{
+			type: this,
+			is: this.is,
+			behave: this.behave,
+			super: this.super
+		});
+
+		return this;
 	}
 
 	/**
@@ -161,49 +207,10 @@ export default function type( name )
 	{
 		var instance = new this.constructor;
 
-		this.callTraitInitializers( instance );
-		this.igniteConstructMethod( instance, arguments );
+		callTraitInitializers( instance );
+		igniteConstructMethod( instance, arguments );
 		
 		return instance;
-	}
-
-	this.inherit = function( context )
-	{
-		var target = this.constructor.prototype;
-
-		for( var prop in context )
-		{
-			if( prop in target )
-			{
-				continue;
-			}
-			
-			target[ prop ] = context[ prop ];
-		}
-	}
-
-	this.callTraitInitializers = function( instance )
-	{
-		instance.type.behaviours.forEach( behaviour =>
-		{
-			var initializer;
-
-			if( initializer = instance[ "construct" + behaviour + "Trait" ])
-			{
-				initializer.call( instance );
-			}
-		});
-	}
-
-	this.igniteConstructMethod = function( instance, initialArgs )
-	{
-		if( instance.construct instanceof Function )
-		{
-			instance.construct.apply(
-				instance,
-				Array.prototype.slice.call( initialArgs )
-			);
-		}
 	}
 
 	/**
@@ -218,17 +225,6 @@ export default function type( name )
 	{
 		return this.instance ||
 			( this.instance = this.new.apply( this, Array.prototype.slice.call( arguments )));
-	}
-
-	this.upgradePrototype = function()
-	{
-		this.extendPrototype(
-		{
-			type: this,
-			is: this.is,
-			behave: this.behave,
-			super: this.super
-		});
 	}
 
 	/**
