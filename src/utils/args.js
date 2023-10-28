@@ -1,4 +1,8 @@
+import { tag } from "./index.js";
+
 export default function args( argsObject )
 {
-	return Array.prototype.slice.call( argsObject );
+	return tag( argsObject ) == "[object Array]"
+		? argsObject
+		: Array.prototype.slice.call( argsObject );
 }
