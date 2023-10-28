@@ -210,7 +210,7 @@ var Type = function( name )
 	 */
 	this.callTraitInitializers = function( instance )
 	{
-		instance.type.behaviours.forEach( function( behaviour )
+		instance.type.behaviours.forEach( behaviour =>
 		{
 			var initializer;
 
@@ -432,12 +432,13 @@ var Trait = function( name )
 	 */
 	this.use = function( parents )
 	{
-		Array.prototype.slice.call( arguments ).forEach( function( parent )
-		{
-			Object.assign( this.properties, parent.properties );
-			this.types = this.types.concat( parent.types );
-		},
-		this );
+		Array.prototype.slice
+			.call( arguments )
+			.forEach( parent =>
+			{
+				Object.assign( this.properties, parent.properties );
+				this.types = this.types.concat( parent.types );
+			});
 
 		return this;
 	}
