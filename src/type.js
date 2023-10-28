@@ -82,79 +82,6 @@ export default function type( name )
 		return this;
 	}
 
-	function renameTraitConstructMethod( trait )
-	{
-		if( trait.properties.construct )
-		{
-			trait.properties[ "construct" + trait.name + "Trait" ] = trait.properties.construct;
-			delete trait.properties.construct;
-		}
-	}
-
-	function extendPrototype( context )
-	{
-		Object.assign( this.constructor.prototype, context );
-		return this;
-	}
-
-	function renameTraitMethods()
-	{
-		var AS;
-		var proto = this.constructor.prototype;
-
-		if( ! ( AS = proto.AS ))
-		{
-			return;
-		}
-		
-		for( var oldMethodName in AS )
-		{
-			proto[ AS[ oldMethodName ]] = proto[ oldMethodName ];
-			delete proto[ oldMethodName ];
-		}
-
-		delete proto.AS;
-	}
-
-	function inherit( context )
-	{
-		var target = this.constructor.prototype;
-
-		for( var prop in context )
-		{
-			if( prop in target )
-			{
-				continue;
-			}
-			
-			target[ prop ] = context[ prop ];
-		}
-	}
-
-	function callTraitInitializers( instance )
-	{
-		instance.type.behaviours.forEach( behaviour =>
-		{
-			var initializer;
-
-			if( initializer = instance[ "construct" + behaviour + "Trait" ])
-			{
-				initializer.call( instance );
-			}
-		});
-	}
-
-	function igniteConstructMethod( instance, initialArgs )
-	{
-		if( instance.construct instanceof Function )
-		{
-			instance.construct.apply(
-				instance,
-				Array.prototype.slice.call( initialArgs )
-			);
-		}
-	}
-
 	/**
 	 * Embeds a new context into the type's prototype.
 	 * 
@@ -318,5 +245,78 @@ export default function type( name )
 		}
 		
 		return context[ method ].apply( this, arg );
+	}
+	
+	function renameTraitConstructMethod( trait )
+	{
+		if( trait.properties.construct )
+		{
+			trait.properties[ "construct" + trait.name + "Trait" ] = trait.properties.construct;
+			delete trait.properties.construct;
+		}
+	}
+
+	function extendPrototype( context )
+	{
+		Object.assign( this.constructor.prototype, context );
+		return this;
+	}
+
+	function renameTraitMethods()
+	{
+		var AS;
+		var proto = this.constructor.prototype;
+
+		if( ! ( AS = proto.AS ))
+		{
+			return;
+		}
+		
+		for( var oldMethodName in AS )
+		{
+			proto[ AS[ oldMethodName ]] = proto[ oldMethodName ];
+			delete proto[ oldMethodName ];
+		}
+
+		delete proto.AS;
+	}
+
+	function inherit( context )
+	{
+		var target = this.constructor.prototype;
+
+		for( var prop in context )
+		{
+			if( prop in target )
+			{
+				continue;
+			}
+			
+			target[ prop ] = context[ prop ];
+		}
+	}
+
+	function callTraitInitializers( instance )
+	{
+		instance.type.behaviours.forEach( behaviour =>
+		{
+			var initializer;
+
+			if( initializer = instance[ "construct" + behaviour + "Trait" ])
+			{
+				initializer.call( instance );
+			}
+		});
+	}
+
+	function igniteConstructMethod( instance, initialArgs )
+	{
+		if( instance.construct instanceof Function )
+		{
+			instance.construct.apply(
+				instance,
+				Array.prototype.slice.call( initialArgs )
+			);
+		}
 	}
 }
