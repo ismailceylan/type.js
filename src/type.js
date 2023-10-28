@@ -52,7 +52,7 @@ export default function Type( name )
 	 * Singleton instance of the type.
 	 * @type {Object}
 	 */
-	this.instance = {}
+	this.singletones = {}
 
 	/**
 	 * Constructor method to represent the type natively.
@@ -154,8 +154,8 @@ export default function Type( name )
 	 */
 	this.singleton = function( key, args )
 	{
-		return this.instance[ key ] ||
-			( this.instance[ key ] = this.new.apply( this, args ));
+		return this.singletones[ key ] ||
+			( this.singletones[ key ] = this.new.apply( this, args ));
 	}
 
 	/**
