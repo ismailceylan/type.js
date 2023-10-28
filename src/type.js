@@ -148,13 +148,14 @@ export default function Type( name )
 	 * is that it always returns the same instance instead of producing a
 	 * new instance every time it is run.
 	 * 
-	 * @param {String|Number|Symbol}
+	 * @param {String|Number|Symbol} key instance key to access it later
+	 * @param {Array} args arguments to pass when instantiating the type
 	 * @return {Object}
 	 */
-	this.singleton = function( key )
+	this.singleton = function( key, args )
 	{
 		return this.instance[ key ] ||
-			( this.instance[ key ] = this.new.apply( this, args( arguments )));
+			( this.instance[ key ] = this.new.apply( this, args ));
 	}
 
 	/**

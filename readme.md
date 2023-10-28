@@ -144,14 +144,14 @@ ismail.behave( Breathable );
 ### Creating singleton object from types
 ```javascript
 // ## app.js
-var somebody = Human.singleton( "Donald" );
+var somebody = Human.singleton( "mykey", [ "Donald" ]);
     somebody.lastName = "Trump";
 
 // ## same runtime
 // ## islem.js
-Human.singleton().lastName;
-// -- or - veya --
-Human.instance.lastName;
+Human.singleton( "mykey" ).lastName;
+// -- or --
+Human.instance.mykey.lastName;
 // Trump
 ```
 ### Accessing type related meta datas from instances
