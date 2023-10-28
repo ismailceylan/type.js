@@ -9,9 +9,9 @@ export default function trait( name )
 		return new trait( name );
 	}
 
-	if( ! typeof( name ) == "string" || ! /^[a-z_$]{1}[a-z0-9_$]*$/i.test( name ))
+	if( typeof( name ) !== "string" || /^[a-z_$]{1}[a-z0-9_$]*$/i.test( name ) === false )
 	{
-		throw TypeError( "İlk argüman geçerli bir davranışsal isim olmalıdır!" );
+		throw TypeError( "The first argument must be a valid trait name." );
 	}
 
 	/**

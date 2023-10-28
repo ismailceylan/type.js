@@ -9,9 +9,12 @@ export default function type( name )
 		return new type( name );
 	}
 	
-	if( ! typeof( name ) == "string" || ! /^[a-z_$]{1}[a-z0-9_$]*$/i.test( name ))
+	if( typeof( name ) !== "string" || /^[a-z_$]{1}[a-z0-9_$]*$/i.test( name ) === false )
 	{
-		throw TypeError( "To define a type, the first argument should take a valid native function name." );
+		throw TypeError(
+			"In order to create a type, you need to provide a valid value as a " + 
+			"string in the first parameter, which can also be a function name!"
+		);
 	}
 	
 	/**
