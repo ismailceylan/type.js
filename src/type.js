@@ -155,8 +155,8 @@ export default function Type( name )
 	 */
 	this.singleton = function( key, args )
 	{
-		return this.singletones[ key ] ||
-			( this.singletones[ key ] = this.new.apply( this, args ));
+		return singletones[ key ] ||
+			( singletones[ key ] = this.new.apply( this, args ));
 	}
 
 	/**
