@@ -1,3 +1,5 @@
+import { args } from "./utils/index.js";
+
 /**
  * Creates traits.
  * 
@@ -42,15 +44,13 @@ export default function trait( name )
 	 * @param {Trait} ...parents traits to use
 	 * @return {this}
 	 */
-	this.use = function( parents )
+	this.use = function()
 	{
-		Array.prototype.slice
-			.call( arguments )
-			.forEach( parent =>
-			{
-				Object.assign( this.properties, parent.properties );
-				this.types = this.types.concat( parent.types );
-			});
+		args( arguments ).forEach( parent =>
+		{
+			Object.assign( this.properties, parent.properties );
+			this.types = this.types.concat( parent.types );
+		});
 
 		return this;
 	}
