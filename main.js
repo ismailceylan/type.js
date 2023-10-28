@@ -1,5 +1,5 @@
-import { type } from "./src/index.js";
+import { Type } from "./src/index.js";
 
-const foo = type( "haha")
+const foo = Type( "haha")
 
 console.log(foo);
