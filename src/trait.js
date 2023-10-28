@@ -1,6 +1,7 @@
 /**
- * Trait oluşturur.
- * @param {String} name trait adı
+ * Creates traits.
+ * 
+ * @param {String} name trait name
  */
 export default function trait( name )
 {
@@ -15,28 +16,30 @@ export default function trait( name )
 	}
 
 	/**
-	 * Trait'in adı.
+	 * Trait name.
+	 * 
 	 * @type {String}
 	 */
 	this.name = name[ 0 ].toUpperCase() + name.slice( 1 );
 
 	/**
-	 * Bu trait'in kendi trait'i de dahil sahip olduğu trait'leri tutar.
+	 * It keeps the traits list that this trait has, including itself.
+	 * 
 	 * @type {Array}
 	 */
 	this.types = [ this.name ];
 
 	/**
-	 * Trait'in kendininki ve miras aldığı trait'lerdeki metot ve özellikler.
+	 * Methods and properties in the trait's own and inherited traits.
 	 * @type {Object}
 	 */
 	this.properties = {}
 
 	/**
-	 * Verilen üstel trait'(ler)in özelliklerini bu trait'in özellikleri arasına
-	 * kopyalar, miras alır.
+	 * It copies the properties of the given parent trait(s) into
+	 * the properties of this trait. Inherits it.
 	 * 
-	 * @param {Trait} ...parents özellikleri miras alınacak ebeveyn trait(ler)
+	 * @param {Trait} ...parents traits to use
 	 * @return {this}
 	 */
 	this.use = function( parents )
@@ -53,9 +56,10 @@ export default function trait( name )
 	}
 
 	/**
-	 * Verilen nesnedeki özellikleri trait'in prototype yığınına ekler.
+	 * Adds properties from the given object to the trait's
+	 * prototype stack.
 	 * 
-	 * @param {Object} context trait'in metot ve özelliklerini içeren bir nesne
+	 * @param {Object} context an object containing methods and properties
 	 * @return {this}
 	 */
 	this.prototype = function( context )
@@ -65,9 +69,9 @@ export default function trait( name )
 	}
 
 	/**
-	 * Temsil edilen trait'in verilen türü miras alıp almadığını söyler.
+	 * Tells whether the represented type inherits a given type.
 	 * 
-	 * @param {Trait} target sınanacak bir trait
+	 * @param {Trait} target a trait name or a trait to check
 	 * @return {Boolean}
 	 */
 	this.is = function( target )

@@ -1,6 +1,7 @@
 /**
- * Tür oluşturur.
- * @param {String} name tür adı
+ * Creates types.
+ * 
+ * @param {String} name type name
  */
 export default function type( name )
 {
@@ -18,47 +19,53 @@ export default function type( name )
 	}
 	
 	/**
-	 * Türün adı.
+	 * Type name.
+	 * 
 	 * @type {String}
 	 */
 	this.name = name[ 0 ].toUpperCase() + name.slice( 1 );
 
 	/**
-	 * Bu türün kendi türü de dahil sahip olduğu türleri tutar.
+	 * List of inherited type names.
+	 * 
 	 * @type {Array}
 	 */
 	this.types = [ this.name ];
 
 	/**
-	 * Bu türün miras aldığı trait isimlerini tutar.
+	 * List of inherited trait names.
+	 * 
 	 * @type {Array}
 	 */
 	this.behaviours = [];
 
 	/**
-	 * Bu türün miras aldığı ebeveyn tür.
+	 * The parent type from which this type inherited.
+	 * 
 	 * @type {Type}
 	 */
 	this.parent = null;
 
 	/**
-	 * Bu türden singleton yoluyla üretilen ilk instance.
+	 * Singleton instance of the type.
 	 * @type {Object}
 	 */
 	this.instance = null;
 
 	/**
-	 * Türü native olarak temsil edecek kurucu metot.
+	 * Constructor method to represent the type natively.
+	 * 
 	 * @type {Function}
 	 */
 	this.constructor = eval( "( function " + this.name + "(){})" );
 
 	/**
-	 * Verilen trait'(ler)in özelliklerini bu türün özellikleri arasına
-	 * kopyalar. Özellikler bu türün kurucusunun prototype'ına kopyalanır
-	 * yani kopyalanan özellikler sanki bu türün birer özelliğiymiş gibi görünür.
+	 * Copies the properties of the given trait(s) into the properties
+	 * of this type. Props are copied to the prototype of the constructor of
+	 * this type, that is, the copied props appear as if they were props of
+	 * this type.
 	 * 
-	 * @param {Trait} ...parents özellikleri miras alınacak trait(ler)
+	 * @param {Trait} ...parents traits list
 	 * @return {this}
 	 */
 	this.use = function( parents )
@@ -75,13 +82,6 @@ export default function type( name )
 		return this;
 	}
 
-	/**
-	 * Verilen trait'in özellikleri arasındaki construct metodunu benzersiz
-	 * bir isimle değiştirir. Böylece türlere ait construct metotları ile
-	 * çakışmaların önüne geçilir.
-	 * 
-	 * @param {Trait} trait bir trait
-	 */
 	this.renameTraitConstructMethod = function( trait )
 	{
 		if( trait.properties.construct )
@@ -92,9 +92,9 @@ export default function type( name )
 	}
 
 	/**
-	 * Tür prototype'ını oluşturur.
+	 * Embeds a new context into the type's prototype.
 	 * 
-	 * @param {Object} context türün metot ve özelliklerini içeren bir nesne
+	 * @param {Object} context
 	 * @return {this}
 	 */
 	this.prototype = function( context )
@@ -112,29 +112,17 @@ export default function type( name )
 		return this;
 	}
 
-	/**
-	 * Verilen nesnedeki özellikleri türün prototype yığınına ekler.
-	 * 
-	 * @param {Object} context metot ve özellikler içeren bir nesne
-	 * @return {this}
-	 */
 	this.extendPrototype = function( context )
 	{
 		Object.assign( this.constructor.prototype, context );
 		return this;
 	}
 
-	/**
-	 * Temsil edilen türün miras aldığı trait'lerde bulunan metotlar,
-	 * tür prototype'ı tanımlanırken yeniden isimlendirilmiş olabilir.
-	 * Bunları uygular.
-	 */
 	this.renameTraitMethods = function()
 	{
 		var AS;
 		var proto = this.constructor.prototype;
 
-		// kurucu prototype'ında AS isimli bir property yoksa işlem yok
 		if( ! ( AS = proto.AS ))
 		{
 			return;
@@ -146,16 +134,13 @@ export default function type( name )
 			delete proto[ oldMethodName ];
 		}
 
-		// rename işlemleri bitti map eden
-		// nesnenin orada olmasına gerek yok artık
 		delete proto.AS;
 	}
 
 	/**
-	 * Verilen üstel türün özelliklerini bu türün özellikleri arasına
-	 * kopyalar, miras alır.
+	 * Allows the represented type to inherit another type.
 	 * 
-	 * @param {Type} parent özellikleri miras alınacak ebeveyn tür
+	 * @param {Type} parent a type to inherit
 	 * @return {this}
 	 */
 	this.extends = function( parent )
@@ -168,8 +153,7 @@ export default function type( name )
 	}
 
 	/**
-	 * Temsil edilen türün kurucu metodunu verilen parametrelerle
-	 * örnekleyip döndürür.
+	 * Creates and returns an object from the type.
 	 * 
 	 * @return {Object}
 	 */
@@ -183,13 +167,6 @@ export default function type( name )
 		return instance;
 	}
 
-	/**
-	 * Verilen nesne içindeki property'ler bu türün
-	 * prototype'ında yoksa buraya yerleştirilir. Tür
-	 * o property'e sahipse bunu kullanmaya devam eder.
-	 * 
-	 * @param {Object} context miras alınacakları içeren bir nesne
-	 */
 	this.inherit = function( context )
 	{
 		var target = this.constructor.prototype;
@@ -205,12 +182,6 @@ export default function type( name )
 		}
 	}
 
-	/**
-	 * Verilen nesnenin miras aldığı davranışların kendi iç işlerini
-	 * ilgilendiren kurucu metotları varsa bunları çalıştırır.
-	 * 
-	 * @param {Object} instance bir tür
-	 */
 	this.callTraitInitializers = function( instance )
 	{
 		instance.type.behaviours.forEach( behaviour =>
@@ -224,16 +195,6 @@ export default function type( name )
 		});
 	}
 
-	/**
-	 * Verilen nesne üzerinde construct adında bir metot varsa buna
-	 * verilen arguments nesnesindeki argümanları geçirerek çalıştırır.
-	 * Metot kendi etki alanında çalışır yani construct metodunun
-	 * içinde kullanlacak this sözcüğü o metodun içinde bulunduğu türe
-	 * refere eder.
-	 * 
-	 * @param {Object} instance bir nesne
-	 * @param {Arguments} initialArgs kurulum anındaki argüman listesi
-	 */
 	this.igniteConstructMethod = function( instance, initialArgs )
 	{
 		if( instance.construct instanceof Function )
@@ -246,9 +207,10 @@ export default function type( name )
 	}
 
 	/**
-	 * Temsil edilen türün kurucu metodunu verilen parametrelerle
-	 * örnekleyip döndürür. new metodundan farkı her çalıştırıldığında
-	 * yeni bir instance üretmek yerine hep aynı instance'ı döndürür.
+	 * Instantiates and returns the constructor method of the represented
+	 * type with the given parameters. Its difference from the new method
+	 * is that it always returns the same instance instead of producing a
+	 * new instance every time it is run.
 	 * 
 	 * @return {Object}
 	 */
@@ -258,33 +220,21 @@ export default function type( name )
 			( this.instance = this.new.apply( this, Array.prototype.slice.call( arguments )));
 	}
 
-	/**
-	 * Temsil edilen türün prototype'ına gerekli özellikleri yerleştirir.
-	 */
 	this.upgradePrototype = function()
 	{
 		this.extendPrototype(
 		{
-			// bu kurucuyu oluşturan tür arayüzüne
-			// instance'lar üzerinden ulaşabilelim
 			type: this,
-
-			// instance'lar üzerinde tür sınama metodu bulunsun
-			// bu metot instanceof işleyişinin yerini alacak
 			is: this.is,
-
-			// instance'lar üzerinde davranış sınama metodu bulunsun
 			behave: this.behave,
-
-			// super metodu bulunsun
 			super: this.super
 		});
 	}
 
 	/**
-	 * Temsil edilen türün verilen türü miras alıp almadığını söyler.
+	 * Tells whether the represented type inherits a given type.
 	 * 
-	 * @param {Type} target sınanacak bir tür veya tür adı
+	 * @param {Type} target a type name or a type to check
 	 * @return {Boolean}
 	 */
 	this.is = function( target )
@@ -308,9 +258,9 @@ export default function type( name )
 	}
 
 	/**
-	 * Temsil edilen türün verilen trait'i miras alıp almadığını söyler.
+	 * Tells whether the represented type inherits a given trait.
 	 * 
-	 * @param {Trait|String} target sınanacak bir trait veya trait adı
+	 * @param {Trait|String} target a trait name or trait's itself to check
 	 * @return {Boolean}
 	 */
 	this.behave = function( trait )
@@ -334,22 +284,11 @@ export default function type( name )
 	}
 
 	/**
-	 * Temsil edilen türün ebeveyn türüne erişimi sağlar.
-	 *
-	 * - Ebeveynin belli bir metodunu call etmek
-	 * (String, [...Array])
-	 *
-	 * - Ebeveynin construct metodunu call etmek
-	 * (...Params)
-	 *
-	 * - Ebeneynin bağlamına erişmek
-	 * ()
-	 * 
-	 * @return {mixed}
+	 * Allows accessing a method of an inherited parent type.
 	 */
 	this.super = function()
 	{
-		var context = this instanceof Type
+		var context = this instanceof type
 			? this.parent
 			: this.type.parent;
 
@@ -360,25 +299,20 @@ export default function type( name )
 		
 		context = context.constructor.prototype;
 
-		// parent bağlamına erişim
 		if( arguments.length == 0 )
 		{
 			return context;
 		}
 		
-		// varsayacağımız metot adı construct olacak
 		var method = "construct";
-		// parametrelere dizi olarak ihtiyacımız var
 		var arg = Array.prototype.slice.call( arguments );
 
-		// adı verilmiş bir metot call edilecek
 		if(
 			arg.length == 2 &&
 			typeof( arg[ 0 ]) == "string" &&
 			Object.prototype.toString.call( arg[ 1 ]) == "[object Array]"
 		)
 		{
-			// ilk parametre metot adı
 			method = arg.shift();
 			arg = arg.shift();
 		}
@@ -387,7 +321,6 @@ export default function type( name )
 			method = arg.shift();
 		}
 		
-		// metot adı ve parametreler elimizde, call edelim
 		return context[ method ].apply( this, arg );
 	}
 }
