@@ -1,3 +1,4 @@
+import { Trait } from "./index.js";
 import { args, tag } from "./utils/index.js";
 
 /**
@@ -75,7 +76,7 @@ export default function Type( name )
 		args( arguments ).forEach( function( trait )
 		{
 			renameTraitConstructMethod( trait );
-			extendPrototype( trait.properties );
+			extendPrototype.call( this, trait.properties );
 
 			this.behaviours = this.behaviours.concat( trait.types );
 		},
@@ -92,16 +93,16 @@ export default function Type( name )
 	 */
 	this.prototype = function( context )
 	{
-		extendPrototype( context );
+		extendPrototype.call( this, context );
 
 		if( this.parent )
 		{
-			inherit( this.parent.constructor.prototype );
+			inherit.call( this, this.parent.constructor.prototype );
 		}
 		
-		renameTraitMethods();
+		renameTraitMethods.call( this );
 
-		extendPrototype(
+		extendPrototype.call( this,
 		{
 			type: this,
 			is: this.is,
