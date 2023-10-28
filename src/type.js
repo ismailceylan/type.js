@@ -1,4 +1,4 @@
-import { args } from "./utils/index.js";
+import { args, tag } from "./utils/index.js";
 
 /**
  * Creates types.
@@ -235,7 +235,7 @@ export default function Type( name )
 		if(
 			arg.length == 2 &&
 			typeof( arg[ 0 ]) == "string" &&
-			Object.prototype.toString.call( arg[ 1 ]) == "[object Array]"
+			tag( arg[ 1 ]) == "[object Array]"
 		)
 		{
 			method = arg.shift();
