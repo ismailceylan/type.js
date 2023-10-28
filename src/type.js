@@ -52,7 +52,7 @@ export default function Type( name )
 	 * Singleton instance of the type.
 	 * @type {Object}
 	 */
-	this.instance = null;
+	this.instance = {}
 
 	/**
 	 * Constructor method to represent the type natively.
@@ -70,7 +70,7 @@ export default function Type( name )
 	 * @param {Array} ...parents traits to use
 	 * @return {Type}
 	 */
-	this.use = function( parents )
+	this.use = function()
 	{
 		args( arguments ).forEach( function( trait )
 		{
@@ -148,12 +148,13 @@ export default function Type( name )
 	 * is that it always returns the same instance instead of producing a
 	 * new instance every time it is run.
 	 * 
+	 * @param {String|Number|Symbol}
 	 * @return {Object}
 	 */
-	this.singleton = function()
+	this.singleton = function( key )
 	{
-		return this.instance ||
-			( this.instance = this.new.apply( this, args( arguments )));
+		return this.instance[ key ] ||
+			( this.instance[ key ] = this.new.apply( this, args( arguments )));
 	}
 
 	/**
