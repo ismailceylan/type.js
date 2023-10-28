@@ -231,17 +231,17 @@ export default function Type( name )
 		
 		var method = "construct";
 		var arg = args( arguments );
+		var isFirstArgStr = tag( arg[ 0 ]) == "[object String]";
 
 		if(
-			arg.length == 2 &&
-			typeof( arg[ 0 ]) == "string" &&
+			arg.length == 2 && isFirstArgStr &&
 			tag( arg[ 1 ]) == "[object Array]"
 		)
 		{
 			method = arg.shift();
 			arg = arg.shift();
 		}
-		else if( arg.length == 1 && typeof( arg[ 0 ]) == "string" )
+		else if( arg.length == 1 && isFirstArgStr )
 		{
 			method = arg.shift();
 		}
