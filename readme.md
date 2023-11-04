@@ -1,7 +1,7 @@
 This javascript library allows define types and traits. An identified type can be inherited
 by other types. Defined traits can also be use by other traits (traits are extendable) or used by types.
 
-This library adopted the single level prototype mechanism.
+This library uses single level prototype mechanism. So this means that all inheritances and trait usage declarations are collected in the final class.
 
 ## Usage
 ### Let's create a trait specific to living things
