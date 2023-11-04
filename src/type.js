@@ -23,10 +23,18 @@ export default function Type( name )
 
 	/**
 	 * Singleton instance of the type.
+	 * 
 	 * @type {Object}
 	 */
 	var singletones = {}
-	
+
+	/**
+	 * Implemented interfaces list.
+	 * 
+	 * @type {Array}
+	 */
+	var implementList = [];
+
 	/**
 	 * Type name.
 	 * 
@@ -99,8 +107,9 @@ export default function Type( name )
 		{
 			inherit.call( this, this.parent.constructor.prototype );
 		}
-		
+
 		renameTraitMethods.call( this );
+		runInterfaceImplementations.call( this );
 
 		extendPrototype.call( this,
 		{
@@ -129,6 +138,19 @@ export default function Type( name )
 	}
 
 	/**
+	 * Adds interfaces to implement list.
+	 * 
+	 * @param {Array<Interface>} interfaces
+	 * @returns {this}
+	 */
+	this.implements = function()
+	{
+		implementList = args( arguments );
+
+		return this;
+	}
+
+	/**
 	 * Creates and returns an object from the type.
 	 * 
 	 * @return {Object}
@@ -139,7 +161,7 @@ export default function Type( name )
 
 		callTraitInitializers( instance );
 		igniteConstructMethod( instance, arguments );
-		
+
 		return instance;
 	}
 
@@ -322,6 +344,14 @@ export default function Type( name )
 				instance,
 				Array.prototype.slice.call( initialArgs )
 			);
+		}
+	}
+
+	function runInterfaceImplementations()
+	{
+		for( var imp of implementList )
+		{
+			imp.apply( this );
 		}
 	}
 }
