@@ -1,7 +1,7 @@
-This javascript library allows define types and traits. An identified type can be inherited
-by other types. Defined traits can also be use by other traits (traits are extendable) or used by types.
+This javascript library allows define types and traits. A defined type can be inherited
+by other types and traits can also be extends by other traits (traits are extendable) or used by types.
 
-This library uses single level prototype mechanism. So this means that all inheritances and trait usage declarations are collected in the final class.
+This library uses single level prototype mechanism. So this means that all inheritances and trait declarations are collected in the final class.
 
 ## Usage
 ### Let's create a trait specific to living things
@@ -15,7 +15,7 @@ var Breathable = Trait( "Breathable" ).prototype(
 });
 ```
 Traits are added to the prototype area of the types that use it. Therefore, the instance scope
-(this word) refers to the type to which they belong.
+(this word) refers to the type to which they belong, not trait object.
 
 ### Implementing Types
 ```javascript
@@ -33,9 +33,8 @@ var Creature = Type( "Creature" ).use( Breathable ).prototype(
 });
 ```
 The `construct` method performs the constructive operations of the type. Each time
-created an instance from a type, it runs once, taking the given parameters. In this
-method, we can perform the installation procedures and provide the necessary values
-to the features we need to initialize.
+created an instance from a type, the method runs once, taking the given parameters. In this
+method, we can perform the initializations works, creates initial values for properties of the type.
 
 ### Let's create intermediate type
 ```javascript
@@ -62,7 +61,7 @@ var Speakable = Trait( "Speakable" ).prototype(
 });
 ```
 
-The trait can also define the 'construct' method. This method will also work on
+The trait can also define the `construct` method. This method will also works on
 the instance of the Type that uses the trait. It provides a useful space for
 performing primitive actions related to trait. So it is not necessary to create
 pollution within the constructor of the Type.
