@@ -84,7 +84,7 @@ export default function Type( name )
 		args( arguments ).forEach( function( trait )
 		{
 			renameTraitConstructMethod( trait );
-			extendPrototype( this, trait.properties );
+			extend( this, trait.properties );
 
 			this.behaviours = this.behaviours.concat( trait.types );
 		},
@@ -101,7 +101,7 @@ export default function Type( name )
 	 */
 	this.prototype = function( context )
 	{
-		extendPrototype( this, context );
+		extend( this, context );
 
 		if( this.parent )
 		{
@@ -111,7 +111,7 @@ export default function Type( name )
 		renameTraitMethods( this );
 		runInterfaceImplementations( this );
 
-		extendPrototype( this,
+		extend( this,
 		{
 			type: this,
 			is: this.is,
@@ -268,7 +268,7 @@ export default function Type( name )
 		{
 			method = arg.shift();
 		}
-		
+
 		if( context[ method ] !== this.constructor.prototype[ method ])
 		{
 			return context[ method ].apply( this, arg );
@@ -284,7 +284,7 @@ export default function Type( name )
 		}
 	}
 
-	function extendPrototype( type, context )
+	function extend( type, context )
 	{
 		Object.assign( type.constructor.prototype, context );
 		return type;
