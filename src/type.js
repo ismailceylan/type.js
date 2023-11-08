@@ -271,7 +271,10 @@ export default function Type( name )
 			method = arg.shift();
 		}
 		
-		return context[ method ].apply( this, arg );
+		if( context[ method ] !== this.constructor.prototype[ method ])
+		{
+			return context[ method ].apply( this, arg );
+		}
 	}
 	
 	function renameTraitConstructMethod( trait )
