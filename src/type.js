@@ -84,7 +84,7 @@ export default function Type( name )
 		args( arguments ).forEach( function( trait )
 		{
 			renameTraitConstructMethod( trait );
-			extendPrototype.call( this, trait.properties );
+			extendPrototype( this, trait.properties );
 
 			this.behaviours = this.behaviours.concat( trait.types );
 		},
@@ -101,17 +101,17 @@ export default function Type( name )
 	 */
 	this.prototype = function( context )
 	{
-		extendPrototype.call( this, context );
+		extendPrototype( this, context );
 
 		if( this.parent )
 		{
-			inherit.call( this, this.parent.constructor.prototype );
+			inherit( this );
 		}
 
-		renameTraitMethods.call( this );
-		runInterfaceImplementations.call( this );
+		renameTraitMethods( this );
+		runInterfaceImplementations( this );
 
-		extendPrototype.call( this,
+		extendPrototype( this,
 		{
 			type: this,
 			is: this.is,
@@ -284,16 +284,16 @@ export default function Type( name )
 		}
 	}
 
-	function extendPrototype( context )
+	function extendPrototype( type, context )
 	{
-		Object.assign( this.constructor.prototype, context );
-		return this;
+		Object.assign( type.constructor.prototype, context );
+		return type;
 	}
 
-	function renameTraitMethods()
+	function renameTraitMethods( type )
 	{
 		var AS;
-		var proto = this.constructor.prototype;
+		var proto = type.constructor.prototype;
 
 		if( ! ( AS = proto.AS ))
 		{
@@ -309,9 +309,10 @@ export default function Type( name )
 		delete proto.AS;
 	}
 
-	function inherit( context )
+	function inherit( type )
 	{
-		var target = this.constructor.prototype;
+		var target = type.constructor.prototype;
+		var context = type.parent.constructor.prototype;
 
 		for( var prop in context )
 		{
@@ -341,18 +342,15 @@ export default function Type( name )
 	{
 		if( instance.construct instanceof Function )
 		{
-			instance.construct.apply(
-				instance,
-				Array.prototype.slice.call( initialArgs )
-			);
+			instance.construct.apply( instance, args( initialArgs ));
 		}
 	}
 
-	function runInterfaceImplementations()
+	function runInterfaceImplementations( type )
 	{
 		for( var imp of implementList )
 		{
-			imp.apply( this );
+			imp.apply( type );
 		}
 	}
 }
