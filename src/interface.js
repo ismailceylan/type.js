@@ -73,7 +73,7 @@ export default function Interface( name, builder )
 					// methods are required let's check it
 					checkExistance( type, prop );
 
-					var underhoodMethod = type.constructor.prototype[ prop.name ];
+					var underhoodMethod = value( type, prop.name );
 					var definedArgs = getArguments( underhoodMethod.toString());
 					var argRules = prop.args;
 
