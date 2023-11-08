@@ -34,7 +34,7 @@ var Creature = Type( "Creature" ).use( Breathable ).prototype(
 ```
 The `construct` method performs the constructive operations of the type. Each time
 created an instance from a type, the method runs once, taking the given parameters. In this
-method, we can perform the initializations works, creates initial values for properties of the type.
+method, we can perform the initializations works, create initial values for properties of the type.
 
 ### Let's create intermediate type
 ```javascript
@@ -61,10 +61,12 @@ var Speakable = Trait( "Speakable" ).prototype(
 });
 ```
 
-The trait can also define the `construct` method. This method will also works on
+The trait can also define `construct` method. This method will also works on
 the instance of the Type that uses the trait. It provides a useful space for
 performing primitive actions related to trait. So it is not necessary to create
-pollution within the constructor of the Type.
+pollution within the constructor of the Type. If the type also has to define it's own
+`construct` method this mathod override trait's method but we can access and run it with 
+super method.
 
 ### Let's create a new and powerful type
 ```javascript
