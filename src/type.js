@@ -246,22 +246,20 @@ export default function Type( name )
 		{
 			return;
 		}
-		
+
 		context = context.constructor.prototype;
 
 		if( arguments.length == 0 )
 		{
 			return context;
 		}
-		
+
 		var method = "construct";
 		var arg = args( arguments );
 		var isFirstArgStr = tag( arg[ 0 ]) == "[object String]";
+		var isSecondArgArray = tag( arg[ 1 ]) == "[object Array]";
 
-		if(
-			arg.length == 2 && isFirstArgStr &&
-			tag( arg[ 1 ]) == "[object Array]"
-		)
+		if( arg.length == 2 && isFirstArgStr && isSecondArgArray )
 		{
 			method = arg.shift();
 			arg = arg.shift();
