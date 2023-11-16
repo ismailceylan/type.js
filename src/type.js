@@ -1,18 +1,12 @@
-import { Trait } from "./index.js";
-import { args, tag } from "./utils/index.js";
+import { args, closured, rename } from "./utils/index.js";
 
-/**
- * Creates types.
- * 
- * @param {String} name type name
- */
 export default function Type( name )
 {
 	if( ! ( this instanceof Type ))
 	{
 		return new Type( name );
 	}
-	
+
 	if( typeof( name ) !== "string" || /^[a-z_$]{1}[a-z0-9_$]*$/i.test( name ) === false )
 	{
 		throw TypeError(
@@ -22,39 +16,11 @@ export default function Type( name )
 	}
 
 	/**
-	 * Singleton instance of the type.
-	 * 
-	 * @type {Object}
-	 */
-	var singletones = {}
-
-	/**
-	 * Implemented interfaces list.
-	 * 
-	 * @type {Array}
-	 */
-	var implementList = [];
-
-	/**
 	 * Type name.
 	 * 
 	 * @type {String}
 	 */
-	this.name = name[ 0 ].toUpperCase() + name.slice( 1 );
-
-	/**
-	 * List of inherited type names.
-	 * 
-	 * @type {Array}
-	 */
-	this.types = [ this.name ];
-
-	/**
-	 * List of inherited trait names.
-	 * 
-	 * @type {Array}
-	 */
-	this.behaviours = [];
+	this.name = name;
 
 	/**
 	 * The parent type from which this type inherited.
@@ -64,34 +30,46 @@ export default function Type( name )
 	this.parent = null;
 
 	/**
+	 * List of inherited type names.
+	 * 
+	 * @type {Array}
+	 */
+	this.types = [ name ];
+
+	/**
+	 * List of inherited trait names.
+	 * 
+	 * @type {Array}
+	 */
+	this.traits = [];
+
+	/**
+	 * Implemented interfaces list.
+	 * 
+	 * @type {Array}
+	 */
+	this.interfaces = [];
+
+	/**
 	 * Constructor method to represent the type natively.
 	 * 
 	 * @type {Function}
 	 */
-	this.constructor = eval( "( function " + this.name + "(){})" );
+	this.constructor = eval( "( function " + name + "(){})" );
 
 	/**
-	 * Copies the properties of the given trait(s) into the properties
-	 * of this type. Props are copied to the prototype of the constructor of
-	 * this type, that is, the copied props appear as if they were props of
-	 * this type.
+	 * Methods of the type.
 	 * 
-	 * @param {Array} ...parents traits to use
-	 * @return {Type}
+	 * @type {Object}
 	 */
-	this.use = function()
-	{
-		args( arguments ).forEach( function( trait )
-		{
-			renameTraitConstructMethod( trait );
-			extend( this, trait.properties );
+	this.methods = {}
 
-			this.behaviours = this.behaviours.concat( trait.types );
-		},
-		this );
-
-		return this;
-	}
+	/**
+	 * Properties of the type.
+	 * 
+	 * @type {Object}
+	 */
+	this.properties = {}
 
 	/**
 	 * Embeds a new context into the type's prototype.
@@ -101,23 +79,17 @@ export default function Type( name )
 	 */
 	this.prototype = function( context )
 	{
-		extend( this, context );
-
-		if( this.parent )
+		for( var key in context )
 		{
-			inherit( this );
+			var value = context[ key ];
+
+			this[ value instanceof Function? "methods" : "properties" ][ key ] = value;
 		}
 
-		renameTraitMethods( this );
-		runInterfaceImplementations( this );
-
-		extend( this,
+		for( var iface of this.interfaces )
 		{
-			type: this,
-			is: this.is,
-			behave: this.behave,
-			super: this.super
-		});
+			iface.apply( this );
+		}
 
 		return this;
 	}
@@ -132,8 +104,8 @@ export default function Type( name )
 	{
 		this.parent = parent;
 		this.types = this.types.concat( parent.types );
-		this.behaviours = this.behaviours.concat( parent.behaviours );
-
+		this.traits = this.traits.concat( parent.traits );
+		
 		return this;
 	}
 
@@ -145,7 +117,29 @@ export default function Type( name )
 	 */
 	this.implements = function()
 	{
-		implementList = args( arguments );
+		this.interfaces = args( arguments );
+
+		return this;
+	}
+
+	/**
+	 * Copies the properties of the given trait(s) into the properties
+	 * of this type. Props are copied to the prototype of the constructor of
+	 * this type, that is, the copied props appear as if they were props of
+	 * this type.
+	 * 
+	 * @param {Array} ...parents traits to use
+	 * @return {Type}
+	 */
+	this.use = function( trait, renameMap )
+	{
+		this.prototype(
+			renameMap
+				? rename( trait.properties, renameMap, true )
+				: trait.properties
+		);
+
+		this.traits = this.traits.concat( trait.types );
 
 		return this;
 	}
@@ -155,202 +149,162 @@ export default function Type( name )
 	 * 
 	 * @return {Object}
 	 */
-	this.new = function()
+	this.create = function()
 	{
 		var instance = new this.constructor;
+		var props = this.getProperties();
 
-		callTraitInitializers( instance );
-		igniteConstructMethod( instance, arguments );
+		for( var key in props )
+		{
+			instance[ key ] = props[ key ];
+		}
+
+		if( this.parent )
+		{
+			var currentType = this;
+			var proto = instance.__proto__ = {};
+
+			while( currentType )
+			{
+				defineTypeMember( proto, "constructor", currentType.constructor );
+
+				for( var name in currentType.methods )
+				{
+					defineTypeMember(
+						proto,
+						name,
+						bindMagicalParentWord(
+							this,
+							currentType,
+							name,
+							currentType.methods[ name ],
+							instance,
+							proto
+						)
+					);
+				}
+
+				if( currentType.parent )
+				{
+					proto = proto.__proto__ = {}
+					currentType = currentType.parent;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+
+		for( var key in this.methods )
+		{
+			instance.__proto__[ key ] = bindMagicalParentWord(
+				this,
+				this,
+				key,
+				this.methods[ key ],
+				instance,
+				instance
+			);
+		}
+
+		if( "construct" in instance )
+		{
+			instance.construct.apply( instance, args( arguments ));
+		}
 
 		return instance;
 	}
 
 	/**
-	 * Instantiates and returns the constructor method of the represented
-	 * type with the given parameters. Its difference from the new method
-	 * is that it always returns the same instance instead of producing a
-	 * new instance every time it is run.
+	 * It collects and returns the properties of its own and all
+	 * parent types in a chained manner. The property of the last
+	 * defined type overrides the properties of the parent type.
 	 * 
-	 * @param {String|Number|Symbol} key instance key to access it later
-	 * @param {Array} args arguments to pass when instantiating the type
-	 * @return {Object}
+	 * @returns {Object}
 	 */
-	this.singleton = function( key, args )
+	this.getProperties = function()
 	{
-		return singletones[ key ] ||
-			( singletones[ key ] = this.new.apply( this, args ));
-	}
+		var stack = {}
 
-	/**
-	 * Tells whether the represented type inherits a given type.
-	 * 
-	 * @param {Type} target a type name or a type to check
-	 * @return {Boolean}
-	 */
-	this.is = function( target )
-	{
-		if( target instanceof Type )
+		if( this.parent )
 		{
-			target = target.name;
-		}
-		
-		if( this instanceof Type )
-		{
-			return this.types.indexOf( target ) > -1;
-		}
-		
-		if( this.type && this.type instanceof Type )
-		{	
-			return this.type.types.indexOf( target ) > -1;
-		}
-		
-		return false;
-	}
+			var parentProps = this.parent.getProperties();
 
-	/**
-	 * Tells whether the represented type inherits a given trait.
-	 * 
-	 * @param {Trait|String} target a trait name or trait's itself to check
-	 * @return {Boolean}
-	 */
-	this.behave = function( trait )
-	{
-		if( trait instanceof Trait )
-		{
-			trait = trait.name;
-		}
-		
-		if( this instanceof Type )
-		{
-			return this.behaviours.indexOf( trait ) > -1;
-		}
-		
-		if( this.type && this.type instanceof Type )
-		{	
-			return this.type.behaviours.indexOf( trait ) > -1;
-		}
-		
-		return false;
-	}
-
-	/**
-	 * Allows accessing a method of an inherited parent type.
-	 */
-	this.super = function()
-	{
-		var context = this instanceof Type
-			? this.parent
-			: this.type.parent;
-
-		if( ! context )
-		{
-			return;
-		}
-
-		context = context.constructor.prototype;
-
-		if( arguments.length == 0 )
-		{
-			return context;
-		}
-
-		var method = "construct";
-		var arg = args( arguments );
-		var isFirstArgStr = tag( arg[ 0 ]) == "[object String]";
-		var isSecondArgArray = tag( arg[ 1 ]) == "[object Array]";
-
-		if( arg.length == 2 && isFirstArgStr && isSecondArgArray )
-		{
-			method = arg.shift();
-			arg = arg.shift();
-		}
-		else if( arg.length == 1 && isFirstArgStr )
-		{
-			method = arg.shift();
-		}
-
-		if( context[ method ] !== this.constructor.prototype[ method ])
-		{
-			return context[ method ].apply( this, arg );
-		}
-	}
-	
-	function renameTraitConstructMethod( trait )
-	{
-		if( trait.properties.construct )
-		{
-			trait.properties[ "construct" + trait.name + "Trait" ] = trait.properties.construct;
-			delete trait.properties.construct;
-		}
-	}
-
-	function extend( type, context )
-	{
-		Object.assign( type.constructor.prototype, context );
-		return type;
-	}
-
-	function renameTraitMethods( type )
-	{
-		var AS;
-		var proto = type.constructor.prototype;
-
-		if( ! ( AS = proto.AS ))
-		{
-			return;
-		}
-		
-		for( var oldMethodName in AS )
-		{
-			proto[ AS[ oldMethodName ]] = proto[ oldMethodName ];
-			delete proto[ oldMethodName ];
-		}
-
-		delete proto.AS;
-	}
-
-	function inherit( type )
-	{
-		var target = type.constructor.prototype;
-		var context = type.parent.constructor.prototype;
-
-		for( var prop in context )
-		{
-			if( prop in target )
+			for( var key in parentProps )
 			{
-				continue;
+				stack[ key ] = parentProps[ key ];
 			}
-			
-			target[ prop ] = context[ prop ];
 		}
+
+		for( var key in this.properties )
+		{
+			stack[ key ] = this.properties[ key ];
+		}
+
+		return stack;
+	}
+}
+
+function parentalAccess( type, callerMethodName, root, proto, methodName, args )
+{
+	var ctx = proto.__proto__;
+
+	type = type.parent;
+
+	// if root object is same with the proto
+	// that we should work on it then first
+	// level __proto__ will lead infinite loop
+	if( root === proto )
+	{
+		// we have to dive one level deeper
+		ctx = ctx.__proto__;
+		type = type.parent;
 	}
 
-	function callTraitInitializers( instance )
+	if( methodName in ctx )
 	{
-		instance.type.behaviours.forEach( behaviour =>
-		{
-			var initializer;
+		return ctx[ methodName ].apply( root, args );
+	}
+	else if( ctx.__proto__ === null )
+	{
+		throw new ReferenceError(
+			'"parent" method was used illegally in ' +
+			type.parent.name + "." + callerMethodName + " method. " +
+			"Within the root types, using parent method is ineffective."
+		);
+	}
+	else
+	{
+		throw new ReferenceError(
+			"The parent method used in " + type.name + "::" + callerMethodName +
+			"() tried to access method "+ methodName +", which is not defined in type " +
+			type.parent.name + "!"
+		);
+	}
+}
 
-			if( initializer = instance[ "construct" + behaviour + "Trait" ])
+function bindMagicalParentWord( finalType, currentType, callerMethodName, method, root, proto )
+{
+	return closured(
+		method,
+		{
+			parent: function( methodName, args )
 			{
-				initializer.call( instance );
+				return parentalAccess( finalType, callerMethodName, root, proto, methodName, args );
 			}
-		});
-	}
+		},
+		currentType.name + "." + callerMethodName
+	);
+}
 
-	function igniteConstructMethod( instance, initialArgs )
+function defineTypeMember( obj, name, value )
+{
+	Object.defineProperty( obj, name,
 	{
-		if( instance.construct instanceof Function )
-		{
-			instance.construct.apply( instance, args( initialArgs ));
-		}
-	}
-
-	function runInterfaceImplementations( type )
-	{
-		for( var imp of implementList )
-		{
-			imp.apply( type );
-		}
-	}
+		value: value,
+		writable: true,
+		configurable: true,
+		enumerable: false
+	});
 }

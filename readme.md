@@ -1,5 +1,9 @@
-This javascript library allows define types and traits. A defined type can be inherited
-by other types and traits can also be extends by other traits (traits are extendable) or used by types.
+This javascript library allows us define interfaces, types and traits. A defined type can be inherited
+by other types and traits can also be extends by other traits (traits are extendable) or used by types. Types can declare implements multiple interfaces.
+
+Types can implement more than one Interface. In this case, Types have to create definitions in the Interface, if not, an error is thrown and execution stops. Interfaces can draw outlines of methods and properties. Arguments of methods, their types, whether they are required or not, and the type of return value can be declared with Interfaces.
+
+It is immediately checked whether required arguments are defined and if not, a warning can be received without the relevant method ever running. However, the relevant method is constantly monitored during runtime to see whether it is called with arguments of required types. It does this by placing a proxy method instead of the main method you wrote. This may affect performance, but since Type.js is completely native JavaScript, you can enclose the entire architecture in if-else blocks. If there is an ENV variable in your work environment that holds values such as development and production, Types implement Interfaces or not, depending on its value. Thus, while you use the interface in the development environment, you can ensure that it is not used in the production environment. You can even ensure that the interface codes do not contamine the compiled codes if your bundler support three-shake method.
 
 This library uses single level prototype mechanism. So this means that all inheritances and trait declarations are collected in the final class.
 
