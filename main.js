@@ -22,7 +22,7 @@ const Breathable = Trait( "Breathable" ).prototype(
 
 const Creature = Type( "Creature" ).implements( CreatureContract ).prototype(
 {
-	weight: 2,
+	weight: 12,
 
 	live( life, is )
 	{
@@ -54,7 +54,8 @@ const Human = Type( "Human" ).extends( Animal ).prototype(
 	construct({ weight })
 	{
 		this.weight += weight;
-
+		this.weight = "lkj";
+	
 		this.live( 43, true );
 		this.great();
 	},
@@ -73,5 +74,5 @@ const Human = Type( "Human" ).extends( Animal ).prototype(
 
 const ismail = Human.create({ weight: 88 });
 
-// console.log( ismail.behave( Breathable ));
+// // console.log( ismail.behave( Breathable ));
 ismail.foo();

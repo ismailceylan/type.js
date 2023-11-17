@@ -1,4 +1,8 @@
 import { Builder } from "./index.js";
+import { typeName } from "../utils/index.js";
+import {
+	MissingPropError, PropTypeMismatchError, UnsupportedTypeAssignmentError
+} from "../errors/index.js";
 
 export default function Interface( name, build )
 {
@@ -44,12 +48,65 @@ export default function Interface( name, build )
 
 	function validateProperties( type )
 	{
-		for( var propName in this.properties )
+		for( var ruleName in this.properties )
 		{
-			var propValue = this.properties[ propName ];
+			var rule = this.properties[ ruleName ];
+			var name = rule.name;
+			var allows = rule.types;
+			var required = rule.isRequired;
+			var defined = name in type.properties;
+			var value = type.properties[ name ];
+			var restricted = rule.types.length > 0;
 
-			// existance checking
-			console.log(type.name);
+			// checking if prop needs to be defined
+			if( required && ! defined )
+			{
+				// prop not defined directly on type
+				throw new MissingPropError( this, type, rule );
+			}
+
+			// type checking
+			if( defined && restricted && ! allowed( value, allows ))
+			{
+				throw new PropTypeMismatchError( this, type, rule, value );
+			}
+
+			// if prop restricted we have to observe future writings
+			if( restricted )
+			{
+				var iface = this;
+
+				Object.defineProperty( type.properties, name,
+				{
+					get: function()
+					{
+						return value;
+					},
+	
+					set: function( v )
+					{
+						if( ! allowed( v, allows ))
+						{
+							throw new UnsupportedTypeAssignmentError( iface, type, rule, v );
+						}
+
+						value = v;
+					}
+				});
+			}
 		}
 	}
+}
+
+function allowed( value, types )
+{
+	for( var type of types )
+	{
+		if( typeName( value ) == type.prototype.constructor.name )
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
