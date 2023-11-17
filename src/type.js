@@ -152,12 +152,11 @@ export default function Type( name )
 	this.create = function()
 	{
 		var instance = new this.constructor;
-		var props = this.getProperties();
 
-		for( var key in props )
-		{
-			instance[ key ] = props[ key ];
-		}
+		Object.defineProperties(
+			instance,
+			Object.getOwnPropertyDescriptors( this.getProperties())
+		);
 
 		if( this.parent )
 		{
@@ -229,18 +228,16 @@ export default function Type( name )
 
 		if( this.parent )
 		{
-			var parentProps = this.parent.getProperties();
-
-			for( var key in parentProps )
-			{
-				stack[ key ] = parentProps[ key ];
-			}
+			Object.defineProperties(
+				stack,
+				Object.getOwnPropertyDescriptors( this.parent.getProperties())
+			);
 		}
 
-		for( var key in this.properties )
-		{
-			stack[ key ] = this.properties[ key ];
-		}
+		Object.defineProperties(
+			stack,
+			Object.getOwnPropertyDescriptors( this.properties )
+		);
 
 		return stack;
 	}
