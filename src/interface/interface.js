@@ -87,7 +87,7 @@ export default function Interface( name, build )
 					{
 						if( ! allowed( v, allows ))
 						{
-							throw new UnsupportedTypeAssignmentError( iface, type, rule, v );
+							throw new PropAssignTypeMismatchError( iface, type, rule, v );
 						}
 
 						value = v;
