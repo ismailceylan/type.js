@@ -58,7 +58,7 @@ export default function Interface( name, build )
 			var required = rule.isRequired;
 			var defined = name in type.properties;
 			var value = type.properties[ name ];
-			var restricted = rule.types.length > 0;
+			var restricted = allows.length > 0;
 
 			// checking if prop needs to be defined
 			if( required && ! defined )
@@ -113,6 +113,22 @@ export default function Interface( name, build )
 			if( ! defined )
 			{
 				throw new MissingMethodError( this, type, methodRule );
+			}
+
+			for( var i = 0; i < methodRule.arguments.length; i++ )
+			{
+				var argRule = methodRule.arguments[ i ];
+				var argNameInRule = argRule.name;
+				var argNameInDefinition = definedArgs[ i ];
+				var required = argRule.isRequired;
+				var deflt = argRule.defaultValue;
+				var allows = argRule.types;
+
+				// argument is required and not defined on the method
+				if( required && argNameInDefinition === undefined )
+				{
+					throw new MissingArgumentError( this, type, methodRule, argRule, i );
+				}
 			}
 		}
 	}
