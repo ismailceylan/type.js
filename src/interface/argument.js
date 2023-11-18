@@ -7,8 +7,9 @@ export default function Argument()
 	this.defaultValue = undefined;
 }
 
-Argument.prototype.allows = function( types )
+Argument.prototype.allows = function( name, types )
 {
+	this.name = name;
 	this.types = typeName( types ) == "Array"
 		?   types
 		: [ types ];

@@ -1,8 +1,9 @@
 import { typeName } from "../utils/index.js";
 import { Argument } from "./index.js";
 
-export default function Method()
+export default function Method( name )
 {
+	this.name = name;
 	this.arguments = [];
 	this.returnTypes = [];
 }

@@ -14,6 +14,6 @@ Builder.prototype.property = function( name, types )
 Builder.prototype.method = function( name, build )
 {
 	build(
-		this.methods[ name ] = new Method
+		this.methods[ name ] = new Method( name )
 	);
 }
