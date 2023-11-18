@@ -1,7 +1,8 @@
 import { Builder } from "./index.js";
-import { typeName } from "../utils/index.js";
+import { getArguments, typeName } from "../utils/index.js";
 import {
-	MissingPropError, PropTypeMismatchError, UnsupportedTypeAssignmentError
+	MissingArgumentError, PropAssignTypeMismatchError,
+	MissingMethodError, MissingPropError, PropTypeMismatchError,
 } from "../errors/index.js";
 
 export default function Interface( name, build )
@@ -44,6 +45,7 @@ export default function Interface( name, build )
 	this.apply = function( type )
 	{
 		validateProperties.call( this, type );
+		validateMethods.call( this, type );
 	}
 
 	function validateProperties( type )
@@ -93,6 +95,24 @@ export default function Interface( name, build )
 						value = v;
 					}
 				});
+			}
+		}
+	}
+
+	function validateMethods( type )
+	{
+		for( var ruleName in this.methods )
+		{
+			var methodRule = this.methods[ ruleName ];
+			var methodName = methodRule.name;
+			var method = type.methods[ methodName ];
+			var defined = methodName in type.methods;
+			var definedArgs = getArguments( method.toString());
+
+			// methods are required
+			if( ! defined )
+			{
+				throw new MissingMethodError( this, type, methodRule );
 			}
 		}
 	}
