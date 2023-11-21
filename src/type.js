@@ -283,16 +283,24 @@ function parentalAccess( type, callerMethodName, root, proto, methodName, args )
 
 function bindMagicalParentWord( finalType, currentType, callerMethodName, method, root, proto )
 {
-	return closured(
-		method,
+	var filename = currentType.name + "." + callerMethodName;
+	var scope =
+	{
+		parent: function( methodName, args )
 		{
-			parent: function( methodName, args )
-			{
-				return parentalAccess( finalType, callerMethodName, root, proto, methodName, args );
-			}
-		},
-		currentType.name + "." + callerMethodName
-	);
+			return parentalAccess( finalType, callerMethodName, root, proto, methodName, args );
+		}
+	}
+
+	if( method.dependencies )
+	{
+		for( var key in method.dependencies )
+		{
+			scope[ key ] = method.dependencies[ key ];
+		}
+	}
+
+	return closured( method, scope, filename );
 }
 
 function defineTypeMember( obj, name, value )

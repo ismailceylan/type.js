@@ -1,8 +1,9 @@
 import { Builder } from "./index.js";
-import { getArguments, typeName } from "../utils/index.js";
+import { args, getArguments, typeName } from "../utils/index.js";
 import {
 	MissingArgumentError, PropAssignTypeMismatchError,
 	MissingMethodError, MissingPropError, PropTypeMismatchError,
+	ArgumentTypeMismatch
 } from "../errors/index.js";
 
 export default function Interface( name, build )
@@ -73,7 +74,8 @@ export default function Interface( name, build )
 				throw new PropTypeMismatchError( this, type, rule, value );
 			}
 
-			// if prop restricted we have to observe future writings
+			// if prop restricted for specific types
+			// we have to observe future writings
 			if( restricted )
 			{
 				var iface = this;
@@ -118,11 +120,8 @@ export default function Interface( name, build )
 			for( var i = 0; i < methodRule.arguments.length; i++ )
 			{
 				var argRule = methodRule.arguments[ i ];
-				var argNameInRule = argRule.name;
 				var argNameInDefinition = definedArgs[ i ];
 				var required = argRule.isRequired;
-				var deflt = argRule.defaultValue;
-				var allows = argRule.types;
 
 				// argument is required and not defined on the method
 				if( required && argNameInDefinition === undefined )
@@ -130,6 +129,57 @@ export default function Interface( name, build )
 					throw new MissingArgumentError( this, type, methodRule, argRule, i );
 				}
 			}
+
+			// to observe argument types on runtime we have to
+			// proxify the original method so we can keep under
+			// control what is coming and even returning
+			var proxifiedMethod = type.methods[ methodName ];
+
+			function interfaceProxy()
+			{
+				var receivedArgs = args( arguments );
+
+				for( var i = 0; i < methodRule.arguments.length; i++ )
+				{
+					var argRule = methodRule.arguments[ i ];
+					var required = argRule.isRequired;
+					var argDefault = argRule.defaultValue;
+					var receivedArg = receivedArgs[ i ];
+					var argNameInRule = argRule.name;
+					var argNameInDefinition = definedArgs[ i ];
+
+					// if the argument required but not received any value
+					if( required && receivedArg === undefined )
+					{
+						// if declared default value just use it  
+						if( argDefault !== undefined )
+						{
+							receivedArgs[ i ] = receivedArg = argDefault;
+						}
+						else
+						{
+							throw new ArgumentTypeMismatch( iface, type, methodRule, argRule, i );
+						}
+					}
+
+					// console.log({ required, argNameInRule, argNameInDefinition, receivedArg});
+				}
+
+				proxifiedMethod.apply( this, receivedArgs );
+			}
+
+			interfaceProxy.dependencies =
+			{
+				args: args,
+				ArgumentTypeMismatch: ArgumentTypeMismatch,
+				methodRule: methodRule,
+				definedArgs: definedArgs,
+				proxifiedMethod: proxifiedMethod,
+				iface: this,
+				type: type
+			}
+
+			type.methods[ methodName ] = interfaceProxy;
 		}
 	}
 }
