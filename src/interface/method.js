@@ -8,11 +8,12 @@ export default function Method( name )
 	this.returnTypes = [];
 }
 
-Method.prototype.argument = function( types )
+Method.prototype.argument = function( name, types )
 {
-	var arg = new Argument;
+	var arg = new Argument( name );
 
 	arg.allows( types );
+
 	this.arguments.push( arg );
 
 	return arg;

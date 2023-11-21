@@ -1,15 +1,15 @@
 import { typeName } from "../utils/index.js";
 
-export default function Argument()
+export default function Argument( name )
 {
+	this.name = name;
 	this.types = [];
 	this.isRequired = false;
 	this.defaultValue = undefined;
 }
 
-Argument.prototype.allows = function( name, types )
+Argument.prototype.allows = function( types )
 {
-	this.name = name;
 	this.types = typeName( types ) == "Array"
 		?   types
 		: [ types ];
