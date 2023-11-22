@@ -22,6 +22,8 @@ Method.prototype.argument = function( name, types )
 Method.prototype.returns = function( types )
 {
 	this.returnTypes = typeName( types ) == "Array"
-		?   types
-		: [ types ];
+		? types
+		: types === undefined
+			? []
+			: [ types ];
 }

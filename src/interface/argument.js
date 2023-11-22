@@ -11,8 +11,10 @@ export default function Argument( name )
 Argument.prototype.allows = function( types )
 {
 	this.types = typeName( types ) == "Array"
-		?   types
-		: [ types ];
+		? types
+		: types === undefined
+			? []
+			: [ types ];
 }
 
 Argument.prototype.required = function()
