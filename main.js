@@ -7,7 +7,7 @@ const CreatureContract = Interface( "CreatureContract", function( creatures )
 	creatures.method( "live", function( live )
 	{
 		live.argument( "life", Number ).required();
-		live.argument( "is", Boolean ).required().default( null );
+		live.argument( "is" ).required();
 		live.returns( String );
 	});
 });
@@ -55,7 +55,7 @@ const Human = Type( "Human" ).extends( Animal ).prototype(
 	{
 		this.weight += weight;
 	
-		this.live( 43, "lkj" );
+		this.live( 43 );
 		this.great();
 	},
 

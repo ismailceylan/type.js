@@ -147,11 +147,13 @@ export default function Interface( name, build )
 					var receivedArg = receivedArgs[ i ];
 					var argNameInRule = argRule.name;
 					var argNameInDefinition = definedArgs[ i ];
+					var allows = argRule.types;
+					var restricted = allows.length > 0;
 
 					// if the argument required but not received any value
 					if( required && receivedArg === undefined )
 					{
-						// if declared default value just use it  
+						// If a default value is defined we will use it  
 						if( argDefault !== undefined )
 						{
 							receivedArgs[ i ] = receivedArg = argDefault;
@@ -160,6 +162,10 @@ export default function Interface( name, build )
 						{
 							throw new ArgumentTypeMismatch( iface, type, methodRule, argRule, i );
 						}
+					}
+					else if( restricted && ! allowed( receivedArg, allows ))
+					{
+						throw new ArgumentTypeMismatch( iface, type, methodRule, argRule, i, receivedArg );
 					}
 
 					// console.log({ required, argNameInRule, argNameInDefinition, receivedArg});
@@ -172,6 +178,7 @@ export default function Interface( name, build )
 			{
 				args: args,
 				ArgumentTypeMismatch: ArgumentTypeMismatch,
+				allowed: allowed,
 				methodRule: methodRule,
 				definedArgs: definedArgs,
 				proxifiedMethod: proxifiedMethod,
