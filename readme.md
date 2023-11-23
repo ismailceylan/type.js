@@ -1,11 +1,13 @@
 This javascript library allows us define interfaces, types and traits. A defined type can be inherited
-by other types and traits can also be extends by other traits (traits are extendable) or used by types. Types can declare implements multiple interfaces.
+by other types, traits can also be used by types and types can implements multiple interfaces.
 
-Types can implement more than one Interface. In this case, Types have to create definitions in the Interface, if not, an error is thrown and execution stops. Interfaces can draw outlines of methods and properties. Arguments of methods, their types, whether they are required or not, and the type of return value can be declared with Interfaces.
+Interfaces can be considered as abstract types. Arguments of methods, their types, whether they are required or not, and the type of return value can be declared with Interfaces. The only thing you can't do is define the body of a method. Interfaces can draw outlines of methods and properties. So when a type implements one (or more) interfaces, that type have to follow the rules defined in those interfaces. If incompatibility detected an error is thrown and execution stops.
 
-It is immediately checked whether required arguments are defined and if not, a warning can be received without the relevant method ever running. However, the relevant method is constantly monitored during runtime to see whether it is called with arguments of required types. It does this by placing a proxy method instead of the main method you wrote. This may affect performance, but since Type.js is completely native JavaScript, you can enclose the entire architecture in if-else blocks. If there is an ENV variable in your work environment that holds values such as development and production, Types implement Interfaces or not, depending on its value. Thus, while you use the interface in the development environment, you can ensure that it is not used in the production environment. You can even ensure that the interface codes do not contamine the compiled codes if your bundler support three-shake method.
+It is immediately checked whether required arguments are defined and if not, error will appear before the relevant method has ever run. However, the relevant method is constantly monitored during runtime to see whether it is called legally. It does this by placing a proxy method instead of the main method you wrote. This may affect performance, but since Type.js is completely native JavaScript, you can enclose the entire interface architecture in if-else blocks. If there is an ENV variable in your work environment that holds values such as development and production, types decide to implement interfaces or not, depending on that env value. Thus, while you use the interface in the development environment, you can ensure that it is not used in the production environment. You can even ensure that the interface codes do not contamine the compiled codes if your bundler shake trees.
 
-This library uses single level prototype mechanism. So this means that all inheritances and trait declarations are collected in the final class.
+Type.js uses chained __proto__ mechanism. So this means that all inherited type methods, properties and trait methods etc. will collected according proto area and those proto objects will chained. Type.js creates almost the same object as you would get when you use the class and extends structure, which is the syntactic sugar in Modern JavaScript.
+
+The use of __proto__ is no longer recommended and may not be supported in some environments, so type.js is designed to work in legacy environments and you should use type.js when writing code for legacy environments. It is not recommended to use type.js in modern environments.
 
 ## Usage
 ### Let's create a trait specific to living things
@@ -18,8 +20,8 @@ var Breathable = Trait( "Breathable" ).prototype(
     }
 });
 ```
-Traits are added to the prototype area of the types that use it. Therefore, the instance scope
-(this word) refers to the type to which they belong, not trait object.
+Trait methods are added to the prototype area of the types that use it. Therefore, the instance scope
+(this word) refers to the type to which they belong, not trait object. However, all properties defined on types and traits are added to the instance produced from the final type after passing through a property inheritance algorithm. This algorithm produces the result with the class mechanism that comes with EcmaScript 6.
 
 ### Implementing Types
 ```javascript
