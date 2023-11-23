@@ -3,7 +3,7 @@ import { args, getArguments, typeName } from "../utils/index.js";
 import {
 	MissingArgumentError, PropAssignTypeMismatchError,
 	MissingMethodError, MissingPropError, PropTypeMismatchError,
-	ArgumentTypeMismatch
+	ArgumentTypeMismatch, ReturnTypeMismatch
 } from "../errors/index.js";
 
 export default function Interface( name, build )
@@ -110,6 +110,7 @@ export default function Interface( name, build )
 			var method = type.methods[ methodName ];
 			var defined = methodName in type.methods;
 			var definedArgs = getArguments( method.toString());
+			var returns = methodRule.returnTypes;
 
 			// methods are required
 			if( ! defined )
@@ -167,23 +168,30 @@ export default function Interface( name, build )
 					{
 						throw new ArgumentTypeMismatch( iface, type, methodRule, argRule, i, receivedArg );
 					}
-
-					// console.log({ required, argNameInRule, argNameInDefinition, receivedArg});
 				}
 
-				proxifiedMethod.apply( this, receivedArgs );
+				var returnValue = proxifiedMethod.apply( this, receivedArgs );
+
+				if( returns.length > 0 && ! allowed( returnValue, returns ))
+				{
+					throw new ReturnTypeMismatch( iface, type, methodRule, returnValue );
+				}
+
+				return returnValue;
 			}
 
 			interfaceProxy.dependencies =
 			{
 				args: args,
-				ArgumentTypeMismatch: ArgumentTypeMismatch,
+				type: type,
+				iface: this,
+				returns: returns,
 				allowed: allowed,
 				methodRule: methodRule,
 				definedArgs: definedArgs,
 				proxifiedMethod: proxifiedMethod,
-				iface: this,
-				type: type
+				ReturnTypeMismatch: ReturnTypeMismatch,
+				ArgumentTypeMismatch: ArgumentTypeMismatch,
 			}
 
 			type.methods[ methodName ] = interfaceProxy;

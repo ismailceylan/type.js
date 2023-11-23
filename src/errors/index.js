@@ -1,4 +1,5 @@
 export { default as MissingPropError } from "./missing-prop-error.js";
+export { default as ReturnTypeMismatch } from "./return-type-mismatch.js";
 export { default as MissingMethodError } from "./missing-method-error.js";
 export { default as MissingArgumentError } from "./missing-argument-error.js";
 export { default as ArgumentTypeMismatch } from "./argument-type-mismatch.js";

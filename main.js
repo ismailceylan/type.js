@@ -27,6 +27,8 @@ const Creature = Type( "Creature" ).implements( CreatureContract ).prototype(
 	live( life, is )
 	{
 		console.log( is, `I have ${ life } days to live.` );
+
+		return "3";
 	},
 
 	foo()
@@ -55,7 +57,7 @@ const Human = Type( "Human" ).extends( Animal ).prototype(
 	{
 		this.weight += weight;
 	
-		this.live( 43 );
+		this.live( 43, false );
 		this.great();
 	},
 
