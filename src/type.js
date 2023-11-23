@@ -266,6 +266,11 @@ function parentalAccess( type, currentType, callerMethodName, root, proto, metho
 		type = type.parent;
 	}
 
+	if( methodName === undefined )
+	{
+		methodName = callerMethodName;
+	}
+
 	if( methodName in ctx )
 	{
 		return ctx[ methodName ].apply( root, args );
