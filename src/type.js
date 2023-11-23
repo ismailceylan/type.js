@@ -1,4 +1,4 @@
-import { args, closured, rename } from "./utils/index.js";
+import { args, closured, rename, typeName } from "./utils/index.js";
 
 export default function Type( name )
 {
@@ -243,11 +243,18 @@ export default function Type( name )
 	}
 }
 
-function parentalAccess( type, callerMethodName, root, proto, methodName, args )
+function parentalAccess( type, currentType, callerMethodName, root, proto, methodName, args )
 {
 	var ctx = proto.__proto__;
 
-	type = type.parent;
+	if(( type = type.parent ) === null )
+	{
+		throw new ReferenceError(
+			"The " + currentType.name + " is a type that does not extend another " +
+			"type, the parent method cannot be used in the " + callerMethodName +
+			" method."
+		);
+	}
 
 	// if root object is same with the proto
 	// that we should work on it then first
@@ -288,7 +295,13 @@ function bindMagicalParentWord( finalType, currentType, callerMethodName, method
 	{
 		parent: function( methodName, args )
 		{
-			return parentalAccess( finalType, callerMethodName, root, proto, methodName, args );
+			if( typeName( methodName ) == "Array" )
+			{
+				args = methodName;
+				methodName = undefined;
+			}
+
+			return parentalAccess( finalType, currentType, callerMethodName, root, proto, methodName, args );
 		}
 	}
 
