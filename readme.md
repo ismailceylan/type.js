@@ -1,7 +1,7 @@
 This javascript library allows us define interfaces, types and traits. A defined type can be inherited
 by other types, traits can also be used by types and types can implements multiple interfaces.
 
-Interfaces can be considered as abstract types. Arguments of methods, their types, whether they are required or not, and the type of return value can be declared with Interfaces. The only thing you can't do is define the body of a method. Interfaces can draw outlines of methods and properties. So when a type implements one (or more) interfaces, that type have to follow the rules defined in those interfaces. If incompatibility detected an error is thrown and execution stops.
+Interfaces can be considered as abstract types. Arguments of methods, their types, whether they are required or not, and the type of return value can be declared with interfaces. The only thing you can't do is define the body of a method. Interfaces can draw outlines of methods and properties. So when a type implements one (or more) interfaces, that type have to follow the rules defined in those interfaces. If incompatibility detected an error is thrown and execution stops.
 
 It is immediately checked whether required arguments are defined and if not, error will appear before the relevant method has ever run. However, the relevant method is constantly monitored during runtime to see whether it is called legally. It does this by placing a proxy method instead of the main method you wrote. This may affect performance, but since Type.js is completely native JavaScript, you can enclose the entire interface architecture in if-else blocks. If there is an ENV variable in your work environment that holds values such as development and production, types decide to implement interfaces or not, depending on that env value. Thus, while you use the interface in the development environment, you can ensure that it is not used in the production environment. You can even ensure that the interface codes do not contamine the compiled codes if your bundler shake trees.
 
@@ -20,8 +20,8 @@ var Breathable = Trait( "Breathable" ).prototype(
     }
 });
 ```
-Trait methods are added to the prototype area of the types that use it. Therefore, the instance scope
-(this word) refers to the type to which they belong, not trait object. However, all properties defined on types and traits are added to the instance that produced from the final type after passing through a property inheritance algorithm. This algorithm produces the result with the class mechanism that comes with EcmaScript 6.
+Trait methods are added to the prototype bags of the types that use it. Therefore, the instance's context
+(this word) refers to the type to which they belong, not trait object. However, all properties defined on types and traits are added to the instance that produced from the final type after passing through a property inheritance algorithm. This algorithm produces same result with the class mechanism that comes with EcmaScript 6.
 
 ### Implementing Types
 ```js
@@ -44,11 +44,11 @@ method, we can perform the initializations works, create initial values for prop
 
 The `use` method on the type objects allow us to use traits. If we want to use another trait we have to prepend another use method to the chain like `Type( ...something ).use( ...trait1, ...rename map).use( ...trait2, ...rename map)`.
 
-#### Renaming trait methods when used them
+### Renaming trait methods when used them
 ```js
 var Creature = Type( "Creature" ).use( Breathable, { breath: "exhale" });
 ```
-Now, the Creature type has a exhale method instead of breathable.
+Now, the Creature type has a exhale method instead of breath.
 
 ### Defining Animal Contracts
 ```js
@@ -89,7 +89,7 @@ var Animal = Type( "Animal" ).extends( Creature ).implements( AnimalContract ).p
     }
 });
 ```
-Type.js injects a magic `parent` word in every method we defined. This works same as the `super` that comes with ES6. But super can be used only in constructor method. You can use parent method in all methods of your types and access parent's every method with it.
+Type.js injects a magic `parent` word in every method we defined. This works same as the `super` that comes with ES6. But super can be used only in constructor and static methods. You can use parent method in all methods of your types and access parent's every method with it.
 
 ```js
 // ... type definitions
@@ -146,9 +146,9 @@ var Human = Type( "Human" ).extends( Animal ).use( Speakable, { speak: "talk" })
     
     live: function()
     {
-        // this method has been inherited from the "creature" type up to this point, but
-        // we have defined the "live" method here again, so we rejected the inheritance, but
-        // I want to use benefits of parental live method and add something extra after that
+        // this method has been inherited from the "creature" type up to this point, but we 
+        // had to defined the "live" method here again, so we rejected the inheritance, but
+        // we want to use benefits of paren live method and add something extra after that
         parent();
         
         // now we can improve our heritage
@@ -159,7 +159,7 @@ var Human = Type( "Human" ).extends( Animal ).use( Speakable, { speak: "talk" })
 
 parent mechanism can bubble. That means if you call parent method in a type, it'll let you to access parent type, obviously. If we call parent method in the method that we accessed from child then that make us dive one level deeper again in the inheritance. You can imagine that like `parent().parent()` and so on.
 
-parent methods can't be chained. That means you can't access parents of parents from one point. parent returns the value returned by the parent method.
+parent methods can't be chained. That means you can't access parents of parents from one point. parent returns the value returned by the inherited type's method.
 
 ### Let's create instances from types
 ```js
