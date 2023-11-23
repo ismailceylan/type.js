@@ -286,9 +286,9 @@ function parentalAccess( type, currentType, callerMethodName, root, proto, metho
 	else
 	{
 		throw new ReferenceError(
-			"The parent method used in " + type.name + "::" + callerMethodName +
+			"The parent method used in " + currentType.name + "::" + callerMethodName +
 			"() tried to access method "+ methodName +", which is not defined in type " +
-			type.parent.name + "!"
+			currentType.parent.name + "!"
 		);
 	}
 }
