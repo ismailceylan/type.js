@@ -213,32 +213,7 @@ export default function Type( name )
 
 		defineTypeMember( proto, "is", function( target )
 		{
-			if( target instanceof Type )
-			{
-				return type.types.indexOf( target.name ) > -1;
-			}
-			else if( target instanceof Interface )
-			{
-				var isNameInInterfaces = false;
-				var currentType = type;
-
-				while( currentType )
-				{
-					for( var iface of currentType.interfaces )
-					{
-						if( iface.name == target.name )
-						{
-							isNameInInterfaces = true;
-						}
-					}
-	
-					currentType = currentType.parent;
-				}
-
-				return isNameInInterfaces;
-			}
-			
-			throw new TypeError( "The is method expects Type or Interface as the first argument to test relation." );
+			return type.is( target );
 		});
 
 		defineTypeMember( proto, "behave", function( targetTrait )
@@ -281,6 +256,36 @@ export default function Type( name )
 		);
 
 		return stack;
+	}
+
+	this.is = function( target )
+	{
+		if( target instanceof Type )
+		{
+			return this.types.indexOf( target.name ) > -1;
+		}
+		else if( target instanceof Interface )
+		{
+			var isNameInInterfaces = false;
+			var currentType = this;
+
+			while( currentType )
+			{
+				for( var iface of currentType.interfaces )
+				{
+					if( iface.name == target.name )
+					{
+						isNameInInterfaces = true;
+					}
+				}
+
+				currentType = currentType.parent;
+			}
+
+			return isNameInInterfaces;
+		}
+		
+		throw new TypeError( "The is method expects Type or Interface as the first argument to test relation." );
 	}
 }
 
