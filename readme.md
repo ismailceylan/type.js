@@ -48,7 +48,7 @@ The `use` method on the type objects allow us to use traits. If we want to use a
 ```js
 var Creature = Type( "Creature" ).use( Breathable, { breath: "exhale" });
 ```
-Now, the Creature type has a exhale method instead of breath.
+Now, the Creature type has a exhale method instead of breath. 
 
 ### Defining Animal Contracts
 ```js
@@ -148,7 +148,7 @@ var Human = Type( "Human" ).extends( Animal ).use( Speakable, { speak: "talk" })
     {
         // this method has been inherited from the "creature" type up to this point, but we 
         // had to defined the "live" method here again, so we rejected the inheritance, but
-        // we want to use benefits of paren live method and add something extra after that
+        // we want to use benefits of the parent's live method and add something extra after that
         parent();
         
         // now we can improve our heritage
@@ -157,16 +157,16 @@ var Human = Type( "Human" ).extends( Animal ).use( Speakable, { speak: "talk" })
 });
 ```
 
-parent mechanism can bubble. That means if you call parent method in a type, it'll let you to access parent type, obviously. If we call parent method in the method that we accessed from child then that make us dive one level deeper again in the inheritance. You can imagine that like `parent().parent()` and so on.
+parent mechanism can bubble. That means if you call parent in a type method, it'll let you to access parent type, obviously. If we call parent in the method that we accessed from child then that make us dive one level deeper again in the inheritance. You can imagine that like `parent().parent()` and so on.
 
-parent methods can't be chained. That means you can't access parents of parents from one point. parent returns the value returned by the inherited type's method.
+parent can't be chained. This means that you will not have a direct connection with the parent type's parent type. parent returns the value returned by the inherited type's method.
 
 ### Let's create instances from types
 ```js
 var ismail = Human.create( "İsmail" );
 
-    ismail.live();
-    ismail.talk( "Hello world!" );
+ismail.live();
+ismail.talk( "Hello world!" );
 ```
 
 ### Testing "Is A" relations
