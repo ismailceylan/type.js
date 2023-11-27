@@ -245,8 +245,6 @@ export default function Type( name )
 
 function parentalAccess( type, currentType, callerMethodName, root, proto, methodName, args )
 {
-	var ctx = proto.__proto__;
-
 	if(( type = type.parent ) === null )
 	{
 		throw new ReferenceError(
@@ -255,6 +253,8 @@ function parentalAccess( type, currentType, callerMethodName, root, proto, metho
 			" method."
 		);
 	}
+
+	var ctx = proto.__proto__;
 
 	// if root object is same with the proto
 	// that we should work on it then first
