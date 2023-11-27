@@ -151,6 +151,7 @@ export default function Type( name )
 	 */
 	this.create = function()
 	{
+		var type = this;
 		var instance = new this.constructor;
 
 		Object.defineProperties(
@@ -206,6 +207,20 @@ export default function Type( name )
 				instance
 			);
 		}
+
+		proto = proto.__proto__ = {}
+
+		defineTypeMember( proto, "is", function( targetType )
+		{
+			return type.types.indexOf( targetType.name ) > -1;
+		});
+
+		defineTypeMember( proto, "behave", function( targetTrait )
+		{
+			return type.traits.indexOf( targetTrait.name ) > -1;
+		});
+
+		defineTypeMember( proto, "constructor", Type );
 
 		if( "construct" in instance )
 		{
