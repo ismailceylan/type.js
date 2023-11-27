@@ -1,3 +1,4 @@
+import Interface from "./interface/index.js";
 import { args, closured, rename, typeName } from "./utils/index.js";
 
 export default function Type( name )
@@ -105,7 +106,7 @@ export default function Type( name )
 		this.parent = parent;
 		this.types = this.types.concat( parent.types );
 		this.traits = this.traits.concat( parent.traits );
-		
+
 		return this;
 	}
 
@@ -210,9 +211,34 @@ export default function Type( name )
 
 		proto = proto.__proto__ = {}
 
-		defineTypeMember( proto, "is", function( targetType )
+		defineTypeMember( proto, "is", function( target )
 		{
-			return type.types.indexOf( targetType.name ) > -1;
+			if( target instanceof Type )
+			{
+				return type.types.indexOf( target.name ) > -1;
+			}
+			else if( target instanceof Interface )
+			{
+				var isNameInInterfaces = false;
+				var currentType = type;
+
+				while( currentType )
+				{
+					for( var iface of currentType.interfaces )
+					{
+						if( iface.name == target.name )
+						{
+							isNameInInterfaces = true;
+						}
+					}
+	
+					currentType = currentType.parent;
+				}
+
+				return isNameInInterfaces;
+			}
+			
+			throw new TypeError( "The is method expects Type or Interface as the first argument to test relation." );
 		});
 
 		defineTypeMember( proto, "behave", function( targetTrait )
