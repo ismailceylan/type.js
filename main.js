@@ -78,8 +78,9 @@ const ismail = Human.create({ weight: 88 });
 console.log(
 {
 	isIsmailBreathable: ismail.behave( Breathable ),
-	isIsmailAnimal: ismail.is( "Animal" ),
+	isIsmailAnimal: ismail.is( Animal ),
 	isIsmailSharesCreatureContract: ismail.is( CreatureContract ),
+	isHumanTypeAlsoCreature: Human.is( Creature )
 });
 
 ismail.foo();
