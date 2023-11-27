@@ -75,5 +75,11 @@ const Human = Type( "Human" ).extends( Animal ).prototype(
 
 const ismail = Human.create({ weight: 88 });
 
-// // console.log( ismail.behave( Breathable ));
-// ismail.foo();
+console.log(
+{
+	isIsmailBreathable: ismail.behave( Breathable ),
+	isIsmailAnimal: ismail.is( "Animal" ),
+	isIsmailSharesCreatureContract: ismail.is( CreatureContract ),
+});
+
+ismail.foo();
