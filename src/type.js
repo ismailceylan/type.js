@@ -24,7 +24,7 @@ export default function Type( name )
 	this.name = name;
 
 	/**
-	 * The parent type from which this type inherited.
+	 * Parent type.
 	 * 
 	 * @type {Type}
 	 */
@@ -45,7 +45,7 @@ export default function Type( name )
 	this.traits = [];
 
 	/**
-	 * Implemented interfaces list.
+	 * Implemented interface list.
 	 * 
 	 * @type {Array}
 	 */
@@ -73,7 +73,7 @@ export default function Type( name )
 	this.properties = {}
 
 	/**
-	 * Embeds a new context into the type's prototype.
+	 * Mixes a new context into the type's prototype.
 	 * 
 	 * @param {Object} context
 	 * @return {this}
