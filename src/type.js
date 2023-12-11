@@ -1,5 +1,6 @@
 import Interface from "./interface/index.js";
-import { args, closured, rename, typeName } from "./utils/index.js";
+import { args, closured, rename, typeName, getPrototypeOf, setPrototypeOf }
+	from "./utils/index.js";
 
 export default function Type( name )
 {
@@ -163,7 +164,7 @@ export default function Type( name )
 		if( this.parent )
 		{
 			var currentType = this;
-			var proto = instance.__proto__ = {};
+			var proto = setPrototypeOf( instance, {});
 
 			while( currentType )
 			{
@@ -187,7 +188,7 @@ export default function Type( name )
 
 				if( currentType.parent )
 				{
-					proto = proto.__proto__ = {}
+					proto = setPrototypeOf( proto, {});
 					currentType = currentType.parent;
 				}
 				else
@@ -199,7 +200,7 @@ export default function Type( name )
 
 		for( var key in this.methods )
 		{
-			instance.__proto__[ key ] = bindMagicalParentWord(
+			getPrototypeOf( instance )[ key ] = bindMagicalParentWord(
 				this,
 				this,
 				key,
@@ -209,7 +210,7 @@ export default function Type( name )
 			);
 		}
 
-		proto = proto.__proto__ = {}
+		proto = setPrototypeOf( proto, {});
 
 		defineTypeMember( proto, "is", function( target )
 		{
@@ -300,15 +301,15 @@ function parentalAccess( type, currentType, callerMethodName, root, proto, metho
 		);
 	}
 
-	var ctx = proto.__proto__;
+	var ctx = getPrototypeOf( proto );
 
 	// if root object is same with the proto
 	// that we should work on it then first
-	// level __proto__ will lead infinite loop
+	// level [[Prototype]] will lead infinite loop
 	if( root === proto )
 	{
 		// we have to dive one level deeper
-		ctx = ctx.__proto__;
+		ctx = getPrototypeOf( ctx );
 		type = type.parent;
 	}
 
@@ -321,7 +322,7 @@ function parentalAccess( type, currentType, callerMethodName, root, proto, metho
 	{
 		return ctx[ methodName ].apply( root, args );
 	}
-	else if( ctx.__proto__ === null )
+	else if( getPrototypeOf( ctx ) === null )
 	{
 		throw new ReferenceError(
 			'"parent" method was used illegally in ' +
@@ -332,8 +333,8 @@ function parentalAccess( type, currentType, callerMethodName, root, proto, metho
 	else
 	{
 		throw new ReferenceError(
-			"The parent method used in " + currentType.name + "::" + callerMethodName +
-			"() tried to access method "+ methodName +", which is not defined in type " +
+			"The parent method used in " + currentType.name + "." + callerMethodName +
+			" tried to access method " + methodName + ", which is not defined in type " +
 			currentType.parent.name + "!"
 		);
 	}
