@@ -5,9 +5,7 @@ Interfaces can be considered as abstract types. Arguments of methods, their type
 
 It is immediately checked whether required arguments are defined and if not, error will appear before the relevant method has ever run. However, the relevant method is constantly monitored during runtime to see whether it is called legally. It does this by placing a proxy method instead of the main method you wrote. This may affect performance, but since Type.js is completely native JavaScript, you can enclose the entire interface architecture in if-else blocks. If there is an ENV variable in your work environment that holds values such as development and production, types decide to implement interfaces or not, depending on that env value. Thus, while you use the interface in the development environment, you can ensure that it is not used in the production environment. You can even ensure that the interface codes do not contamine the compiled codes if your bundler shake trees.
 
-Type.js uses chained `__proto__` mechanism. So this means that all inherited type methods, properties and trait methods etc. will collected according proto area and those proto objects will chained. Type.js creates almost the same object as you would get when you use the class and extends structure, which is the syntactic sugar in Modern JavaScript.
-
-The use of `__proto__` is no longer recommended and may not be supported in some environments, so type.js is designed to work in legacy environments and you should use type.js when writing code for legacy environments. It is not recommended to use type.js in modern environments.
+Type.js uses chained `[[Prototype]]` mechanism. So this means that all inherited type methods, properties and trait methods etc. will collected according proto area and those proto objects will chained. Type.js creates almost the same object as you would get when you use the class and extends structure, which is the syntactic sugar in Modern JavaScript.
 
 ## Usage
 ### Let's create a trait that specific to living things
@@ -159,7 +157,7 @@ var Human = Type( "Human" ).extends( Animal ).use( Speakable, { speak: "talk" })
 
 parent mechanism can bubble. That means if you call parent in a type method, it'll let you to access parent type, obviously. If we call parent in the method that we accessed from child then that make us dive one level deeper again in the inheritance. You can imagine that like `parent().parent()` and so on.
 
-parent can't be chained. This means that you will not have a direct connection with the parent type's parent type. parent returns the value returned by the inherited type's method.
+By the way parent calls can't be chained. parent magical method calls return the value returned by the accessed parent type's method. This means that you will not have a direct connection with the parent type's parent type.
 
 ### Let's create instances from types
 ```js
@@ -170,6 +168,12 @@ ismail.talk( "Hello world!" );
 ```
 
 ### Testing "Is A" relations
+Type.js allows us to define types. Types can extend other types, and we can check this directly without creating an instance. Types can also implement interfaces, allowing us to test it without instantiation. Finally, types can use traits, and we can verify trait usage without creating an instance.
+
+We can also perform all the mentioned tests on instances created by types as well.
+
+Type.js allows interfaces to extend multiple interfaces with `extends` method and traits to use multiple traits with `use` method. Also, to check whether an interface extends other interface we have a `is` method on interfaces, and to check whether a trait uses other traits we have a `behave` method on traits.
+
 ```js
 // please remember that the "ismail" object does not directly extends
 // the "Creature" type. It extends the "Animal" intermediate type.
@@ -182,6 +186,11 @@ ismail.is( Animal );
 Human.is( Creature );
 // true
 
+Human.is( CreatureContract );
+// true
+
 ismail.behave( Breathable );
 // true
 ```
+
+Type and interface relations should test with `is` method and traits should `behave` method.
