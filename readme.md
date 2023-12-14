@@ -23,14 +23,16 @@ Trait methods are added to the prototype bags of the types that use it. Therefor
 
 ### Using a trait abilities to implement advanced traits
 ```js
-var BreathableUnderWater = Trait( "BreathableUnderWater" ).use( Breathable, { breath: "baseBreath" }).prototype(
-{
-    breathUnderWater: function()
+var BreathableUnderWater = Trait( "BreathableUnderWater" )
+    .use( Breathable, { breath: "baseBreath" })
+    .prototype(
     {
-        parent( "baseBreath", [ 10 ]);
-        console.log( "Whoa! I'm breathing under the water. I'm so coool!!" );
-    }
-});
+        breathUnderWater: function()
+        {
+            parent( "baseBreath", [ 10 ]);
+            console.log( "Whoa! I'm breathing under the water. I'm so coool!!" );
+        }
+    });
 ```
 Traits can extend another trait with `use` method. If we want to inherit another one, we can put another use method at the end of the chain. We can also rename the inherited trait methods as we wish. In the future, when a type uses the final trait, the functions will be included in the type with a changed name.
 
