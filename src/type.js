@@ -130,7 +130,8 @@ export default function Type( name )
 	 * this type, that is, the copied props appear as if they were props of
 	 * this type.
 	 * 
-	 * @param {Array} ...parents traits to use
+	 * @param {Trait} trait the trait to use
+	 * @param {Object} renameMap {target: "newName"} formatted renaming map
 	 * @return {Type}
 	 */
 	this.use = function( trait, renameMap )
@@ -141,7 +142,7 @@ export default function Type( name )
 				: trait.properties
 		);
 
-		this.traits = this.traits.concat( trait.types );
+		this.traits = this.traits.concat( trait.traits );
 
 		return this;
 	}
