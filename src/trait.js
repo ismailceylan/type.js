@@ -1,15 +1,15 @@
-import { args } from "./utils/index.js";
+import { rename } from "./utils/index.js";
 
 /**
  * Creates traits.
  * 
  * @param {String} name trait name
  */
-export default function trait( name )
+export default function Trait( name )
 {
-	if( ! ( this instanceof trait ))
+	if( ! ( this instanceof Trait ))
 	{
-		return new trait( name );
+		return new Trait( name );
 	}
 
 	if( typeof( name ) !== "string" || /^[a-z_$]{1}[a-z0-9_$]*$/i.test( name ) === false )
@@ -29,7 +29,7 @@ export default function trait( name )
 	 * 
 	 * @type {Array}
 	 */
-	this.types = [ this.name ];
+	this.traits = [ this.name ];
 
 	/**
 	 * Methods and properties in the trait's own and inherited traits.
@@ -44,13 +44,15 @@ export default function trait( name )
 	 * @param {Trait} ...parents traits to use
 	 * @return {this}
 	 */
-	this.use = function()
+	this.use = function( trait, renameMap )
 	{
-		args( arguments ).forEach( parent =>
-		{
-			Object.assign( this.properties, parent.properties );
-			this.types = this.types.concat( parent.types );
-		});
+		this.prototype(
+			renameMap
+				? rename( trait.properties, renameMap, true )
+				: trait.properties
+		);
+
+		this.traits = this.traits.concat( trait.traits );
 
 		return this;
 	}
@@ -69,13 +71,13 @@ export default function trait( name )
 	}
 
 	/**
-	 * Tells whether the represented type inherits a given type.
+	 * Tells whether the represented trait extends a given trait.
 	 * 
-	 * @param {Trait} target a trait name or a trait to check
+	 * @param {Trait} target a trait to check if it is extended
 	 * @return {Boolean}
 	 */
-	this.is = function( target )
+	this.behave = function( target )
 	{
-		return this.types.indexOf( target.name ) > -1;
+		return this.traits.indexOf( target.name ) > -1;
 	}
 }
