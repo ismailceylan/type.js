@@ -7,6 +7,6 @@ export default class PropAssignTypeMismatchError extends TypeError
 		super();
 
 		this.name = "PropAssignTypeMismatchError";
-		this.message = `${ iface.name } interface requires the ${ type.name }.${ rule.name } property should ${ readableJoin( typeNames( rule.types ))} but attempted to assign ${ typeName( propValue )}.`;
+		this.message = `${ iface.name } interface requires the ${ type.name }.${ rule.name } property should get ${ readableJoin( typeNames( rule.types ))} but attempted to assign ${ typeName( propValue )}.`;
 	}
 }
