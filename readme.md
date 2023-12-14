@@ -1,11 +1,20 @@
+# Type.js
 This javascript library allows us define interfaces, types and traits. A defined type can be inherited
 by other types, traits can also be used by types and types can implements multiple interfaces.
 
-Interfaces can be considered as abstract types. Arguments of methods, their types, whether they are required or not, and the type of return value can be declared with interfaces. The only thing you can't do is define the body of a method. Interfaces can draw outlines of methods and properties. So when a type implements one (or more) interfaces, that type have to follow the rules defined in those interfaces. If incompatibility detected an error is thrown and execution stops.
-
-It is immediately checked whether required arguments are defined and if not, error will appear before the relevant method has ever run. However, the relevant method is constantly monitored during runtime to see whether it is called legally. It does this by placing a proxy method instead of the main method you wrote. This may affect performance, but since Type.js is completely native JavaScript, you can enclose the entire interface architecture in if-else blocks. If there is an ENV variable in your work environment that holds values such as development and production, types decide to implement interfaces or not, depending on that env value. Thus, while you use the interface in the development environment, you can ensure that it is not used in the production environment. You can even ensure that the interface codes do not contamine the compiled codes if your bundler shake trees.
-
+## Mechanism
 Type.js uses chained `[[Prototype]]` mechanism. So this means that all inherited type methods, properties and trait methods etc. will collected according proto area and those proto objects will chained. Type.js creates almost the same object as you would get when you use the `class X extends Y` structure, which is the syntactic sugar in Modern JavaScript.
+
+## Interfaces
+Interfaces can be considered as abstract types. Arguments of methods, their types, whether they are required or not, and the type of return value can be declared with interfaces. The only thing you can't do is define the body of a method. Interfaces can draw outlines of methods and properties.
+
+So when a type implements one (or more) interfaces, that type have to follow the rules defined in those interfaces. If incompatibility detected an error is thrown and execution stops.
+
+It is immediately checked whether required arguments on methods are defined and if not, error will appear before the relevant method has ever run.
+
+The same thing is done for properties. If required properties are not defined or if the interface declare a type and the property currently does not hold data of that type, errors are thrown.
+
+However, the methods and properties is constantly monitored during runtime to see whether they're called legally. It does this by placing a proxy method instead of the main method you wrote and getter/setter for properties. This may affect performance, but since Type.js is completely native JavaScript, you can enclose the entire interface architecture in if-else blocks. If there is an ENV variable in your work environment that holds values such as development and production, types decide to implement interfaces or not, depending on that env value. Thus, while you use the interface in the development environment, you can ensure that it is not used in the production environment. You can even ensure that the interface codes do not contamine the compiled codes if your bundler shake trees.
 
 ## Usage
 ### Let's create a trait that specific to living things
