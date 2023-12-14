@@ -20,6 +20,15 @@ const Breathable = Trait( "Breathable" ).prototype(
 	}
 });
 
+const UnderWaterBreathable = Trait( "UnderWaterBreathable" ).use( Breathable ).prototype(
+{
+	breathUnderWater()
+	{
+		this.great();
+		console.log( "breathing under water" );
+	}
+});
+
 const Creature = Type( "Creature" ).implements( CreatureContract ).prototype(
 {
 	weight: 12,
@@ -37,7 +46,7 @@ const Creature = Type( "Creature" ).implements( CreatureContract ).prototype(
 	}
 });
 
-const Animal = Type( "Animal" ).extends( Creature ).use( Breathable, { breath: "great" }).prototype(
+const Animal = Type( "Animal" ).extends( Creature ).use( UnderWaterBreathable, { breath: "great" }).prototype(
 {
 	walk()
 	{
@@ -47,7 +56,7 @@ const Animal = Type( "Animal" ).extends( Creature ).use( Breathable, { breath: "
 	foo()
 	{
 		console.log(this,"foo animal");
-		parent( "foo" );
+		parent();
 	}
 });
 
@@ -58,7 +67,7 @@ const Human = Type( "Human" ).extends( Animal ).prototype(
 		this.weight += weight;
 	
 		this.live( 43, false );
-		this.great();
+		this.breathUnderWater();
 	},
 
 	talk()
@@ -69,7 +78,7 @@ const Human = Type( "Human" ).extends( Animal ).prototype(
 	foo()
 	{
 		console.log(this,"foo human");
-		parent( "foo" );
+		parent();
 	}
 });
 
@@ -80,7 +89,8 @@ console.log(
 	isIsmailBreathable: ismail.behave( Breathable ),
 	isIsmailAnimal: ismail.is( Animal ),
 	isIsmailSharesCreatureContract: ismail.is( CreatureContract ),
-	isHumanTypeAlsoCreature: Human.is( Creature )
+	isHumanTypeAlsoCreature: Human.is( Creature ),
+	isUnderWaterBreathableExtendsBreathable: UnderWaterBreathable.behave( Breathable )
 });
 
 ismail.foo();
