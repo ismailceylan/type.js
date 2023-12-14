@@ -5,21 +5,34 @@ Interfaces can be considered as abstract types. Arguments of methods, their type
 
 It is immediately checked whether required arguments are defined and if not, error will appear before the relevant method has ever run. However, the relevant method is constantly monitored during runtime to see whether it is called legally. It does this by placing a proxy method instead of the main method you wrote. This may affect performance, but since Type.js is completely native JavaScript, you can enclose the entire interface architecture in if-else blocks. If there is an ENV variable in your work environment that holds values such as development and production, types decide to implement interfaces or not, depending on that env value. Thus, while you use the interface in the development environment, you can ensure that it is not used in the production environment. You can even ensure that the interface codes do not contamine the compiled codes if your bundler shake trees.
 
-Type.js uses chained `[[Prototype]]` mechanism. So this means that all inherited type methods, properties and trait methods etc. will collected according proto area and those proto objects will chained. Type.js creates almost the same object as you would get when you use the class and extends structure, which is the syntactic sugar in Modern JavaScript.
+Type.js uses chained `[[Prototype]]` mechanism. So this means that all inherited type methods, properties and trait methods etc. will collected according proto area and those proto objects will chained. Type.js creates almost the same object as you would get when you use the `class X extends Y` structure, which is the syntactic sugar in Modern JavaScript.
 
 ## Usage
 ### Let's create a trait that specific to living things
 ```js
 var Breathable = Trait( "Breathable" ).prototype(
 {
-    breath: function()
+    breath: function( perMinute )
     {
-        console.log( "Yay! I can breath." );
+        console.log( "Yay! I can breath " + perMinute + " times per minute." );
     }
 });
 ```
 Trait methods are added to the prototype bags of the types that use it. Therefore, the instance's context
 (this word) refers to the type to which they belong, not trait object. However, all properties defined on types and traits are added to the instance that produced from the final type after passing through a property inheritance algorithm. This algorithm produces same result with the class mechanism that comes with EcmaScript 6.
+
+### Using a trait abilities to implement advanced traits
+```js
+var BreathableUnderWater = Trait( "BreathableUnderWater" ).use( Breathable, { breath: "baseBreath" }).prototype(
+{
+    breathUnderWater: function()
+    {
+        parent( "baseBreath", [ 10 ]);
+        console.log( "Whoa! I'm breathing under the water. I'm so coool!!" );
+    }
+});
+```
+Traits can extend another trait with `use` method. If we want to inherit another one, we can put another use method at the end of the chain. We can also rename the inherited trait methods as we wish. In the future, when a type uses the final trait, the functions will be included in the type with a changed name.
 
 ### Implementing Types
 ```js
