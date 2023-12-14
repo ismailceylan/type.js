@@ -3,7 +3,7 @@ This javascript library allows us define interfaces, types and traits. A defined
 by other types, traits can also be used by types and types can implements multiple interfaces.
 
 ## Mechanism
-Type.js uses chained `[[Prototype]]` mechanism. So this means that all inherited type methods, properties and trait methods etc. will collected according proto area and those proto objects will chained. Type.js creates almost the same object as you would get when you use the `class X extends Y` structure, which is the syntactic sugar in Modern JavaScript.
+Type.js uses chained `[[Prototype]]` mechanism. So this means that all inherited type methods and trait methods will collected according proto area and those proto objects will chained. Type.js creates almost the same object as you would get when you use the `class X extends Y` structure, which is the syntactic sugar in Modern JavaScript.
 
 ## Interfaces
 Interfaces can be considered as abstract types. Arguments of methods, their types, whether they are required or not, and the type of return value can be declared with interfaces. The only thing you can't do is define the body of a method. Interfaces can draw outlines of methods and properties.
@@ -14,7 +14,7 @@ It is immediately checked whether required arguments on methods are defined and 
 
 The same thing is done for properties. If required properties are not defined or if the interface declare a type and the property currently does not hold data of that type, errors are thrown.
 
-However, the methods and properties is constantly monitored during runtime to see whether they're called legally. It does this by placing a proxy method instead of the main method you wrote and getter/setter for properties. This may affect performance, but since Type.js is completely native JavaScript, you can enclose the entire interface architecture in if-else blocks. If there is an ENV variable in your work environment that holds values such as `development` and `production`, types decide to implement interfaces or not, depending on that env value. Thus, while you use the interface in the development environment, you can ensure that it is not used in the production environment. You can even ensure that the interface codes do not contamine the compiled codes if your bundler shake trees.
+However, the methods and properties is constantly monitored during runtime to see whether they're called/writed legally. It does this by placing a proxy method instead of the main method you wrote and getter/setter for properties. This may affect performance, but since Type.js is completely native JavaScript, you can enclose the entire interface architecture in if-else blocks. If there is an ENV variable in your work environment that holds values such as `development` and `production`, types decide to implement interfaces or not, depending on that env value. Thus, while you use the interface in the development environment, you can ensure that it is not used in the production environment. You can even ensure that the interface codes do not contamine the compiled codes if your bundler shake trees.
 
 ## Usage
 ### Let's create a trait that specific to living things
@@ -184,7 +184,7 @@ var Human = Type( "Human" ).extends( Animal ).use( Speakable, { speak: "talk" })
 ```
 parent mechanism can bubble. That means if you call parent in a type method, it'll let you to access parent type, obviously. If we call parent in the method that we accessed from child then that make us dive one level deeper again in the inheritance. You can imagine that like `parent().parent()` and so on.
 
-By the way parent calls can't be chained. parent magical method calls return the value returned by the accessed parent type's method. This means that you will not have a direct connection with the parent type's parent type.
+But that doesn't mean we can chain the parent calls. The parent magical method returns the value that returned by the accessed parent method. This means that you won't have a direct connection with the parent of the parent type.
 
 ### Let's create instances from types
 ```js
@@ -195,12 +195,6 @@ ismail.talk( "Hello world!" );
 ```
 
 ### Testing "Is A" relations
-Type.js allows us to define types. Types can extend other types, and we can check this directly without creating an instance. Types can also implement interfaces, allowing us to test it without instantiation. Finally, types can use traits, and we can verify trait usage without creating an instance.
-
-We can also perform all the mentioned tests on instances created by types as well.
-
-Type.js allows interfaces to extend multiple interfaces with `extends` method and traits to use multiple traits with `use` method. Also, to check whether an interface extends other interface we have a `is` method on interfaces, and to check whether a trait uses other traits we have a `behave` method on traits.
-
 ```js
 // please remember that the "ismail" object does not directly extends
 // the "Creature" type. It extends the "Animal" intermediate type.
@@ -218,6 +212,12 @@ Human.is( CreatureContract );
 
 ismail.behave( Breathable );
 // true
-```
 
-Type and interface relations should test with `is` method and traits should `behave` method.
+BreathableUnderwater.behave( Breathable );
+// true
+```
+Type.js allows us to define types. Types can extend other types, and we can check this directly without creating an instance. Types can also implement interfaces, allowing us to test it without instantiation. Finally, types can use traits, and we can verify trait usage without creating an instance.
+
+Also, Type.js allows interfaces to extend multiple interfaces with `extends` method and traits to use multiple traits with `use` method. For checking whether an interface extends other interface, we have a `is` method on interfaces and to check whether a trait uses other traits we have a `behave` method on traits.
+
+We can also perform all the mentioned tests on instances created by types as well.
