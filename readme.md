@@ -28,7 +28,7 @@ var Breathable = Trait( "Breathable" ).prototype(
 });
 ```
 Trait methods are added to the prototype bags of the types that use it. Therefore, the instance's context
-(this word) refers to the type to which they belong, not trait object. However, all properties defined on types and traits are added to the instance that produced from the final type after passing through a property inheritance algorithm. This algorithm produces same result with the class mechanism that comes with EcmaScript 6. That means you won't see any property in a `[[Prototype]]` section.
+(this word) refers to the type to which they belong, not trait object. However, all properties defined on types and traits are added to the instance that produced from the final type after passing through a property inheritance algorithm. This algorithm produces same result with the class mechanism that comes with EcmaScript 6. That means you won't see any property in any `[[Prototype]]` sections.
 
 ### Using a trait's abilities to implement advanced traits
 ```js
@@ -184,7 +184,7 @@ var Human = Type( "Human" ).extends( Animal ).use( Speakable, { speak: "talk" })
 ```
 parent mechanism can bubble. That means if you call parent in a type method, it'll let you to access parent type, obviously. If we call parent in the method that we accessed from child then that make us dive one level deeper again in the inheritance. You can imagine that like `parent().parent()` and so on.
 
-But that doesn't mean we can chain the parent calls. The parent magical method returns the value that returned by the accessed parent method. This means that you won't have a direct connection with the parent of the parent type.
+But that doesn't mean we can chain the parent calls. The parent magical method returns the value that returned by the accessed method of the parent type. This means that you won't have a direct connection with the parent of the parent type.
 
 ### Let's create instances from types
 ```js
@@ -193,6 +193,7 @@ var ismail = Human.create( "İsmail" );
 ismail.live();
 ismail.talk( "Hello world!" );
 ```
+All parameters given to the `create` method are passed to the `construct` method of the type.
 
 ### Testing "Is A" relations
 ```js
@@ -218,6 +219,6 @@ BreathableUnderwater.behave( Breathable );
 ```
 Type.js allows us to define types. Types can extend other types, and we can check this directly without creating an instance. Types can also implement interfaces, allowing us to test it without instantiation. Finally, types can use traits, and we can verify trait usage without creating an instance.
 
-Also, Type.js allows interfaces to extend multiple interfaces with `extends` method and traits to use multiple traits with `use` method. For checking whether an interface extends other interface, we have a `is` method on interfaces and to check whether a trait uses other traits we have a `behave` method on traits.
+Also, Type.js allows interfaces to extend multiple interfaces with `extends` method and traits to use multiple traits with `use` method. For checking whether an interface extends other interface, we have an `is` method on interfaces and to check whether a trait uses other traits we have a `behave` method on traits.
 
 We can also perform all the mentioned tests on instances created by types as well.
