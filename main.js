@@ -12,26 +12,36 @@ const CreatureContract = Interface( "CreatureContract", function( creatures )
 	});
 });
 
+const WarmBloodedCreatureContract = Interface( "WarmBloodedCreatureContract" )
+	.extends( CreatureContract )
+	.prototype( function( warmBlood )
+	{
+		warmBlood.property( "beatSpeed", Number ).required();
+	});
+
 const Breathable = Trait( "Breathable" ).prototype(
 {
-	breath()
+	breath( perMinute )
 	{
-		console.log( "breathing" );
+		console.log( "I'm breathing " + perMinute + " times per minute!" );
 	}
 });
 
-const UnderWaterBreathable = Trait( "UnderWaterBreathable" ).use( Breathable ).prototype(
-{
-	breathUnderWater()
+const UnderwaterBreathable = Trait( "UnderwaterBreathable" )
+	.use( Breathable, { breath: "baseBreath" })
+	.prototype(
 	{
-		this.great();
-		console.log( "breathing under water" );
-	}
-});
+		breathUnderwater()
+		{
+			this.baseBreath( 10 );
+			console.log( "Whoa! I'm breathing underwater. Did you see how coool I am!!" );
+		}
+	});
 
-const Creature = Type( "Creature" ).implements( CreatureContract ).prototype(
+const Creature = Type( "Creature" ).implements( WarmBloodedCreatureContract ).prototype(
 {
 	weight: 12,
+	beatSpeed: 59,
 
 	live( life, is )
 	{
@@ -46,19 +56,22 @@ const Creature = Type( "Creature" ).implements( CreatureContract ).prototype(
 	}
 });
 
-const Animal = Type( "Animal" ).extends( Creature ).use( UnderWaterBreathable, { breath: "great" }).prototype(
-{
-	walk()
+const Animal = Type( "Animal" )
+	.extends( Creature )
+	.use( UnderwaterBreathable, { breathUnderwater: "breath" })
+	.prototype(
 	{
-		console.log( "walking" );
-	},
+		walk()
+		{
+			console.log( "walking" );
+		},
 
-	foo()
-	{
-		console.log(this,"foo animal");
-		parent();
-	}
-});
+		foo()
+		{
+			console.log(this,"foo animal");
+			parent();
+		}
+	});
 
 const Human = Type( "Human" ).extends( Animal ).prototype(
 {
@@ -67,7 +80,7 @@ const Human = Type( "Human" ).extends( Animal ).prototype(
 		this.weight += weight;
 	
 		this.live( 43, false );
-		this.breathUnderWater();
+		this.breath();
 	},
 
 	talk()
@@ -90,7 +103,10 @@ console.log(
 	isIsmailAnimal: ismail.is( Animal ),
 	isIsmailSharesCreatureContract: ismail.is( CreatureContract ),
 	isHumanTypeAlsoCreature: Human.is( Creature ),
-	isUnderWaterBreathableExtendsBreathable: UnderWaterBreathable.behave( Breathable )
+	isUnderwaterBreathableExtendsBreathable: UnderwaterBreathable.behave( Breathable ),
+	isCreatureContractWarmBloodedCreatureContract: CreatureContract.is( WarmBloodedCreatureContract ),
+	isWarmBloodedCreatureContractCreatureContract: WarmBloodedCreatureContract.is( CreatureContract ),
+	isHumanWarmBlooded: Human.is( WarmBloodedCreatureContract )
 });
 
 ismail.foo();

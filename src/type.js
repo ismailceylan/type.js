@@ -271,13 +271,14 @@ export default function Type( name )
 			var isNameInInterfaces = false;
 			var currentType = this;
 
-			while( currentType )
+			inheritanceLoop: while( currentType )
 			{
 				for( var iface of currentType.interfaces )
 				{
-					if( iface.name == target.name )
+					if( iface.is( target ))
 					{
 						isNameInInterfaces = true;
+						break inheritanceLoop;
 					}
 				}
 
