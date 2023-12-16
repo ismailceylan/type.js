@@ -14,6 +14,7 @@ export default function Interface( name, build )
 	}
 
 	var builder = new Builder;
+	var propCache = {}
 
 	if( build )
 	{
@@ -123,6 +124,8 @@ export default function Interface( name, build )
 
 	function validateProperties( type )
 	{
+		propCache[ type.name ] = {}
+
 		for( var ruleName in this.properties )
 		{
 			var rule = this.properties[ ruleName ];
@@ -132,6 +135,8 @@ export default function Interface( name, build )
 			var defined = name in type.properties;
 			var value = type.properties[ name ];
 			var restricted = allows.length > 0;
+
+			propCache[ type.name ][ name ] = value;
 
 			// checking if prop needs to be defined
 			if( required && ! defined )
@@ -150,27 +155,30 @@ export default function Interface( name, build )
 			// we have to observe future writings
 			if( restricted )
 			{
-				var iface = this;
-
-				Object.defineProperty( type.properties, name,
-				{
-					get: function()
-					{
-						return value;
-					},
-	
-					set: function( v )
-					{
-						if( ! allowed( v, allows ))
-						{
-							throw new PropAssignTypeMismatchError( iface, type, rule, v );
-						}
-
-						value = v;
-					}
-				});
+				watchProp( this, type, rule );
 			}
 		}
+	}
+
+	function watchProp( iface, type, rule )
+	{
+		Object.defineProperty( type.properties, rule.name,
+		{
+			get: function()
+			{
+				return propCache[ type.name ][ rule.name ];
+			},
+
+			set: function( v )
+			{
+				if( ! allowed( v, rule.types ))
+				{
+					throw new PropAssignTypeMismatchError( iface, type, rule, v );
+				}
+
+				propCache[ type.name ][ rule.name ] = v;
+			}
+		});
 	}
 
 	function validateMethods( type )
