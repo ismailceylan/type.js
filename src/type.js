@@ -180,7 +180,6 @@ export default function Type( name )
 							this,
 							currentType,
 							name,
-							currentType.methods[ name ],
 							instance,
 							proto
 						)
@@ -205,7 +204,6 @@ export default function Type( name )
 				this,
 				this,
 				key,
-				this.methods[ key ],
 				instance,
 				instance
 			);
@@ -342,9 +340,10 @@ function parentalAccess( type, currentType, callerMethodName, root, proto, metho
 	}
 }
 
-function bindMagicalParentWord( finalType, currentType, callerMethodName, method, root, proto )
+function bindMagicalParentWord( finalType, currentType, callerMethodName, root, proto )
 {
 	var filename = currentType.name + "." + callerMethodName;
+	var method = currentType.methods[ callerMethodName ];
 	var scope =
 	{
 		parent: function( methodName, args )
