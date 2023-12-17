@@ -156,10 +156,11 @@ export default function Type( name )
 	{
 		var type = this;
 		var instance = new this.constructor;
+		var inheritedProperties = this.getProperties();
 
 		Object.defineProperties(
 			instance,
-			Object.getOwnPropertyDescriptors( this.getProperties())
+			Object.getOwnPropertyDescriptors( inheritedProperties )
 		);
 
 		if( this.parent )
@@ -210,6 +211,26 @@ export default function Type( name )
 		}
 
 		proto = setPrototypeOf( proto, {});
+
+		var proxyKey = "__proxifiedProperties__";
+
+		for( var key in instance )
+		{
+			var prefix = key.substr( 0, 11 );
+
+			if( prefix == "$proxified_" )
+			{
+				var unprefixedKey = key.replace( prefix, "" );
+
+				if( ! ( proxyKey in proto ))
+				{
+					defineTypeMember( proto, proxyKey, {});
+				}
+
+				proto[ proxyKey ][ unprefixedKey ] = instance[ key ];
+				delete instance[ key ];
+			}
+		}
 
 		defineTypeMember( proto, "is", function( target )
 		{

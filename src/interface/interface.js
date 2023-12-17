@@ -14,7 +14,6 @@ export default function Interface( name, build )
 	}
 
 	var builder = new Builder;
-	var propCache = {}
 
 	if( build )
 	{
@@ -124,8 +123,6 @@ export default function Interface( name, build )
 
 	function validateProperties( type )
 	{
-		propCache[ type.name ] = {}
-
 		for( var ruleName in this.properties )
 		{
 			var rule = this.properties[ ruleName ];
@@ -135,8 +132,6 @@ export default function Interface( name, build )
 			var defined = name in type.properties;
 			var value = type.properties[ name ];
 			var restricted = allows.length > 0;
-
-			propCache[ type.name ][ name ] = value;
 
 			// checking if prop needs to be defined
 			if( required && ! defined )
@@ -162,11 +157,18 @@ export default function Interface( name, build )
 
 	function watchProp( iface, type, rule )
 	{
+		var proxyKey = "__proxifiedProperties__";
+
+		// type instantiator will collect these props and put
+		// them all into the latest level of [[Prototype]]
+		// so the $proxified_ will an indicator for it
+		type.properties[ "$proxified_" + name ] = type.properties[ name ];
+
 		Object.defineProperty( type.properties, rule.name,
 		{
 			get: function()
 			{
-				return propCache[ type.name ][ rule.name ];
+				return this[ proxyKey ][ rule.name ];
 			},
 
 			set: function( v )
@@ -176,7 +178,7 @@ export default function Interface( name, build )
 					throw new PropAssignTypeMismatchError( iface, type, rule, v );
 				}
 
-				propCache[ type.name ][ rule.name ] = v;
+				this[ proxyKey ][ rule.name ] = v;
 			}
 		});
 	}
