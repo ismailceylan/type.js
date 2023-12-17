@@ -162,7 +162,7 @@ export default function Interface( name, build )
 		// type instantiator will collect these props and put
 		// them all into the latest level of [[Prototype]]
 		// so the $proxified_ will an indicator for it
-		type.properties[ "$proxified_" + name ] = type.properties[ name ];
+		type.properties[ "$proxified_" + rule.name ] = type.properties[ rule.name ];
 
 		Object.defineProperty( type.properties, rule.name,
 		{
