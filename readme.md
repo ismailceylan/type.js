@@ -221,4 +221,4 @@ Type.js allows us to define types. Types can extend other types, and we can chec
 
 Also, Type.js allows interfaces to extend multiple interfaces with `extends` method and traits to use multiple traits with `use` method. For checking whether an interface extends other interface, we have an `is` method on interfaces and to check whether a trait uses other traits we have a `behave` method on traits.
 
-We can also perform all the mentioned tests on instances created by types as well.
+We can also perform all the mentioned tests on instances created from types as well.
