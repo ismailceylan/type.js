@@ -1,0 +1,28 @@
+{
+  "name": "ismailceylan-type.js",
+  "version": "1.0.0",
+  "description": "Allows create extendable types, traits and interfaces to build object oriented apps.",
+  "main": "main.js",
+  "scripts": {
+    "publish": "npm publish",
+    "release": "standard-version"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ismailceylan/type.js.git"
+  },
+  "keywords": [
+    "type",
+    "oop",
+    "object",
+    "oriented",
+    "trait",
+    "interface"
+  ],
+  "author": "Ismail Ceylan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ismailceylan/type.js/issues"
+  },
+  "homepage": "https://github.com/ismailceylan/type.js#readme"
+}
