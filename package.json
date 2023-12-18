@@ -1,6 +1,6 @@
 {
   "name": "ismailceylan-type.js",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Allows create extendable types, traits and interfaces to build object oriented apps.",
   "main": "main.js",
   "scripts": {
