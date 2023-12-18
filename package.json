@@ -5,7 +5,10 @@
   "main": "main.js",
   "scripts": {
     "publish": "npm publish",
-    "release": "standard-version"
+    "release": "standard-version",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "repository": {
     "type": "git",
@@ -24,5 +27,8 @@
   "bugs": {
     "url": "https://github.com/ismailceylan/type.js/issues"
   },
-  "homepage": "https://github.com/ismailceylan/type.js#readme"
+  "homepage": "https://github.com/ismailceylan/type.js#readme",
+  "devDependencies": {
+    "vite": "^5.0.10"
+  }
 }
