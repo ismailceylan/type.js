@@ -8,8 +8,8 @@
  */
 export default function closured( method, variables, filename )
 {
-	var methodStr = method.toString();
-	var isShortClassMethod = /^(?!function)[\w$@]+\s*\(.*?\)\s*\{/.test( methodStr.trim());
+	var methodStr = method.toString().trim();
+	var isShortClassMethod = /^(?!function)[\w$@]+\s*\(.*?\)\s*\{/.test( methodStr );
 
 	return Function(
 		Object.keys( variables ),
