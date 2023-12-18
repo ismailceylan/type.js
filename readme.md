@@ -1,3 +1,6 @@
+![npm package minimized gzipped size (select exports)](https://img.shields.io/bundlejs/size/ismailceylan-type.js)
+![NPM](https://img.shields.io/npm/l/ismailceylan-type.js)
+
 # Type.js
 This javascript library allows us define interfaces, types and traits. A defined type can be inherited
 by other types, traits can also be used by types and types can implements multiple interfaces.
