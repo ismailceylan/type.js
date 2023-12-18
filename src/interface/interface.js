@@ -220,16 +220,16 @@ export default function Interface( name, build )
 
 			function interfaceProxy()
 			{
-				var receivedArgs = args( arguments );
+				var receivedArgs = $args( arguments );
 
-				for( var i = 0; i < methodRule.arguments.length; i++ )
+				for( var i = 0; i < $methodRule.arguments.length; i++ )
 				{
-					var argRule = methodRule.arguments[ i ];
+					var argRule = $methodRule.arguments[ i ];
 					var required = argRule.isRequired;
 					var argDefault = argRule.defaultValue;
 					var receivedArg = receivedArgs[ i ];
 					var argNameInRule = argRule.name;
-					var argNameInDefinition = definedArgs[ i ];
+					var argNameInDefinition = $definedArgs[ i ];
 					var allows = argRule.types;
 					var restricted = allows.length > 0;
 
@@ -243,20 +243,22 @@ export default function Interface( name, build )
 						}
 						else
 						{
-							throw new ArgumentTypeMismatch( iface, type, methodRule, argRule, i );
+							throw new $ArgumentTypeMismatch( $iface, $type, $methodRule, argRule, i );
 						}
 					}
-					else if( restricted && ! allowed( receivedArg, allows ))
+					else if( restricted && ! $allowed( receivedArg, allows ))
 					{
-						throw new ArgumentTypeMismatch( iface, type, methodRule, argRule, i, receivedArg );
+						throw new $ArgumentTypeMismatch(
+							$iface, $type, $methodRule, argRule, i, receivedArg
+						);
 					}
 				}
 
-				var returnValue = proxifiedMethod.apply( this, receivedArgs );
+				var returnValue = $proxifiedMethod.apply( this, receivedArgs );
 
-				if( returns.length > 0 && ! allowed( returnValue, returns ))
+				if( $returns.length > 0 && ! $allowed( returnValue, $returns ))
 				{
-					throw new ReturnTypeMismatch( iface, type, methodRule, returnValue );
+					throw new $ReturnTypeMismatch( $iface, $type, $methodRule, returnValue );
 				}
 
 				return returnValue;
@@ -264,16 +266,16 @@ export default function Interface( name, build )
 
 			interfaceProxy.dependencies =
 			{
-				args: args,
-				type: type,
-				iface: this,
-				returns: returns,
-				allowed: allowed,
-				methodRule: methodRule,
-				definedArgs: definedArgs,
-				proxifiedMethod: proxifiedMethod,
-				ReturnTypeMismatch: ReturnTypeMismatch,
-				ArgumentTypeMismatch: ArgumentTypeMismatch,
+				$args: args,
+				$type: type,
+				$iface: this,
+				$returns: returns,
+				$allowed: allowed,
+				$methodRule: methodRule,
+				$definedArgs: definedArgs,
+				$proxifiedMethod: proxifiedMethod,
+				$ReturnTypeMismatch: ReturnTypeMismatch,
+				$ArgumentTypeMismatch: ArgumentTypeMismatch,
 			}
 
 			type.methods[ methodName ] = interfaceProxy;
