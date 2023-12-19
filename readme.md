@@ -21,7 +21,7 @@ The same thing is done for properties. If required properties are not defined or
 
 However, the methods and properties is constantly monitored during runtime to see whether they're called/writed legally. It does this by placing a proxy method instead of the main method you wrote and getter/setter for properties. This may affect performance, but since Type.js is completely native JavaScript, you can enclose the entire interface architecture in if-else blocks. If there is an ENV variable in your work environment that holds values such as `development` and `production`, types decide to implement interfaces or not, depending on that env value. Thus, while you use the interface in the development environment, you can ensure that it is not used in the production environment. You can even ensure that the interface codes do not contamine the compiled codes if your bundler shake trees.
 
-## Installing
+## Installation
 ```sh
 npm install ismailceylan-type.js
 ```
@@ -37,7 +37,7 @@ const Foo = Type( "Foo" );
 ## Usage
 ### Let's create a trait that specific to living things
 ```js
-var CanBreath = Trait( "CanBreath" ).prototype(
+const CanBreath = Trait( "CanBreath" ).prototype(
 {
     breath( perMinute )
     {
@@ -50,22 +50,27 @@ Trait methods are added to the prototype bags of the types that use it. Therefor
 
 ### Using a trait's abilities to implement advanced traits
 ```js
-var CanBreathUnderwater = Trait( "CanBreathUnderwater" )
-    .use( CanBreath, { breath: "baseBreath" })
-    .prototype(
+const CanBreathUnderwater = Trait( "CanBreathUnderwater" );
+
+CanBreathUnderwater.use( CanBreath,
+{
+    breath: "baseBreath"
+});
+
+CanBreathUnderwater.prototype(
+{
+    breathUnderwater()
     {
-        breathUnderwater()
-        {
-            this.baseBreath( 10 );
-            console.log( "Whoa! I'm breathing under the water. Did you see how coool I am!!" );
-        }
-    });
+        this.baseBreath( 10 );
+        console.log( "Whoa! I'm breathing under the water. Did you see how coool I am!!" );
+    }
+});
 ```
 Traits can extend another trait with `use` method. If we want to inherit another one, we can put another use method at the end of the chain. We can also rename the inherited trait methods as we wish. In the future, when a type uses the final trait, the functions will be included in the type with their changed names.
 
 ### Implementing Types
 ```js
-var Creature = Type( "Creature" )
+const Creature = Type( "Creature" )
     .use( CanBreathUnderwater, { breathUnderwater: "breath" })
     .prototype(
     {
@@ -88,13 +93,16 @@ The `use` method on the type objects allow us to use traits. If we want to use a
 
 ### Renaming trait methods when used them
 ```js
-var Creature = Type( "Creature" ).use( CanBreathUnderwater, { breath: "exhale" });
+const Creature = Type( "Creature" ).use( CanBreathUnderwater,
+{
+    breath: "exhale"
+});
 ```
 Now, the Creature type has a exhale method instead of breath.
 
 ### Defining Animal Contracts
 ```js
-var AnimalContract = Interface( "AnimalContract", animals =>
+const AnimalContract = Interface( "AnimalContract", animals =>
 {
     animals.property( "abilities", Array ).required();
 
@@ -112,7 +120,7 @@ This interface let us declare strictly defined properties, methods, arguments an
 
 ### Let's create intermediate type
 ```js
-var Animal = Type( "Animal" ).extends( Creature ).implements( AnimalContract ).prototype(
+const Animal = Type( "Animal" ).extends( Creature ).implements( AnimalContract ).prototype(
 {
     abilities: [],
 
@@ -132,7 +140,9 @@ var Animal = Type( "Animal" ).extends( Creature ).implements( AnimalContract ).p
     }
 });
 ```
-Type.js injects a magic `parent` word in every method we defined. This works same as the `super` that comes with ES6. But the super can be used only in constructor and static methods. You can use the parent in all methods of your types and access parent type's every method with it.
+We can use `implements` method to declare that we are going to follow rules of an interface. Method accepts multiple interface like `...implements( iface1, iface2, ...)`.
+
+Also, type.js injects a magic `parent` word in every method we defined. This works same as the `super` that comes with ES6. But the super can be used only in constructor and static methods. You can use the parent in all methods of your types and access parent type's every method with it.
 
 ```js
 // ... type definitions going here
@@ -160,7 +170,7 @@ That will help us to easily access overloaded or any parent method and reuse the
 
 ### Let's create some humanly traits
 ```js
-var CanSpeak = Trait( "CanSpeak" ).prototype(
+const CanSpeak = Trait( "CanSpeak" ).prototype(
 {
     speak( words )
     {
@@ -172,7 +182,7 @@ Nowadays, the only species that can speak is humans, but hey, who knows maybe in
 
 ### Let's create a new, powerful type
 ```js
-var Human = Type( "Human" ).extends( Animal ).use( CanSpeak, { speak: "talk" }).prototype(
+const Human = Type( "Human" ).extends( Animal ).use( CanSpeak, { speak: "talk" }).prototype(
 {
     construct( name )
     {
@@ -206,7 +216,7 @@ But that doesn't mean we can chain the parent calls. The parent magical method r
 
 ### Let's create instances from types
 ```js
-var ismail = Human.create( "İsmail" );
+const ismail = Human.create( "İsmail" );
 
 ismail.live();
 ismail.talk( "Hello world!" );
