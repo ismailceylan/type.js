@@ -121,6 +121,21 @@ export default function Interface( name, build )
 		return false;
 	}
 
+	/**
+	 * Tests whether given target created from a Type that
+	 * implements this interface or given interface extends
+	 * this interface.
+	 * 
+	 * It's also a trap for instanceof scenarios.
+	 * 
+	 * @param {Interface} target 
+	 * @returns {Boolean}
+	 */
+	this[ Symbol.hasInstance ] = function( target )
+	{
+		return target.is( this );
+	}
+
 	function validateProperties( type )
 	{
 		for( var ruleName in this.properties )

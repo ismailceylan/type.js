@@ -233,7 +233,7 @@ export default function Type( name )
 
 		defineTypeMember( proto, "is", function( target )
 		{
-			return type.is( target );
+			return type.is( target, true );
 		});
 
 		defineTypeMember( proto, "behave", function( targetTrait )
@@ -282,7 +282,8 @@ export default function Type( name )
 	{
 		return this.traits.indexOf( target.name ) > -1;
 	}
-	this.is = function( target )
+
+	this.is = function( target, fromInstance )
 	{
 		if( target instanceof Type )
 		{
@@ -309,8 +310,30 @@ export default function Type( name )
 
 			return isNameInInterfaces;
 		}
-		
-		throw new TypeError( "The is method expects Type or Interface as the first argument to test relation." );
+		else if( ! fromInstance )
+		{
+			while( target = getPrototypeOf( target ))
+			{
+				if( target.constructor === this.constructor )
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Tests given target is extended or implemented by
+	 * this type. It's also a trap for instanceof scenarios.
+	 * 
+	 * @param {Type|Interface} target 
+	 * @returns {Boolean}
+	 */
+	this[ Symbol.hasInstance ] = function( target )
+	{
+		return this.is( target );
 	}
 }
 

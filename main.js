@@ -19,7 +19,7 @@ const WarmBloodedCreatureContract = Interface( "WarmBloodedCreatureContract" )
 		warmBlood.property( "beatSpeed", Number ).required();
 	});
 
-const Breathable = Trait( "Breathable" ).prototype(
+const CanBreath = Trait( "CanBreath" ).prototype(
 {
 	breath( perMinute )
 	{
@@ -27,8 +27,8 @@ const Breathable = Trait( "Breathable" ).prototype(
 	}
 });
 
-const UnderwaterBreathable = Trait( "UnderwaterBreathable" )
-	.use( Breathable, { breath: "baseBreath" })
+const CanBreathUnderwater = Trait( "CanBreathUnderwater" )
+	.use( CanBreath, { breath: "baseBreath" })
 	.prototype(
 	{
 		breathUnderwater()
@@ -58,7 +58,7 @@ const Creature = Type( "Creature" ).implements( WarmBloodedCreatureContract ).pr
 
 const Animal = Type( "Animal" )
 	.extends( Creature )
-	.use( UnderwaterBreathable, { breathUnderwater: "breath" })
+	.use( CanBreathUnderwater, { breathUnderwater: "breath" })
 	.prototype(
 	{
 		walk()
@@ -96,17 +96,21 @@ const Human = Type( "Human" ).extends( Animal ).prototype(
 });
 
 const ismail = Human.create({ weight: 88 });
+const ali = Human.create({weight: 2 });
 
 console.log(
 {
-	isIsmailBreathable: ismail.behave( Breathable ),
+	isIsmailCanBreath: ismail.behave( CanBreath ),
 	isIsmailAnimal: ismail.is( Animal ),
 	isIsmailSharesCreatureContract: ismail.is( CreatureContract ),
 	isHumanTypeAlsoCreature: Human.is( Creature ),
-	isUnderwaterBreathableExtendsBreathable: UnderwaterBreathable.behave( Breathable ),
+	isCanBreathUnderwaterExtendsCanBreath: CanBreathUnderwater.behave( CanBreath ),
 	isCreatureContractWarmBloodedCreatureContract: CreatureContract.is( WarmBloodedCreatureContract ),
 	isWarmBloodedCreatureContractCreatureContract: WarmBloodedCreatureContract.is( CreatureContract ),
 	isHumanWarmBlooded: Human.is( WarmBloodedCreatureContract )
 });
 
 ismail.foo();
+
+console.log( ismail instanceof Human );
+console.log( Human instanceof CanBreath );

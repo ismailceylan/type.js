@@ -35,7 +35,7 @@ const Foo = Type( "Foo" );
 ```
 
 ## Usage
-### Let's create a trait that specific to living things
+### Creating Traits
 ```js
 const CanBreath = Trait( "CanBreath" ).prototype(
 {
@@ -48,7 +48,7 @@ const CanBreath = Trait( "CanBreath" ).prototype(
 Trait methods are added to the prototype bags of the types that use it. Therefore, the instance's context
 (this word) refers to the type to which they belong, not trait object. However, all properties defined on types and traits are added to the instance that produced from the final type after passing through a property inheritance algorithm. This algorithm produces same result with the class mechanism that comes with EcmaScript 6. That means you won't see any property in any `[[Prototype]]` sections.
 
-### Using a trait's abilities to implement advanced traits
+### Extending Traits
 ```js
 const CanBreathUnderwater = Trait( "CanBreathUnderwater" );
 
@@ -62,13 +62,13 @@ CanBreathUnderwater.prototype(
     breathUnderwater()
     {
         this.baseBreath( 10 );
-        console.log( "Whoa! I'm breathing under the water. Did you see how coool I am!!" );
+        console.log( "Whoa! I'm breathing under water. Did you see how coool I am!!" );
     }
 });
 ```
 Traits can extend another trait with `use` method. If we want to inherit another one, we can put another use method at the end of the chain. We can also rename the inherited trait methods as we wish. In the future, when a type uses the final trait, the functions will be included in the type with their changed names.
 
-### Implementing Types
+### Creating Types
 ```js
 const Creature = Type( "Creature" )
     .use( CanBreathUnderwater, { breathUnderwater: "breath" })
@@ -91,7 +91,7 @@ method, we can perform the initializations works, create initial values for prop
 
 The `use` method on the type objects allow us to use traits. If we want to use another trait we have to prepend another use method to the chain like `Type( ...something ).use( ...trait1, ...rename map).use( ...trait2, ...rename map)`.
 
-### Renaming trait methods when used them
+### Renaming Trait Methods
 ```js
 const Creature = Type( "Creature" ).use( CanBreathUnderwater,
 {
@@ -100,7 +100,7 @@ const Creature = Type( "Creature" ).use( CanBreathUnderwater,
 ```
 Now, the Creature type has a exhale method instead of breath.
 
-### Defining Animal Contracts
+### Creating Interfaces
 ```js
 const AnimalContract = Interface( "AnimalContract", animals =>
 {
@@ -118,29 +118,46 @@ const AnimalContract = Interface( "AnimalContract", animals =>
 ```
 This interface let us declare strictly defined properties, methods, arguments and return types and keep us on track while for example we code animals.
 
-### Let's create intermediate type
+### Extending Interfaces
 ```js
-const Animal = Type( "Animal" ).extends( Creature ).implements( AnimalContract ).prototype(
-{
-    abilities: [],
+const WarmBloodedCreatureContract = Interface( "WarmBloodedCreatureContract" );
 
-    construct()
+WarmBloodedCreatureContract
+    .extends( AnimalContract )
+    .prototype( warmBloodeds =>
     {
-        // first, let the creature's constructor work
-        parent();
-        
-        // now, the actions concerning the Animal type can work
-        console.log( "I'm not a veggy, there is an animal inside of me" );
-    },
-
-    move( speed, x, y, z )
-    {
-        console.log( "Get out of my way! I'm moving!" );
-        return {}
-    }
-});
+        warmBloodeds.property( "heartBeatSpeed", Number ).required();
+    });
 ```
-We can use `implements` method to declare that we are going to follow rules of an interface. Method accepts multiple interface like `...implements( iface1, iface2, ...)`.
+We can declare rules as second argument of the `Interface` or use `prototype` method for it. Now the *WarmBloodedCreatureContract* declares two properties and one method.
+
+### Extending Types
+```js
+const Animal = Type( "Animal" )
+    .extends( Creature )
+    .implements( WarmBloodedCreatureContract )
+    .prototype(
+    {
+        abilities: [],
+        heartBeatSpeed: 10,
+
+        construct()
+        {
+            // first, let the creature's constructor work
+            parent();
+            
+            // now, the actions concerning the Animal type can work
+            console.log( "I'm not a veggy, there is an animal inside of me" );
+        },
+
+        move( speed, x, y, z )
+        {
+            console.log( "Get out of my way! I'm moving!" );
+            return {}
+        }
+    });
+```
+We can use `implements` method to declare that we are going to follow rules of an interface. Method accepts multiple interfaces like `implements( iface1, iface2, ...)`.
 
 Also, type.js injects a magic `parent` word in every method we defined. This works same as the `super` that comes with ES6. But the super can be used only in constructor and static methods. You can use the parent in all methods of your types and access parent type's every method with it.
 
@@ -168,7 +185,7 @@ foo()
 ```
 That will help us to easily access overloaded or any parent method and reuse their abilities.
 
-### Let's create some humanly traits
+### Creating Abilities As Traits
 ```js
 const CanSpeak = Trait( "CanSpeak" ).prototype(
 {
@@ -180,7 +197,7 @@ const CanSpeak = Trait( "CanSpeak" ).prototype(
 ```
 Nowadays, the only species that can speak is humans, but hey, who knows maybe in the future another species can learn to speak. So, defining how to speak in a trait is a clever way to make the ability reusable between species.
 
-### Let's create a new, powerful type
+### Creating Final Types
 ```js
 const Human = Type( "Human" ).extends( Animal ).use( CanSpeak, { speak: "talk" }).prototype(
 {
@@ -214,7 +231,7 @@ parent mechanism can bubble. That means if you call parent in a type method, it'
 
 But that doesn't mean we can chain the parent calls. The parent magical method returns the value that returned by the accessed method of the parent type. This means that you won't have a direct connection with the parent of the parent type.
 
-### Let's create instances from types
+### Creating Instances From Types
 ```js
 const ismail = Human.create( "İsmail" );
 
@@ -223,30 +240,62 @@ ismail.talk( "Hello world!" );
 ```
 All parameters given to the `create` method are passed to the `construct` method of the type.
 
-### Testing "Is A" relations
+### Testing "Is A" Relations
+Type.js provide abilities to test "is a" relations. `instanceof` expression also supported.
+
+#### Same Kind Relations
+##### 1. relations between traits
 ```js
-// please remember that the "ismail" object does not directly extends
-// the "Creature" type. It extends the "Animal" intermediate type.
-ismail.is( Creature );
-// true
+CanBreathUnderwater.behave( CanBreath ); // true
+CanBreathUnderwater instanceof CanBreath; // true
 
-ismail.is( Animal );
-// true
-
-Human.is( Creature );
-// true
-
-Human.is( CreatureContract );
-// true
-
-ismail.behave( CanBreath );
-// true
-
-CanBreathUnderwater.behave( CanBreath );
-// true
+CanBreath instanceof CanBreathUnderwater; // false
 ```
-Type.js allows us to define types. Types can extend other types, and we can check this directly without creating an instance. Types can also implement interfaces, allowing us to test it without instantiation. Finally, types can use traits, and we can verify trait usage without creating an instance.
+Since traits can use each other we can test it with `behave` method or put them into `instanceof` expression.
 
-Also, Type.js allows interfaces to extend multiple interfaces with `extends` method and traits to use multiple traits with `use` method. For checking whether an interface extends other interface, we have an `is` method on interfaces and to check whether a trait uses other traits we have a `behave` method on traits.
+##### 2. relations between interfaces
+```js
+WarmBloodedCreatureContract.is( CreatureContract ); // true
+WarmBloodedCreatureContract instanceof CreatureContract; // true
+```
+Interfaces can extends each other, too. We can test it with `is` method or put them into `instanceof` expression.
 
-We can also perform all the mentioned tests on instances created from types as well.
+##### 3. relations between types
+```js
+Human.is( Creature ); // true
+Human instanceof Creature; // true
+```
+Types also extends each other. So we can test it with `is` method. `instanceof` expression works same as well.
+
+#### Cross Kind Relations
+##### 1. relations between types and traits
+```js
+Human.behave( CanBreath ); // true
+Human instanceof CanBreath; // true
+```
+We know that types can use traits and we can test it with `behave` method or we can use `instanceof` expression. Please pay attention that there are no type used `CanBreath` trait directly in the inheritance chain. Instead the `Creature` type used the `CanBreathUnderwater` trait which it uses the `CanBreath` trait. All of these are means that the `Human` type uses `CanBreath` trait indirectly but testing the relation will give us a *true*, as it's supposed to be.
+
+##### 2. relations between types and interfaces
+```js
+Human.is( AnimalContract ); // true
+Human instanceof AnimalContract; // true
+```
+Types can implements interfaces and we can test it with `is` method or `instanceof` expression. Testing behaviours between inherited interface are same as mentioned above for traits. `AnimalContract` is an indirectly inherited interface for `Human` type but testing it will give us *true*.
+
+#### Tests On Instances
+```js
+ismail.behave( CanBreath ); // true
+ismail instanceof CanBreath // true
+
+ismail.is( AnimalContract ); // true
+ismail instanceof AnimalContract; // true
+
+ismail.is( Human ); // true
+ismail instanceof Human; // true
+
+Human.is( ismail ); // false
+Human instanceof ismail;
+// TypeError: Right-hand side of 'instanceof' is not callable
+```
+
+Tests on instances results exactly same as mentioned above. Types, traits or interfaces can't test instances, but instances can.

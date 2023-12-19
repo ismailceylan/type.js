@@ -80,4 +80,16 @@ export default function Trait( name )
 	{
 		return this.traits.indexOf( target.name ) > -1;
 	}
+
+	/**
+	 * Tests given target trait is used by this trait. It's
+	 * also a trap for instanceof scenarios.
+	 * 
+	 * @param {Trait} target 
+	 * @returns {Boolean}
+	 */
+	this[ Symbol.hasInstance ] = function( target )
+	{
+		return target.behave( this );
+	}
 }
