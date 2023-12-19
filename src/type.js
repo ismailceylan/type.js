@@ -187,15 +187,14 @@ export default function Type( name )
 					);
 				}
 
-				if( currentType.parent )
-				{
-					proto = setPrototypeOf( proto, {});
-					currentType = currentType.parent;
-				}
-				else
+				if( ! currentType.parent )
 				{
 					break;
 				}
+				
+				// making ready one level deeper area in the proto chain
+				proto = setPrototypeOf( proto, {});
+				currentType = currentType.parent;
 			}
 		}
 
