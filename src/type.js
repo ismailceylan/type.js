@@ -278,6 +278,10 @@ export default function Type( name )
 		return stack;
 	}
 
+	this.behave = function( target )
+	{
+		return this.traits.indexOf( target.name ) > -1;
+	}
 	this.is = function( target )
 	{
 		if( target instanceof Type )
