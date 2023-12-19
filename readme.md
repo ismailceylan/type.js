@@ -21,10 +21,23 @@ The same thing is done for properties. If required properties are not defined or
 
 However, the methods and properties is constantly monitored during runtime to see whether they're called/writed legally. It does this by placing a proxy method instead of the main method you wrote and getter/setter for properties. This may affect performance, but since Type.js is completely native JavaScript, you can enclose the entire interface architecture in if-else blocks. If there is an ENV variable in your work environment that holds values such as `development` and `production`, types decide to implement interfaces or not, depending on that env value. Thus, while you use the interface in the development environment, you can ensure that it is not used in the production environment. You can even ensure that the interface codes do not contamine the compiled codes if your bundler shake trees.
 
+## Installing
+```sh
+npm install ismailceylan-type.js
+```
+
+After installed the Type.js in your project, you can import the modules that you needed as ES modules. Currently requiring with commonjs doesn't supported.
+
+```js
+import { Type, Trait, Interface } from "ismailceylan-type.js";
+
+const Foo = Type( "Foo" );
+```
+
 ## Usage
 ### Let's create a trait that specific to living things
 ```js
-var Breathable = Trait( "Breathable" ).prototype(
+var CanBreath = Trait( "CanBreath" ).prototype(
 {
     breath( perMinute )
     {
@@ -37,8 +50,8 @@ Trait methods are added to the prototype bags of the types that use it. Therefor
 
 ### Using a trait's abilities to implement advanced traits
 ```js
-var BreathableUnderwater = Trait( "BreathableUnderwater" )
-    .use( Breathable, { breath: "baseBreath" })
+var CanBreathUnderwater = Trait( "CanBreathUnderwater" )
+    .use( CanBreath, { breath: "baseBreath" })
     .prototype(
     {
         breathUnderwater()
@@ -53,7 +66,7 @@ Traits can extend another trait with `use` method. If we want to inherit another
 ### Implementing Types
 ```js
 var Creature = Type( "Creature" )
-    .use( BreathableUnderwater, { breathUnderwater: "breath" })
+    .use( CanBreathUnderwater, { breathUnderwater: "breath" })
     .prototype(
     {
         construct()
@@ -75,7 +88,7 @@ The `use` method on the type objects allow us to use traits. If we want to use a
 
 ### Renaming trait methods when used them
 ```js
-var Creature = Type( "Creature" ).use( BreathableUnderwater, { breath: "exhale" });
+var Creature = Type( "Creature" ).use( CanBreathUnderwater, { breath: "exhale" });
 ```
 Now, the Creature type has a exhale method instead of breath.
 
@@ -147,7 +160,7 @@ That will help us to easily access overloaded or any parent method and reuse the
 
 ### Let's create some humanly traits
 ```js
-var Speakable = Trait( "Speakable" ).prototype(
+var CanSpeak = Trait( "CanSpeak" ).prototype(
 {
     speak( words )
     {
@@ -159,7 +172,7 @@ Nowadays, the only species that can speak is humans, but hey, who knows maybe in
 
 ### Let's create a new, powerful type
 ```js
-var Human = Type( "Human" ).extends( Animal ).use( Speakable, { speak: "talk" }).prototype(
+var Human = Type( "Human" ).extends( Animal ).use( CanSpeak, { speak: "talk" }).prototype(
 {
     construct( name )
     {
@@ -216,10 +229,10 @@ Human.is( Creature );
 Human.is( CreatureContract );
 // true
 
-ismail.behave( Breathable );
+ismail.behave( CanBreath );
 // true
 
-BreathableUnderwater.behave( Breathable );
+CanBreathUnderwater.behave( CanBreath );
 // true
 ```
 Type.js allows us to define types. Types can extend other types, and we can check this directly without creating an instance. Types can also implement interfaces, allowing us to test it without instantiation. Finally, types can use traits, and we can verify trait usage without creating an instance.
