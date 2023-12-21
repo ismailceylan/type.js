@@ -5,6 +5,6 @@ export default class MissingArgumentError extends Error
 		super();
 
 		this.name = "MissingArgumentError";
-		this.message = `${ iface.name } interface requires ${ type.name }.${ methodRule.name } method's ${ position }st argument ("${ argRule.name }") defined.`;
+		this.message = `${ iface.name } interface requires ${ type.name }.${ methodRule.name } method's ${ position + 1 }. argument ("${ argRule.name }") defined.`;
 	}
 }
