@@ -14,9 +14,11 @@ export default function closured( method, variables, filename )
 	return Function(
 		Object.keys( variables ),
 		"return " + ( isShortClassMethod? "function " : "" ) + methodStr + 
-		( filename
-			? "\n//# sourceURL=" + filename
-			: "" )
+		(
+			filename
+				? "\n//# sourceURL=" + filename
+				: ""
+		)
 	)
 	.apply( undefined, Object.values( variables ));
 }
