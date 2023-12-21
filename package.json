@@ -3,7 +3,10 @@
   "version": "1.1.0",
   "description": "Allows create extendable types, traits and interfaces to build object oriented apps.",
   "main": "main.js",
+  "type": "module",
   "scripts": {
+    "test": "mocha --exit",
+    "coverage": "c8 --reporter=html --reporter=json mocha",
     "publish": "npm publish",
     "release": "standard-version",
     "dev": "vite",
@@ -16,11 +19,20 @@
   },
   "keywords": [
     "type",
+    "types",
     "oop",
-    "object",
-    "oriented",
+    "object oriented",
+    "javascript",
+    "js",
+    "es6",
+    "mixins",
     "trait",
-    "interface"
+    "interface",
+    "multiple-inheritance",
+    "interface-inheritance",
+    "multiple-interfaces",
+    "multiple-traits",
+    "trait-inheritance"
   ],
   "author": "Ismail Ceylan",
   "license": "MIT",
@@ -29,6 +41,8 @@
   },
   "homepage": "https://github.com/ismailceylan/type.js#readme",
   "devDependencies": {
+    "c8": "^8.0.1",
+    "mocha": "^10.2.0",
     "vite": "^5.0.10"
   }
 }
