@@ -88,10 +88,15 @@ export default function Type( name )
 			this[ value instanceof Function? "methods" : "properties" ][ key ] = value;
 		}
 
-		for( var iface of this.interfaces )
+		clearTimeout( this.timer );
+
+		this.timer = setTimeout(() =>
 		{
-			iface.apply( this );
-		}
+			for( var iface of this.interfaces )
+			{
+				iface.apply( this );
+			}
+		});
 
 		return this;
 	}
