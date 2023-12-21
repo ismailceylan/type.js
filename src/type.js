@@ -156,7 +156,7 @@ export default function Type( name )
 	{
 		var type = this;
 		var instance = new this.constructor;
-		var inheritedProperties = this.getProperties();
+		var inheritedProperties = this.getInheritedProperties();
 
 		Object.defineProperties(
 			instance,
@@ -258,7 +258,7 @@ export default function Type( name )
 	 * 
 	 * @returns {Object}
 	 */
-	this.getProperties = function()
+	this.getInheritedProperties = function()
 	{
 		var stack = {}
 
@@ -266,7 +266,7 @@ export default function Type( name )
 		{
 			Object.defineProperties(
 				stack,
-				Object.getOwnPropertyDescriptors( this.parent.getProperties())
+				Object.getOwnPropertyDescriptors( this.parent.getInheritedProperties())
 			);
 		}
 
