@@ -204,16 +204,17 @@ export default function Interface( name, build )
 		{
 			var methodRule = this.methods[ ruleName ];
 			var methodName = methodRule.name;
-			var method = type.methods[ methodName ];
 			var defined = methodName in type.methods;
-			var definedArgs = getArguments( method.toString());
-			var returns = methodRule.returnTypes;
 
 			// methods are required
 			if( ! defined )
 			{
 				throw new MissingMethodError( this, type, methodRule );
 			}
+
+			var method = type.methods[ methodName ];
+			var definedArgs = getArguments( method.toString());
+			var returns = methodRule.returnTypes;
 
 			for( var i = 0; i < methodRule.arguments.length; i++ )
 			{
