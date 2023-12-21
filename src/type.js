@@ -333,7 +333,7 @@ export default function Type( name )
 	 */
 	this[ Symbol.hasInstance ] = function( target )
 	{
-		return this.is( target );
+		return target.is( this );
 	}
 }
 
