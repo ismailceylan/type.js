@@ -75,11 +75,43 @@ export default function Type( name )
 	this.methods = {}
 
 	/**
+	 * Abstract flag of the type.
+	 * 
+	 * @type {Boolean}
+	 */
+	this.isAbstract = false;
+
+	/**
+	 * Holds the definitions enforced by the implemented
+	 * interfaces. Child types will forced to define them.
+	 * 
+	 * @type {Object}
+	 */
+	this.missedMethods = {}
+
+	/**
+	 * Holds the definitions enforced by the implemented
+	 * interfaces. Child types will forced to define them.
+	 * 
+	 * @type {Object}
+	 */
+	this.missedProperties = {}
+
+	/**
 	 * Properties of the type.
 	 * 
 	 * @type {Object}
 	 */
 	this.properties = {}
+
+	/**
+	 * Marks represented type as abstract.
+	 */
+	this.abstract = function()
+	{
+		this.isAbstract = true;
+		return this;
+	}
 
 	/**
 	 * Mixes a new context into the type's prototype.
@@ -109,6 +141,18 @@ export default function Type( name )
 				iface.apply( this );
 			}
 
+			var missedProperties = this.getInheritedMissedProperties();
+			var missedMethods = this.getInheritedMissedMethods();
+
+			for( var key in missedProperties )
+			{
+				missedProperties[ key ]( this );
+			}
+
+			for( var key in missedMethods )
+			{
+				missedMethods[ key ]( this );
+			}
 		}
 
 		return this;
@@ -157,7 +201,8 @@ export default function Type( name )
 		this.prototype(
 			renameMap
 				? rename( trait.properties, renameMap, true )
-				: trait.properties
+				: trait.properties,
+			false
 		);
 
 		this.traits = this.traits.concat( trait.traits );
@@ -292,6 +337,67 @@ export default function Type( name )
 			stack,
 			Object.getOwnPropertyDescriptors( this.properties )
 		);
+
+		return stack;
+	}
+
+	/**
+	 * It collects and returns the methods of its own and all
+	 * parent types in a chained manner. The method of the last
+	 * defined type overrides the methods of the parent type.
+	 * 
+	 * @returns {Object}
+	 */
+	this.getInheritedMethods = function()
+	{
+		var stack = {}
+		var current = this;
+
+		while( current )
+		{
+			for( var methodName in current.methods )
+			{
+				stack[ methodName ] = current.methods[ methodName ];
+			}
+
+			current = current.parent;
+		}
+
+		return stack;
+	}
+
+	this.getInheritedMissedMethods = function()
+	{
+		var stack = {}
+		var current = this;
+
+		while( current )
+		{
+			for( var methodName in current.missedMethods )
+			{
+				stack[ methodName ] = current.missedMethods[ methodName ];
+			}
+
+			current = current.parent;
+		}
+
+		return stack;
+	}
+
+	this.getInheritedMissedProperties = function()
+	{
+		var stack = {}
+		var current = this;
+
+		while( current )
+		{
+			for( var methodName in current.missedProperties )
+			{
+				stack[ methodName ] = current.missedProperties[ methodName ];
+			}
+
+			current = current.parent;
+		}
 
 		return stack;
 	}

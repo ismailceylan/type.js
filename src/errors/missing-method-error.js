@@ -5,6 +5,6 @@ export default class MissingMethodError extends Error
 		super();
 
 		this.name = "MissingMethodError";
-		this.message = `The ${ iface.name } interface requires to define ${ rule.name } method on ${ type.name } type.`
+		this.message = `The ${ iface.name } interface requires to define ${ rule.name } method on ${ type.name } type. Type must therefore be declared abstract or implement the remaining methods.`
 	}
 }

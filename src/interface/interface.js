@@ -140,33 +140,51 @@ export default function Interface( name, build )
 	{
 		for( var ruleName in this.properties )
 		{
-			var rule = this.properties[ ruleName ];
-			var name = rule.name;
-			var allows = rule.types;
-			var required = rule.isRequired;
-			var defined = name in type.properties;
-			var value = type.properties[ name ];
-			var restricted = allows.length > 0;
+			var result = validateProperty.call( this, type, this.properties[ ruleName ]);
 
-			// checking if prop needs to be defined
-			if( required && ! defined )
+			if( result === false )
 			{
-				// prop not defined directly on type
-				throw new MissingPropError( this, type, rule );
+				break;
+			}
+		}
+	}
+
+	function validateProperty( type, rule )
+	{
+		var name = rule.name;
+		var allows = rule.types;
+		var required = rule.isRequired;
+		var defined = name in type.properties;
+		var value = type.properties[ name ];
+		var restricted = allows.length > 0;
+		var isTypeAbstract = type.isAbstract;
+
+		// checking if prop needs to be defined
+		if( required && ! defined )
+		{
+			if( isTypeAbstract )
+			{
+				type.missedProperties[ name ] = type =>
+					validateProperty.call( this, type, rule );
+
+				return false;
 			}
 
-			// type checking
-			if( defined && restricted && ! allowed( value, allows ))
-			{
-				throw new PropTypeMismatchError( this, type, rule, value );
-			}
+			// prop not defined directly on type
+			throw new MissingPropError( this, type, rule );
+		}
 
-			// if prop restricted for specific types
-			// we have to observe future writings
-			if( restricted )
-			{
-				watchProp( this, type, rule );
-			}
+		// type checking
+		if( defined && restricted && ! allowed( value, allows ))
+		{
+			throw new PropTypeMismatchError( this, type, rule, value );
+		}
+
+		// if prop restricted for specific types
+		// we have to observe future writings
+		if( restricted )
+		{
+			watchProp( this, type, rule );
 		}
 	}
 
@@ -202,100 +220,124 @@ export default function Interface( name, build )
 	{
 		for( var ruleName in this.methods )
 		{
-			var methodRule = this.methods[ ruleName ];
-			var methodName = methodRule.name;
-			var defined = methodName in type.methods;
+			var result = validateMethod.call( this, type, this.methods[ ruleName ]);
 
-			// methods are required
-			if( ! defined )
+			if( result === false )
 			{
-				throw new MissingMethodError( this, type, methodRule );
+				break;
 			}
-
-			var method = type.methods[ methodName ];
-			var definedArgs = getArguments( method.toString());
-			var returns = methodRule.returnTypes;
-
-			for( var i = 0; i < methodRule.arguments.length; i++ )
-			{
-				var argRule = methodRule.arguments[ i ];
-				var argNameInDefinition = definedArgs[ i ];
-				var required = argRule.isRequired;
-
-				// argument is required and not defined on the method
-				if( required && argNameInDefinition === undefined )
-				{
-					throw new MissingArgumentError( this, type, methodRule, argRule, i );
-				}
-			}
-
-			// to observe argument types on runtime we have to
-			// proxify the original method so we can keep under
-			// control what is coming and even returning
-			var proxifiedMethod = type.methods[ methodName ];
-
-			function interfaceProxy()
-			{
-				var receivedArgs = $args( arguments );
-
-				for( var i = 0; i < $methodRule.arguments.length; i++ )
-				{
-					var argRule = $methodRule.arguments[ i ];
-					var required = argRule.isRequired;
-					var argDefault = argRule.defaultValue;
-					var receivedArg = receivedArgs[ i ];
-					var argNameInRule = argRule.name;
-					var argNameInDefinition = $definedArgs[ i ];
-					var allows = argRule.types;
-					var restricted = allows.length > 0;
-
-					// if the argument required but not received any value
-					if( required && receivedArg === undefined )
-					{
-						// If a default value is defined we will use it  
-						if( argDefault !== undefined )
-						{
-							receivedArgs[ i ] = receivedArg = argDefault;
-						}
-						else
-						{
-							throw new $ArgumentTypeMismatch( $iface, $type, $methodRule, argRule, i );
-						}
-					}
-					else if( restricted && ! $allowed( receivedArg, allows ))
-					{
-						throw new $ArgumentTypeMismatch(
-							$iface, $type, $methodRule, argRule, i, receivedArg
-						);
-					}
-				}
-
-				var returnValue = $proxifiedMethod.apply( this, receivedArgs );
-
-				if( $returns.length > 0 && ! $allowed( returnValue, $returns ))
-				{
-					throw new $ReturnTypeMismatch( $iface, $type, $methodRule, returnValue );
-				}
-
-				return returnValue;
-			}
-
-			interfaceProxy.dependencies =
-			{
-				$args: args,
-				$type: type,
-				$iface: this,
-				$returns: returns,
-				$allowed: allowed,
-				$methodRule: methodRule,
-				$definedArgs: definedArgs,
-				$proxifiedMethod: proxifiedMethod,
-				$ReturnTypeMismatch: ReturnTypeMismatch,
-				$ArgumentTypeMismatch: ArgumentTypeMismatch,
-			}
-
-			type.methods[ methodName ] = interfaceProxy;
 		}
+	}
+
+	function validateMethod( type, rule )
+	{
+		var methodName = rule.name;
+		var defined = methodName in type.methods;
+		var isTypeAbstract = type.isAbstract;
+
+		// any child type defined the method in the future
+		
+		// all the methods are required
+		if( ! defined )
+		{
+			// if the type is abstract then this type
+			// doesn't have to define the method
+			if( isTypeAbstract )
+			{
+				// but still child types have to define the method
+				// so this type is going to leave a debt to it's childs
+				type.missedMethods[ methodName ] = type =>
+					validateMethod.call( this, type, rule );
+	
+				return false;
+			}
+
+			throw new MissingMethodError( this, type, rule );
+		}
+
+		var method = type.methods[ methodName ];
+		var definedArgs = getArguments( method.toString());
+		var returns = rule.returnTypes;
+
+		for( var i = 0; i < rule.arguments.length; i++ )
+		{
+			var argRule = rule.arguments[ i ];
+			var argNameInDefinition = definedArgs[ i ];
+			var required = argRule.isRequired;
+
+			// argument is required and not defined on the method
+			if( required && argNameInDefinition === undefined )
+			{
+				throw new MissingArgumentError( this, type, rule, argRule, i );
+			}
+		}
+
+		// to observe argument types on runtime we have to
+		// proxify the original method so we can keep under
+		// control what is coming and even returning
+		var proxifiedMethod = type.methods[ methodName ];
+
+		function interfaceProxy()
+		{
+			var receivedArgs = $args( arguments );
+
+			for( var i = 0; i < $rule.arguments.length; i++ )
+			{
+				var argRule = $rule.arguments[ i ];
+				var required = argRule.isRequired;
+				var argDefault = argRule.defaultValue;
+				var receivedArg = receivedArgs[ i ];
+				var argNameInRule = argRule.name;
+				var argNameInDefinition = $definedArgs[ i ];
+				var allows = argRule.types;
+				var restricted = allows.length > 0;
+
+				// if the argument required but not received any value
+				if( required && receivedArg === undefined )
+				{
+					// If a default value is defined we will use it  
+					if( argDefault !== undefined )
+					{
+						receivedArgs[ i ] = receivedArg = argDefault;
+					}
+					else
+					{
+						throw new $ArgumentTypeMismatch( $iface, $type, $rule, argRule, i );
+					}
+				}
+				else if( restricted && ! $allowed( receivedArg, allows ))
+				{
+					throw new $ArgumentTypeMismatch(
+						$iface, $type, $rule, argRule, i, receivedArg
+					);
+				}
+			}
+
+			var returnValue = $proxifiedMethod.apply( this, receivedArgs );
+
+			if( $returns.length > 0 && ! $allowed( returnValue, $returns ))
+			{
+				throw new $ReturnTypeMismatch( $iface, $type, $rule, returnValue );
+			}
+
+			return returnValue;
+		}
+
+		interfaceProxy.dependencies =
+		{
+			$args: args,
+			$type: type,
+			$iface: this,
+			$returns: returns,
+			$allowed: allowed,
+			$rule: rule,
+			$definedArgs: definedArgs,
+			$proxifiedMethod: proxifiedMethod,
+			$ReturnTypeMismatch: ReturnTypeMismatch,
+			$ArgumentTypeMismatch: ArgumentTypeMismatch,
+		}
+
+		type.methods[ methodName ] = interfaceProxy;
 	}
 }
 

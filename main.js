@@ -38,15 +38,13 @@ const CanBreathUnderwater = Trait( "CanBreathUnderwater" )
 		}
 	});
 
-const Creature = Type( "Creature" ).implements( WarmBloodedCreatureContract ).prototype(
+const Creature = Type( "Creature" ).implements( CreatureContract ).prototype(
 {
 	weight: 12,
-	beatSpeed: 59,
 
 	live( life, is )
 	{
 		console.log( is, `I have ${ life } days to live.` );
-
 		return "3";
 	},
 
@@ -57,10 +55,15 @@ const Creature = Type( "Creature" ).implements( WarmBloodedCreatureContract ).pr
 });
 
 const Animal = Type( "Animal" )
+	.abstract()
 	.extends( Creature )
+	.implements( WarmBloodedCreatureContract )
 	.use( CanBreathUnderwater, { breathUnderwater: "breath" })
 	.prototype(
 	{
+		weight: 50,
+		beatSpeed: 10,
+		
 		walk()
 		{
 			console.log( "walking" );
@@ -83,6 +86,11 @@ const Human = Type( "Human" ).extends( Animal ).prototype(
 		this.breath();
 	},
 
+	live( life, is )
+	{
+		console.log( is, `I have ${ life } days to live.` );
+		return "3";
+	},
 	talk()
 	{
 		console.log( "talking" );
@@ -96,7 +104,6 @@ const Human = Type( "Human" ).extends( Animal ).prototype(
 });
 
 const ismail = Human.create({ weight: 88 });
-const ali = Human.create({weight: 2 });
 
 console.log(
 {
@@ -113,4 +120,4 @@ console.log(
 ismail.foo();
 
 console.log( ismail instanceof Human );
-console.log( Human instanceof CanBreath );
+console.log( Creature instanceof Animal );
