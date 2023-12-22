@@ -1,7 +1,7 @@
 import { Type } from "../index.js";
 import { Builder } from "./index.js";
 import { BreakSignal } from "../symbols.js";
-import { getArguments, typeName } from "../utils/index.js";
+import { allowed, getArguments } from "../utils/index.js";
 import {
 	MissingArgumentError, PropAssignTypeMismatchError,
 	MissingMethodError, MissingPropError, PropTypeMismatchError,
@@ -333,17 +333,4 @@ export default function Interface( name, build )
 
 		type.methods[ methodName ] = interfaceProxy;
 	}
-}
-
-function allowed( value, types )
-{
-	for( const type of types )
-	{
-		if( typeName( value ) == type.prototype.constructor.name )
-		{
-			return true;
-		}
-	}
-
-	return false;
 }

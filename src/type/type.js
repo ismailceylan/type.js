@@ -1,6 +1,7 @@
-import Interface from "./interface/index.js";
-import { closured, rename, typeName, getPrototypeOf, setPrototypeOf }
-	from "./utils/index.js";
+import Interface from "../interface/index.js";
+import { bindMagicalParentWord } from "./utils/index.js";
+import { rename, getPrototypeOf, setPrototypeOf, defineProp }
+	from "../utils/index.js";
 
 export default function Type( name )
 {
@@ -253,11 +254,11 @@ export default function Type( name )
 
 			while( currentType )
 			{
-				defineTypeMember( proto, "constructor", currentType.constructor );
+				defineProp( proto, "constructor", currentType.constructor );
 
 				for( const name in currentType.methods )
 				{
-					defineTypeMember(
+					defineProp(
 						proto,
 						name,
 						bindMagicalParentWord(
@@ -302,7 +303,7 @@ export default function Type( name )
 
 				if( ! ( PROXY_KEY in proto ))
 				{
-					defineTypeMember( proto, PROXY_KEY, {});
+					defineProp( proto, PROXY_KEY, {});
 				}
 
 				proto[ PROXY_KEY ][ unprefixedKey ] = instance[ key ];
@@ -310,15 +311,15 @@ export default function Type( name )
 			}
 		}
 
-		defineTypeMember( proto, "is", target =>
+		defineProp( proto, "is", target =>
 			type.is( target, true )
 		);
 
-		defineTypeMember( proto, "behave", targetTrait =>
+		defineProp( proto, "behave", targetTrait =>
 			type.behave( targetTrait )
 		);
 
-		defineTypeMember( proto, "constructor", Type );
+		defineProp( proto, "constructor", Type );
 
 		if( "construct" in instance )
 		{
@@ -500,88 +501,4 @@ export default function Type( name )
 	{
 		return target.is( this );
 	}
-}
-
-function parentalAccess( type, currentType, callerMethodName, root, proto, methodName, args )
-{
-	if(( type = type.parent ) === null )
-	{
-		throw new ReferenceError(
-			"The " + currentType.name + " is a type that does not extend another " +
-			"type, the parent method cannot be used in the " + callerMethodName +
-			" method."
-		);
-	}
-
-	let ctx = getPrototypeOf( proto );
-
-	// if root object is same with the proto
-	// that we should work on it then first
-	// level [[Prototype]] will lead infinite loop
-	if( root === proto )
-	{
-		// we have to dive one level deeper
-		ctx = getPrototypeOf( ctx );
-		type = type.parent;
-	}
-
-	if( methodName === undefined )
-	{
-		methodName = callerMethodName;
-	}
-
-	if( methodName in ctx )
-	{
-		return ctx[ methodName ].apply( root, args );
-	}
-	else if( getPrototypeOf( ctx ) === null )
-	{
-		throw new ReferenceError(
-			'"parent" method was used illegally in ' +
-			type.parent.name + "." + callerMethodName + " method. " +
-			"Within the root types, using parent method is ineffective."
-		);
-	}
-	else
-	{
-		throw new ReferenceError(
-			"The parent method used in " + currentType.name + "." + callerMethodName +
-			" tried to access method " + methodName + ", which is not defined in type " +
-			currentType.parent.name + "!"
-		);
-	}
-}
-
-function bindMagicalParentWord( finalType, currentType, callerMethodName, root, proto )
-{
-	const filename = currentType.name + "." + callerMethodName;
-	const method = currentType.methods[ callerMethodName ];
-	const scope =
-	{
-		...method.dependencies,
-
-		parent: ( methodName, args ) =>
-		{
-			if( typeName( methodName ) == "Array" )
-			{
-				args = methodName;
-				methodName = undefined;
-			}
-
-			return parentalAccess( finalType, currentType, callerMethodName, root, proto, methodName, args );
-		}
-	}
-
-	return closured( method, scope, filename );
-}
-
-function defineTypeMember( obj, name, value )
-{
-	Object.defineProperty( obj, name,
-	{
-		value: value,
-		writable: true,
-		configurable: true,
-		enumerable: false
-	});
 }
