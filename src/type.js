@@ -380,24 +380,12 @@ export default function Type( name )
 		return stack;
 	}
 
-	this.getInheritedMissedMethods = function()
-	{
-		const stack = {}
-		let current = this;
-
-		while( current )
-		{
-			for( const methodName in current.missedMethods )
-			{
-				stack[ methodName ] = current.missedMethods[ methodName ];
-			}
-
-			current = current.parent;
-		}
-
-		return stack;
-	}
-
+	/**
+	 * Returns all the missed properties that required by
+	 * interfaces in inherited manner.
+	 *  
+	 * @returns {Object}
+	 */
 	this.getInheritedMissedProperties = function()
 	{
 		const stack = {}
@@ -416,11 +404,50 @@ export default function Type( name )
 		return stack;
 	}
 
-	this.behave = function( target )
+	/**
+	 * Returns all the missed methods that required by
+	 * interfaces in inherited manner.
+	 *  
+	 * @returns {Object}
+	 */
+	this.getInheritedMissedMethods = function()
 	{
-		return this.traits.includes( target.name );
+		const stack = {}
+		let current = this;
+
+		while( current )
+		{
+			for( const methodName in current.missedMethods )
+			{
+				stack[ methodName ] = current.missedMethods[ methodName ];
+			}
+
+			current = current.parent;
+		}
+
+		return stack;
 	}
 
+	/**
+	 * Returns whether this type or parent at any level ever uses
+	 * the given trait or not.
+	 * 
+	 * @param {Trait} targetTrait a trait to test
+	 * @returns {Boolean}
+	 */
+	this.behave = function( targetTrait )
+	{
+		return this.traits.includes( targetTrait.name );
+	}
+
+	/**
+	 * Returns whether this type or parent type at any level ever
+	 * extends the given type or implements the given interface.
+	 * 
+	 * @param {Type|Interface} target a type or interface to test
+	 * @param {*} fromInstance 
+	 * @returns {Boolean}
+	 */
 	this.is = function( target, fromInstance )
 	{
 		if( target instanceof Type )
