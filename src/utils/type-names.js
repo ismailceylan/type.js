@@ -1,8 +1,8 @@
 export default function typeNames( types )
 {
-	var stack = [];
+	const stack = [];
 
-	for( var type of types )
+	for( const type of types )
 	{
 		if( type && type.prototype && type.prototype.constructor && type.prototype.constructor.name )
 		{

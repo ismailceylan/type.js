@@ -1,5 +1,7 @@
+import { Type } from "../index.js";
 import { Builder } from "./index.js";
-import { args, getArguments, typeName } from "../utils/index.js";
+import { BreakSignal } from "../symbols.js";
+import { getArguments, typeName } from "../utils/index.js";
 import {
 	MissingArgumentError, PropAssignTypeMismatchError,
 	MissingMethodError, MissingPropError, PropTypeMismatchError,
@@ -13,7 +15,7 @@ export default function Interface( name, build )
 		return new Interface( name, build );
 	}
 
-	var builder = new Builder;
+	const builder = new Builder;
 
 	if( build )
 	{
@@ -65,11 +67,9 @@ export default function Interface( name, build )
 	 * @param {...Interface} interfaces interface to extend
 	 * @return {Interface}
 	 */
-	this.extends = function()
+	this.extends = function( ...interfaces )
 	{
-		var interfaces = args( arguments );
-
-		for( var targetInterface of interfaces )
+		for( const targetInterface of interfaces )
 		{
 			Object.defineProperties(
 				this.methods,
@@ -110,7 +110,7 @@ export default function Interface( name, build )
 	 */
 	this.is = function( Interface )
 	{
-		for( var iface of this.interfaces )
+		for( const iface of this.interfaces )
 		{
 			if( iface === Interface )
 			{
@@ -138,11 +138,11 @@ export default function Interface( name, build )
 
 	function validateProperties( type )
 	{
-		for( var ruleName in this.properties )
+		for( const ruleName in this.properties )
 		{
-			var result = validateProperty.call( this, type, this.properties[ ruleName ]);
+			const result = validateProperty.call( this, type, this.properties[ ruleName ]);
 
-			if( result === false )
+			if( result === BreakSignal )
 			{
 				break;
 			}
@@ -151,23 +151,23 @@ export default function Interface( name, build )
 
 	function validateProperty( type, rule )
 	{
-		var name = rule.name;
-		var allows = rule.types;
-		var required = rule.isRequired;
-		var defined = name in type.properties;
-		var value = type.properties[ name ];
-		var restricted = allows.length > 0;
-		var isTypeAbstract = type.isAbstract;
+		const name = rule.name;
+		const allows = rule.types;
+		const required = rule.isRequired;
+		const defined = name in type.properties;
+		const value = type.properties[ name ];
+		const restricted = allows.length > 0;
+		const isTypeAbstract = type.isAbstract;
 
 		// checking if prop needs to be defined
 		if( required && ! defined )
 		{
 			if( isTypeAbstract )
 			{
-				type.missedProperties[ name ] = type =>
-					validateProperty.call( this, type, rule );
+				type.missedProperties[ name ] =
+					type => validateProperty.call( this, type, rule );
 
-				return false;
+				return BreakSignal;
 			}
 
 			// prop not defined directly on type
@@ -190,18 +190,17 @@ export default function Interface( name, build )
 
 	function watchProp( iface, type, rule )
 	{
-		var proxyKey = "__proxifiedProperties__";
-
 		// type instantiator will collect these props and put
 		// them all into the latest level of [[Prototype]]
 		// so the $proxified_ will an indicator for it
-		type.properties[ "$proxified_" + rule.name ] = type.properties[ rule.name ];
+		type.properties[ Type.PROXY_PROP_PREFIX + rule.name ] =
+			type.properties[ rule.name ];
 
 		Object.defineProperty( type.properties, rule.name,
 		{
 			get: function()
 			{
-				return this[ proxyKey ][ rule.name ];
+				return this[ Type.PROXY_KEY ][ rule.name ];
 			},
 
 			set: function( v )
@@ -211,18 +210,18 @@ export default function Interface( name, build )
 					throw new PropAssignTypeMismatchError( iface, type, rule, v );
 				}
 
-				this[ proxyKey ][ rule.name ] = v;
+				this[ Type.PROXY_KEY ][ rule.name ] = v;
 			}
 		});
 	}
 
 	function validateMethods( type )
 	{
-		for( var ruleName in this.methods )
+		for( const ruleName in this.methods )
 		{
-			var result = validateMethod.call( this, type, this.methods[ ruleName ]);
+			const result = validateMethod.call( this, type, this.methods[ ruleName ]);
 
-			if( result === false )
+			if( result === BreakSignal )
 			{
 				break;
 			}
@@ -231,12 +230,10 @@ export default function Interface( name, build )
 
 	function validateMethod( type, rule )
 	{
-		var methodName = rule.name;
-		var defined = methodName in type.methods;
-		var isTypeAbstract = type.isAbstract;
+		const methodName = rule.name;
+		const defined = methodName in type.methods;
+		const isTypeAbstract = type.isAbstract;
 
-		// any child type defined the method in the future
-		
 		// all the methods are required
 		if( ! defined )
 		{
@@ -246,24 +243,24 @@ export default function Interface( name, build )
 			{
 				// but still child types have to define the method
 				// so this type is going to leave a debt to it's childs
-				type.missedMethods[ methodName ] = type =>
-					validateMethod.call( this, type, rule );
+				type.missedMethods[ methodName ] =
+					type => validateMethod.call( this, type, rule );
 	
-				return false;
+				return BreakSignal;
 			}
 
 			throw new MissingMethodError( this, type, rule );
 		}
 
-		var method = type.methods[ methodName ];
-		var definedArgs = getArguments( method.toString());
-		var returns = rule.returnTypes;
+		const method = type.methods[ methodName ];
+		const definedArgs = getArguments( method.toString());
+		const returns = rule.returnTypes;
 
-		for( var i = 0; i < rule.arguments.length; i++ )
+		for( let i = 0; i < rule.arguments.length; i++ )
 		{
-			var argRule = rule.arguments[ i ];
-			var argNameInDefinition = definedArgs[ i ];
-			var required = argRule.isRequired;
+			const argRule = rule.arguments[ i ];
+			const argNameInDefinition = definedArgs[ i ];
+			const required = argRule.isRequired;
 
 			// argument is required and not defined on the method
 			if( required && argNameInDefinition === undefined )
@@ -275,22 +272,20 @@ export default function Interface( name, build )
 		// to observe argument types on runtime we have to
 		// proxify the original method so we can keep under
 		// control what is coming and even returning
-		var proxifiedMethod = type.methods[ methodName ];
+		const proxifiedMethod = type.methods[ methodName ];
 
-		function interfaceProxy()
+		function interfaceProxy( ...receivedArgs )
 		{
-			var receivedArgs = $args( arguments );
-
-			for( var i = 0; i < $rule.arguments.length; i++ )
+			for( let i = 0; i < $rule.arguments.length; i++ )
 			{
-				var argRule = $rule.arguments[ i ];
-				var required = argRule.isRequired;
-				var argDefault = argRule.defaultValue;
-				var receivedArg = receivedArgs[ i ];
-				var argNameInRule = argRule.name;
-				var argNameInDefinition = $definedArgs[ i ];
-				var allows = argRule.types;
-				var restricted = allows.length > 0;
+				const argRule = $rule.arguments[ i ];
+				const required = argRule.isRequired;
+				const argDefault = argRule.defaultValue;
+				const receivedArg = receivedArgs[ i ];
+				const argNameInRule = argRule.name;
+				const argNameInDefinition = $definedArgs[ i ];
+				const allows = argRule.types;
+				const restricted = allows.length > 0;
 
 				// if the argument required but not received any value
 				if( required && receivedArg === undefined )
@@ -313,7 +308,7 @@ export default function Interface( name, build )
 				}
 			}
 
-			var returnValue = $proxifiedMethod.apply( this, receivedArgs );
+			const returnValue = $proxifiedMethod.apply( this, receivedArgs );
 
 			if( $returns.length > 0 && ! $allowed( returnValue, $returns ))
 			{
@@ -325,7 +320,6 @@ export default function Interface( name, build )
 
 		interfaceProxy.dependencies =
 		{
-			$args: args,
 			$type: type,
 			$iface: this,
 			$returns: returns,
@@ -343,7 +337,7 @@ export default function Interface( name, build )
 
 function allowed( value, types )
 {
-	for( var type of types )
+	for( const type of types )
 	{
 		if( typeName( value ) == type.prototype.constructor.name )
 		{

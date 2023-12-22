@@ -15,6 +15,8 @@ Argument.prototype.allows = function( types )
 		: types === undefined
 			? []
 			: [ types ];
+	
+	return this;
 }
 
 Argument.prototype.required = function()

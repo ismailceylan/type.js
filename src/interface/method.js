@@ -10,11 +10,11 @@ export default function Method( name )
 
 Method.prototype.argument = function( name, types )
 {
-	var arg = new Argument( name );
+	const arg = new Argument( name );
 
-	arg.allows( types );
-
-	this.arguments.push( arg );
+	this.arguments.push(
+		arg.allows( types )
+	);
 
 	return arg;
 }
@@ -26,4 +26,6 @@ Method.prototype.returns = function( types )
 		: types === undefined
 			? []
 			: [ types ];
+	
+	return this;
 }

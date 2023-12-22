@@ -47,7 +47,7 @@ export default function Trait( name )
 				: trait.properties
 		);
 
-		this.traits = this.traits.concat( trait.traits );
+		this.traits = [ ...this.traits, ...trait.traits ];
 
 		return this;
 	}
@@ -73,7 +73,7 @@ export default function Trait( name )
 	 */
 	this.behave = function( target )
 	{
-		return this.traits.indexOf( target.name ) > -1;
+		return this.traits.includes( target.name );
 	}
 
 	/**

@@ -1,10 +1,10 @@
 export default function rename( source, renameMap, removeOlds )
 {
-	var stack = {}
+	const stack = {}
 
-	for( var key in source )
+	for( const key in source )
 	{
-		var value = source[ key ];
+		const value = source[ key ];
 
 		if( key in renameMap )
 		{

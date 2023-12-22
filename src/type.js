@@ -1,5 +1,5 @@
 import Interface from "./interface/index.js";
-import { args, closured, rename, typeName, getPrototypeOf, setPrototypeOf }
+import { closured, rename, typeName, getPrototypeOf, setPrototypeOf }
 	from "./utils/index.js";
 
 export default function Type( name )
@@ -23,7 +23,25 @@ export default function Type( name )
 	 * @private
 	 * @type {Array}
 	 */
-	var coveredInterfaces = [];
+	const coveredInterfaces = [];
+
+	/**
+	 * The key name of the object that holds original
+	 * values of the proxified properties by interfaces.
+	 * 
+	 * @private
+	 * @type {String}
+	 */
+	const PROXY_KEY = Type.PROXY_KEY = "__proxifiedProperties__";
+	
+	/**
+	 * The prefix key for the proxyfied properties by
+	 * interfaces.
+	 * 
+	 * @private
+	 * @type {String}
+	 */
+	const PROXY_PROP_PREFIX = Type.PROXY_PROP_PREFIX = "$proxified_";
 
 	/**
 	 * Type name.
@@ -121,18 +139,18 @@ export default function Type( name )
 	 */
 	this.prototype = function( context )
 	{
-		for( var key in context )
+		for( const key in context )
 		{
-			var value = context[ key ];
+			const value = context[ key ];
 
 			this[ value instanceof Function? "methods" : "properties" ][ key ] = value;
 		}
 
 		if( arguments[ 1 ] === undefined )
 		{
-			for( var iface of this.interfaces )
+			for( const iface of this.interfaces )
 			{
-				if( coveredInterfaces.indexOf( iface.name ) > -1 )
+				if( coveredInterfaces.includes( iface.name ))
 				{
 					continue;
 				}
@@ -141,15 +159,15 @@ export default function Type( name )
 				iface.apply( this );
 			}
 
-			var missedProperties = this.getInheritedMissedProperties();
-			var missedMethods = this.getInheritedMissedMethods();
+			const missedProperties = this.getInheritedMissedProperties();
+			const missedMethods = this.getInheritedMissedMethods();
 
-			for( var key in missedProperties )
+			for( const key in missedProperties )
 			{
 				missedProperties[ key ]( this );
 			}
 
-			for( var key in missedMethods )
+			for( const key in missedMethods )
 			{
 				missedMethods[ key ]( this );
 			}
@@ -167,8 +185,8 @@ export default function Type( name )
 	this.extends = function( parent )
 	{
 		this.parent = parent;
-		this.types = this.types.concat( parent.types );
-		this.traits = this.traits.concat( parent.traits );
+		this.types = [ ...this.types, ... parent.types ];
+		this.traits = [ ...this.traits, ...parent.traits ];
 
 		return this;
 	}
@@ -179,9 +197,9 @@ export default function Type( name )
 	 * @param {Array<Interface>} interfaces
 	 * @returns {this}
 	 */
-	this.implements = function()
+	this.implements = function( ...interfaces )
 	{
-		this.interfaces = args( arguments );
+		this.interfaces = interfaces;
 
 		return this;
 	}
@@ -205,7 +223,7 @@ export default function Type( name )
 			false
 		);
 
-		this.traits = this.traits.concat( trait.traits );
+		this.traits = [ ...this.traits, ...trait.traits ];
 
 		return this;
 	}
@@ -217,9 +235,10 @@ export default function Type( name )
 	 */
 	this.create = function()
 	{
-		var type = this;
-		var instance = new this.constructor;
-		var inheritedProperties = this.getInheritedProperties();
+		const type = this;
+		const instance = new this.constructor;
+		const inheritedProperties = this.getInheritedProperties();
+		let proto;
 
 		Object.defineProperties(
 			instance,
@@ -228,14 +247,15 @@ export default function Type( name )
 
 		if( this.parent )
 		{
-			var currentType = this;
-			var proto = setPrototypeOf( instance, {});
+			let currentType = this;
+			
+			proto = setPrototypeOf( instance, {});
 
 			while( currentType )
 			{
 				defineTypeMember( proto, "constructor", currentType.constructor );
 
-				for( var name in currentType.methods )
+				for( const name in currentType.methods )
 				{
 					defineTypeMember(
 						proto,
@@ -261,7 +281,7 @@ export default function Type( name )
 			}
 		}
 
-		for( var key in this.methods )
+		for( const key in this.methods )
 		{
 			getPrototypeOf( instance )[ key ] = bindMagicalParentWord(
 				this,
@@ -274,41 +294,35 @@ export default function Type( name )
 
 		proto = setPrototypeOf( proto, {});
 
-		var proxyKey = "__proxifiedProperties__";
-
-		for( var key in instance )
+		for( const key in instance )
 		{
-			var prefix = key.substr( 0, 11 );
-
-			if( prefix == "$proxified_" )
+			if( key.startsWith( PROXY_PROP_PREFIX ))
 			{
-				var unprefixedKey = key.replace( prefix, "" );
+				const unprefixedKey = key.replace( PROXY_PROP_PREFIX, "" );
 
-				if( ! ( proxyKey in proto ))
+				if( ! ( PROXY_KEY in proto ))
 				{
-					defineTypeMember( proto, proxyKey, {});
+					defineTypeMember( proto, PROXY_KEY, {});
 				}
 
-				proto[ proxyKey ][ unprefixedKey ] = instance[ key ];
+				proto[ PROXY_KEY ][ unprefixedKey ] = instance[ key ];
 				delete instance[ key ];
 			}
 		}
 
-		defineTypeMember( proto, "is", function( target )
-		{
-			return type.is( target, true );
-		});
+		defineTypeMember( proto, "is", target =>
+			type.is( target, true )
+		);
 
-		defineTypeMember( proto, "behave", function( targetTrait )
-		{
-			return type.traits.indexOf( targetTrait.name ) > -1;
-		});
+		defineTypeMember( proto, "behave", targetTrait =>
+			type.behave( targetTrait )
+		);
 
 		defineTypeMember( proto, "constructor", Type );
 
 		if( "construct" in instance )
 		{
-			instance.construct.apply( instance, args( arguments ));
+			instance.construct.call( instance, ...arguments );
 		}
 
 		return instance;
@@ -323,7 +337,7 @@ export default function Type( name )
 	 */
 	this.getInheritedProperties = function()
 	{
-		var stack = {}
+		const stack = {}
 
 		if( this.parent )
 		{
@@ -350,12 +364,12 @@ export default function Type( name )
 	 */
 	this.getInheritedMethods = function()
 	{
-		var stack = {}
-		var current = this;
+		const stack = {}
+		let current = this;
 
 		while( current )
 		{
-			for( var methodName in current.methods )
+			for( const methodName in current.methods )
 			{
 				stack[ methodName ] = current.methods[ methodName ];
 			}
@@ -368,12 +382,12 @@ export default function Type( name )
 
 	this.getInheritedMissedMethods = function()
 	{
-		var stack = {}
-		var current = this;
+		const stack = {}
+		let current = this;
 
 		while( current )
 		{
-			for( var methodName in current.missedMethods )
+			for( const methodName in current.missedMethods )
 			{
 				stack[ methodName ] = current.missedMethods[ methodName ];
 			}
@@ -386,12 +400,12 @@ export default function Type( name )
 
 	this.getInheritedMissedProperties = function()
 	{
-		var stack = {}
-		var current = this;
+		const stack = {}
+		let current = this;
 
 		while( current )
 		{
-			for( var methodName in current.missedProperties )
+			for( const methodName in current.missedProperties )
 			{
 				stack[ methodName ] = current.missedProperties[ methodName ];
 			}
@@ -404,23 +418,23 @@ export default function Type( name )
 
 	this.behave = function( target )
 	{
-		return this.traits.indexOf( target.name ) > -1;
+		return this.traits.includes( target.name );
 	}
 
 	this.is = function( target, fromInstance )
 	{
 		if( target instanceof Type )
 		{
-			return this.types.indexOf( target.name ) > -1;
+			return this.types.includes( target.name );
 		}
 		else if( target instanceof Interface )
 		{
-			var isNameInInterfaces = false;
-			var currentType = this;
+			let isNameInInterfaces = false;
+			let currentType = this;
 
 			inheritanceLoop: while( currentType )
 			{
-				for( var iface of currentType.interfaces )
+				for( const iface of currentType.interfaces )
 				{
 					if( iface.is( target ))
 					{
@@ -438,7 +452,7 @@ export default function Type( name )
 		{
 			while( target = getPrototypeOf( target ))
 			{
-				if( target.constructor === this.constructor )
+				if( Object.is( target.constructor, this.constructor ))
 				{
 					return true;
 				}
@@ -472,7 +486,7 @@ function parentalAccess( type, currentType, callerMethodName, root, proto, metho
 		);
 	}
 
-	var ctx = getPrototypeOf( proto );
+	let ctx = getPrototypeOf( proto );
 
 	// if root object is same with the proto
 	// that we should work on it then first
@@ -513,11 +527,13 @@ function parentalAccess( type, currentType, callerMethodName, root, proto, metho
 
 function bindMagicalParentWord( finalType, currentType, callerMethodName, root, proto )
 {
-	var filename = currentType.name + "." + callerMethodName;
-	var method = currentType.methods[ callerMethodName ];
-	var scope =
+	const filename = currentType.name + "." + callerMethodName;
+	const method = currentType.methods[ callerMethodName ];
+	const scope =
 	{
-		parent: function( methodName, args )
+		...method.dependencies,
+
+		parent: ( methodName, args ) =>
 		{
 			if( typeName( methodName ) == "Array" )
 			{
@@ -526,14 +542,6 @@ function bindMagicalParentWord( finalType, currentType, callerMethodName, root, 
 			}
 
 			return parentalAccess( finalType, currentType, callerMethodName, root, proto, methodName, args );
-		}
-	}
-
-	if( method.dependencies )
-	{
-		for( var key in method.dependencies )
-		{
-			scope[ key ] = method.dependencies[ key ];
 		}
 	}
 
