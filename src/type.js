@@ -18,6 +18,14 @@ export default function Type( name )
 	}
 
 	/**
+	 * List of executed interfaces over this type.
+	 * 
+	 * @private
+	 * @type {Array}
+	 */
+	var coveredInterfaces = [];
+
+	/**
 	 * Type name.
 	 * 
 	 * @type {String}
@@ -88,15 +96,20 @@ export default function Type( name )
 			this[ value instanceof Function? "methods" : "properties" ][ key ] = value;
 		}
 
-		clearTimeout( this.timer );
-
-		this.timer = setTimeout(() =>
+		if( arguments[ 1 ] === undefined )
 		{
 			for( var iface of this.interfaces )
 			{
+				if( coveredInterfaces.indexOf( iface.name ) > -1 )
+				{
+					continue;
+				}
+
+				coveredInterfaces.push( iface.name );
 				iface.apply( this );
 			}
-		});
+
+		}
 
 		return this;
 	}
