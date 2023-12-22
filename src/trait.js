@@ -12,17 +12,12 @@ export default function Trait( name )
 		return new Trait( name );
 	}
 
-	if( typeof( name ) !== "string" || /^[a-z_$]{1}[a-z0-9_$]*$/i.test( name ) === false )
-	{
-		throw TypeError( "The first argument must be a valid trait name." );
-	}
-
 	/**
 	 * Trait name.
 	 * 
 	 * @type {String}
 	 */
-	this.name = name[ 0 ].toUpperCase() + name.slice( 1 );
+	this.name = name;
 
 	/**
 	 * It keeps the traits list that this trait has, including itself.
