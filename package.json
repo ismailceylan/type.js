@@ -1,6 +1,6 @@
 {
   "name": "@iceylan/type.js",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Allows to define types, abstract types, interfaces and traits. Types can be extends by other types, uses traits and implements interfaces in multiple manner. Also, interfaces and traits can extends their kinds.",
   "main": "main.js",
   "type": "module",

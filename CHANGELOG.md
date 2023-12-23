@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/ismailceylan/type.js/compare/v1.1.0...v1.2.0) (2023-12-23)
+
+
+### Features
+
+* abstract types ([26e9b6b](https://github.com/ismailceylan/type.js/commit/26e9b6b212977cabc955fb31a34b7436140bb277))
+* instanceof trap ([090d3f0](https://github.com/ismailceylan/type.js/commit/090d3f0971ffee171706ac6e1f10ee38a1050e32))
+
+
+### Bug Fixes
+
+* assignment to constant ([be68b2f](https://github.com/ismailceylan/type.js/commit/be68b2fd40388a9d89211706361ae119bdb88633))
+* **errors:** argument position ([4f42183](https://github.com/ismailceylan/type.js/commit/4f421837b9a47996d89010978ce0dff3ab60f457))
+* **interface:** poorly applied argument rules ([39292c1](https://github.com/ismailceylan/type.js/commit/39292c1076b4ffa2dae65805caab01fd6bb15821))
+* **interface:** var hoisting ([b7861f2](https://github.com/ismailceylan/type.js/commit/b7861f2aa74f5e8f134383aeb88a6ffbe80462cf))
+* missing behave method on type ([40b6c29](https://github.com/ismailceylan/type.js/commit/40b6c2979840ea256981df09c9c0e6090cc00dbc))
+* **type:** duplicatedly running interface controls ([9b08d43](https://github.com/ismailceylan/type.js/commit/9b08d43e67ca2f1a8ff32ebf218feba5f277d293))
+* **type:** instanceof trap variable order ([b4a22d2](https://github.com/ismailceylan/type.js/commit/b4a22d2aa2cad24a3921567d0c0a0ec1ac904b91))
+
 ## 1.1.0 (2023-12-18)
 
 
