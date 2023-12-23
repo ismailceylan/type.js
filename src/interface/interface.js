@@ -1,7 +1,7 @@
 import { Type } from "../index.js";
 import { Builder } from "./index.js";
 import { BreakSignal } from "../symbols.js";
-import { allowed, getArguments, setTag } from "../utils/index.js";
+import { allowed, clone, getArguments, setTag } from "../utils/index.js";
 import {
 	MissingArgumentError, PropAssignTypeMismatchError,
 	MissingMethodError, MissingPropError, PropTypeMismatchError,
@@ -71,15 +71,8 @@ export default function Interface( name, build )
 	{
 		for( const targetInterface of interfaces )
 		{
-			Object.defineProperties(
-				this.methods,
-				Object.getOwnPropertyDescriptors( targetInterface.methods )
-			);
-	
-			Object.defineProperties(
-				this.properties,
-				Object.getOwnPropertyDescriptors( targetInterface.properties )
-			);
+			clone( targetInterface.properties, this.properties );
+			clone( targetInterface.methods, this.methods );
 
 			this.interfaces.push( targetInterface );
 		}

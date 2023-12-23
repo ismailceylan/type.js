@@ -1,6 +1,6 @@
 import Interface from "../interface/index.js";
 import { bindMagicalParentWord } from "./utils/index.js";
-import { rename, getPrototypeOf, setPrototypeOf, defineProp, setTag }
+import { rename, getPrototypeOf, setPrototypeOf, defineProp, setTag, clone }
 	from "../utils/index.js";
 
 export default function Type( name )
@@ -241,10 +241,7 @@ export default function Type( name )
 		const inheritedProperties = this.getInheritedProperties();
 		let proto;
 
-		Object.defineProperties(
-			instance,
-			Object.getOwnPropertyDescriptors( inheritedProperties )
-		);
+		clone( inheritedProperties, instance );
 
 		if( this.parent )
 		{
@@ -342,16 +339,10 @@ export default function Type( name )
 
 		if( this.parent )
 		{
-			Object.defineProperties(
-				stack,
-				Object.getOwnPropertyDescriptors( this.parent.getInheritedProperties())
-			);
+			clone( this.parent.getInheritedProperties(), stack );
 		}
 
-		Object.defineProperties(
-			stack,
-			Object.getOwnPropertyDescriptors( this.properties )
-		);
+		clone( this.properties, stack );
 
 		return stack;
 	}

@@ -105,18 +105,6 @@ const Human = Type( "Human" ).extends( Animal ).prototype(
 
 const ismail = Human.create({ weight: 88 });
 
-console.log(
-{
-	isIsmailCanBreath: ismail.behave( CanBreath ),
-	isIsmailAnimal: ismail.is( Animal ),
-	isIsmailSharesCreatureContract: ismail.is( CreatureContract ),
-	isHumanTypeAlsoCreature: Human.is( Creature ),
-	isCanBreathUnderwaterExtendsCanBreath: CanBreathUnderwater.behave( CanBreath ),
-	isCreatureContractWarmBloodedCreatureContract: CreatureContract.is( WarmBloodedCreatureContract ),
-	isWarmBloodedCreatureContractCreatureContract: WarmBloodedCreatureContract.is( CreatureContract ),
-	isHumanWarmBlooded: Human.is( WarmBloodedCreatureContract )
-});
-
 ismail.foo();
 
 console.log( ismail instanceof Human );
