@@ -1,4 +1,4 @@
-import { rename } from "./utils/index.js";
+import { rename, setTag } from "./utils/index.js";
 
 /**
  * Creates traits.
@@ -17,7 +17,7 @@ export default function Trait( name )
 	 * 
 	 * @type {String}
 	 */
-	this.name = name;
+	this.name = setTag( this, name );
 
 	/**
 	 * It keeps the traits list that this trait has, including itself.

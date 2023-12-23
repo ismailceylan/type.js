@@ -1,6 +1,6 @@
 import Interface from "../interface/index.js";
 import { bindMagicalParentWord } from "./utils/index.js";
-import { rename, getPrototypeOf, setPrototypeOf, defineProp }
+import { rename, getPrototypeOf, setPrototypeOf, defineProp, setTag }
 	from "../utils/index.js";
 
 export default function Type( name )
@@ -49,7 +49,7 @@ export default function Type( name )
 	 * 
 	 * @type {String}
 	 */
-	this.name = name;
+	this.name = setTag( this, name );
 
 	/**
 	 * Parent type.

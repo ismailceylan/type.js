@@ -1,7 +1,7 @@
 import { Type } from "../index.js";
 import { Builder } from "./index.js";
 import { BreakSignal } from "../symbols.js";
-import { allowed, getArguments } from "../utils/index.js";
+import { allowed, getArguments, setTag } from "../utils/index.js";
 import {
 	MissingArgumentError, PropAssignTypeMismatchError,
 	MissingMethodError, MissingPropError, PropTypeMismatchError,
@@ -27,7 +27,7 @@ export default function Interface( name, build )
 	 * 
 	 * @type {String}
 	 */
-	this.name = name;
+	this.name = setTag( this, name );
 
 	/**
 	 * Interface properties.

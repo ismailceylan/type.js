@@ -1,5 +1,6 @@
 export { default as tag } from "./tag.js";
 export { default as rename } from "./rename.js";
+export { default as setTag } from "./set-tag.js";
 export { default as allowed } from "./allowed.js";
 export { default as closured } from "./closured.js";
 export { default as typeName } from "./type-name.js";
