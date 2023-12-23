@@ -288,6 +288,16 @@ export default function Interface( name, build )
 						throw new $ArgumentTypeMismatch( $iface, $type, $rule, argRule, i );
 					}
 				}
+				// not required and not passed anything
+				else if( ! required && receivedArg === undefined )
+				{
+					if( argDefault !== undefined )
+					{
+						receivedArgs[ i ] = receivedArg = argDefault;
+					}
+					
+					// there is nothing to complain
+				}
 				else if( restricted && ! $allowed( receivedArg, allows ))
 				{
 					throw new $ArgumentTypeMismatch(
