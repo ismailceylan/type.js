@@ -8,13 +8,11 @@
  */
 export default function walkParents( entry, propName, handler )
 {
-	let current = entry;
-
 	do
 	{
-		handler( current );
+		handler( entry );
 	}
-	while( current = current[ propName ]);
+	while( entry = entry[ propName ]);
 
-	return entry
+	return entry;
 }
