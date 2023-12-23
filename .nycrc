@@ -1,6 +1,5 @@
 {
   "check-coverage": true,
-  "branches": 80,
-  "lines": 80,
-  "reporter": ["html","json","text","text-summary"]
+  "branches": 84.74,
+  "reporter": ["html","text","text-summary"]
 }

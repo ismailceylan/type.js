@@ -1,9 +1,11 @@
 import { describe } from "mocha";
 import { Interface, Trait, Type } from "../src/index.js";
 import assert from "assert";
+import ArgumentTypeMismatch from "../src/errors/argument-type-mismatch.js";
 
-const CanBreath = Trait( "CanBreath" );
-const CanBreathUnderwater = Trait( "CanBreathUnderwater" ).use( CanBreath );
+const CanBreath = Trait( "CanBreath" ).prototype({ foo(){}});
+const CanBreathUnderwater = Trait( "CanBreathUnderwater" ).use( CanBreath, { foo: "moo" });
+const CanHoldBreath = Trait( "CanHoldBreath" ).use( CanBreath ).use( CanBreathUnderwater );
 
 const CreatureContract = Interface( "CreatureContract" );
 const AnimalContract = Interface( "AnimalContract" )
@@ -82,11 +84,14 @@ const Animal = Type( "Animal" ).extends( Creature ).implements( AnimalContract )
 	}
 });
 
+const Fish = Type( "Fish" ).extends( Animal ).use( CanBreathUnderwater ).implements( AnimalContract );
+
 const Bug = Type( "Bug" ).extends( Creature );
 const Plant = Type( "Plant" ).extends( Creature );
 
 const bird = Animal.create( 10 );
 const stevia = Plant.create();
+const seaBass = Fish.create();
 
 describe( "Is A Relations", () =>
 {
@@ -198,5 +203,39 @@ describe( "Core Vitals", () =>
 		it( "should access any parent method", () =>
 			assert.equal( bird.shouldAccessAnyParentMethod(), "any method" )
 		);
+	});
+
+	describe( "Interface Enforcements", () =>
+	{
+		const iface = Interface( "iface", ifc =>
+		{
+			ifc.method( "foo", foo =>
+			{
+				foo.argument( "bar", String ).required();
+				foo.argument( "foo" ).required();
+			});
+		});
+
+		const type = Type( "type" ).implements( iface ).prototype(
+		{
+			foo( bar, foo ){}
+		});
+
+		const instance = type.create();
+
+		it( "should throw ArgumentTypeMismatch for type casted method arguments", () =>
+		{
+			assert.throws(() => instance.foo( 10 ), ArgumentTypeMismatch );
+		});
+
+		it( "should throw ArgumentTypeMismatch for leaving empty type casted required argument", () =>
+		{
+			assert.throws(() => instance.foo(), ArgumentTypeMismatch );
+		});
+
+		it( "should throw ArgumentTypeMismatch with according message for leaving empty required mixed argument", () =>
+		{
+			assert.throws(() => instance.foo( "10" ), ArgumentTypeMismatch );
+		});
 	});
 });

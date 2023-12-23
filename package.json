@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "mocha --exit",
-    "coverage": "c8 --reporter=html --reporter=json mocha",
+    "coverage": "c8 mocha",
     "publish": "npm publish",
     "release": "standard-version",
     "dev": "vite",

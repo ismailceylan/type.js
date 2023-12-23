@@ -1,5 +1,6 @@
 ![npm package minimized gzipped size (select exports)](https://img.shields.io/bundlejs/size/ismailceylan-type.js)
 ![npm](https://img.shields.io/npm/dt/ismailceylan-type.js)
+![nycrc config on GitHub](https://img.shields.io/nycrc/ismailceylan/type.js?preferredThreshold=branches&label=coverage)
 ![npm](https://img.shields.io/npm/v/ismailceylan-type.js)
 ![NPM](https://img.shields.io/npm/l/ismailceylan-type.js)
 
