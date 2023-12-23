@@ -20,12 +20,12 @@ export default function Type( name )
 	}
 
 	/**
-	 * List of executed interfaces over this type.
+	 * Indicates whether the type body is defined or not.
 	 * 
 	 * @private
-	 * @type {Array}
+	 * @type {Boolean}
 	 */
-	const coveredInterfaces = [];
+	let hasBodyDefined = false;
 
 	/**
 	 * The key name of the object that holds original
@@ -141,30 +141,26 @@ export default function Type( name )
 	 */
 	this.prototype = function( context )
 	{
-		each( context, ( value, key ) =>
-			this
-				[ value instanceof Function? "methods" : "properties" ]
-				[ key ] = value
-		);
-
-		if( arguments[ 1 ] === undefined )
+		if( hasBodyDefined )
 		{
-			for( const iface of this.interfaces )
-			{
-				if( coveredInterfaces.includes( iface.name ))
-				{
-					continue;
-				}
-
-				coveredInterfaces.push( iface.name );
-				iface.apply( this );
-			}
-
-			const revalidate = validator => validator( this );
-
-			each( this.getInheritedMissedProperties(), revalidate );
-			each( this.getInheritedMissedMethods(), revalidate );
+			throw new SyntaxError(
+				`${ this.name }.prototype() method shouldn't be called more than once.`
+			);
 		}
+
+		pushPrototype.call( this, context );
+
+		for( const iface of this.interfaces )
+		{
+			iface.apply( this );
+		}
+
+		const revalidate = validator => validator( this );
+
+		each( this.getInheritedMissedProperties(), revalidate );
+		each( this.getInheritedMissedMethods(), revalidate );
+
+		hasBodyDefined = true;
 
 		return this;
 	}
@@ -209,11 +205,11 @@ export default function Type( name )
 	 */
 	this.use = function( trait, renameMap )
 	{
-		this.prototype(
+		pushPrototype.call(
+			this,
 			renameMap
 				? rename( trait.properties, renameMap, true )
-				: trait.properties,
-			false
+				: trait.properties
 		);
 
 		this.traits = [ ...this.traits, ...trait.traits ];
@@ -439,5 +435,21 @@ export default function Type( name )
 	this[ Symbol.hasInstance ] = function( target )
 	{
 		return target.is( this );
+	}
+
+	/**
+	 * Distributes given object's properties to the type's
+	 * method and props lists.
+	 * 
+	 * @private
+	 * @param {Object} context an object to push type's prototype
+	 */
+	function pushPrototype( context )
+	{
+		each( context, ( value, key ) =>
+			this
+				[ value instanceof Function? "methods" : "properties" ]
+				[ key ] = value
+		);
 	}
 }
