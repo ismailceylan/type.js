@@ -1,4 +1,5 @@
 {
+  "check-coverage": true,
   "branches": 80,
   "lines": 80,
   "reporter": ["text-summary"]
