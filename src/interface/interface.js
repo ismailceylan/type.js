@@ -269,7 +269,7 @@ export default function Interface( name, build )
 				const argRule = $rule.arguments[ i ];
 				const required = argRule.isRequired;
 				const argDefault = argRule.defaultValue;
-				const receivedArg = receivedArgs[ i ];
+				let receivedArg = receivedArgs[ i ];
 				const argNameInRule = argRule.name;
 				const argNameInDefinition = $definedArgs[ i ];
 				const allows = argRule.types;
