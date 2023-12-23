@@ -1,6 +1,6 @@
 import Interface from "../interface/index.js";
 import { bindMagicalParentWord } from "./utils/index.js";
-import { rename, getPrototypeOf, setPrototypeOf, defineProp, setTag, clone, each }
+import { rename, getPrototypeOf, setPrototypeOf, defineProp, setTag, clone, each, walkParents, inherit }
 	from "../utils/index.js";
 
 export default function Type( name )
@@ -347,19 +347,9 @@ export default function Type( name )
 	 */
 	this.getInheritedMethods = function()
 	{
-		const stack = {}
-		let current = this;
-
-		while( current )
-		{
-			each( current.methods, ( method, methodName ) =>
-				stack[ methodName ] = method
-			);
-
-			current = current.parent;
-		}
-
-		return stack;
+		return inherit( this, "parent", current =>
+			current.methods
+		);
 	}
 
 	/**
@@ -370,19 +360,9 @@ export default function Type( name )
 	 */
 	this.getInheritedMissedProperties = function()
 	{
-		const stack = {}
-		let current = this;
-
-		while( current )
-		{
-			each( current.missedProperties, ( prop, propName ) =>
-				stack[ propName ] = prop
-			);
-
-			current = current.parent;
-		}
-
-		return stack;
+		return inherit( this, "parent", current =>
+			current.missedProperties
+		);
 	}
 
 	/**
@@ -393,19 +373,9 @@ export default function Type( name )
 	 */
 	this.getInheritedMissedMethods = function()
 	{
-		const stack = {}
-		let current = this;
-
-		while( current )
-		{
-			each( current.missedMethods, ( method, methodName ) =>
-				stack[ methodName ] = method
-			)
-
-			current = current.parent;
-		}
-
-		return stack;
+		return inherit( this, "parent", current =>
+			current.missedMethods
+		);
 	}
 
 	/**
