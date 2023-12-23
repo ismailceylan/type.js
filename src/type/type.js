@@ -1,4 +1,5 @@
 import Interface from "../interface/index.js";
+import { BreakSignal } from "../symbols.js";
 import { bindMagicalParentWord } from "./utils/index.js";
 import { rename, getPrototypeOf, setPrototypeOf, defineProp, setTag, clone, each, walkParents, inherit }
 	from "../utils/index.js";
@@ -229,45 +230,32 @@ export default function Type( name )
 	{
 		const type = this;
 		const instance = new this.constructor;
-		const inheritedProperties = this.getInheritedProperties();
-		let proto;
+		let proto = {}
 
-		clone( inheritedProperties, instance );
+		clone( this.getInheritedProperties(), instance );
 
 		if( this.parent )
 		{
-			let currentType = this;
-			
 			proto = setPrototypeOf( instance, {});
 
-			while( currentType )
+			walkParents( this, "parent", currentType =>
 			{
 				defineProp( proto, "constructor", currentType.constructor );
 
 				for( const name in currentType.methods )
 				{
-					defineProp(
-						proto,
+					defineProp( proto, name, bindMagicalParentWord(
+						this,
+						currentType,
 						name,
-						bindMagicalParentWord(
-							this,
-							currentType,
-							name,
-							instance,
-							proto
-						)
-					);
+						instance,
+						proto
+					));
 				}
 
-				if( ! currentType.parent )
-				{
-					break;
-				}
-				
 				// making ready one level deeper area in the proto chain
 				proto = setPrototypeOf( proto, {});
-				currentType = currentType.parent;
-			}
+			});
 		}
 
 		for( const key in this.methods )
@@ -281,6 +269,7 @@ export default function Type( name )
 			);
 		}
 
+		// let's make ready deepest proto
 		proto = setPrototypeOf( proto, {});
 
 		for( const key in instance )
@@ -309,6 +298,7 @@ export default function Type( name )
 
 		defineProp( proto, "constructor", Type );
 
+		// instance ready let's call construct method
 		if( "construct" in instance )
 		{
 			instance.construct.call( instance, ...arguments );
