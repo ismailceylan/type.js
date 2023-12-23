@@ -1,4 +1,5 @@
 export { default as tag } from "./tag.js";
+export { default as each } from "./each.js";
 export { default as clone } from "./clone.js";
 export { default as rename } from "./rename.js";
 export { default as setTag } from "./set-tag.js";

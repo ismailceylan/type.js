@@ -1,7 +1,7 @@
 import { Type } from "../index.js";
 import { Builder } from "./index.js";
 import { BreakSignal } from "../symbols.js";
-import { allowed, clone, getArguments, setTag } from "../utils/index.js";
+import { allowed, clone, each, getArguments, setTag } from "../utils/index.js";
 import {
 	MissingArgumentError, PropAssignTypeMismatchError,
 	MissingMethodError, MissingPropError, PropTypeMismatchError,
@@ -131,15 +131,13 @@ export default function Interface( name, build )
 
 	function validateProperties( type )
 	{
-		for( const ruleName in this.properties )
+		each( this.properties, prop =>
 		{
-			const result = validateProperty.call( this, type, this.properties[ ruleName ]);
-
-			if( result === BreakSignal )
+			if( validateProperty.call( this, type, prop ) === BreakSignal )
 			{
-				break;
+				return BreakSignal;
 			}
-		}
+		});
 	}
 
 	function validateProperty( type, rule )
@@ -210,15 +208,13 @@ export default function Interface( name, build )
 
 	function validateMethods( type )
 	{
-		for( const ruleName in this.methods )
+		each( this.methods, method =>
 		{
-			const result = validateMethod.call( this, type, this.methods[ ruleName ]);
-
-			if( result === BreakSignal )
+			if( validateMethod.call( this, type, method ) === BreakSignal )
 			{
-				break;
+				return BreakSignal;
 			}
-		}
+		});
 	}
 
 	function validateMethod( type, rule )
@@ -249,9 +245,8 @@ export default function Interface( name, build )
 		const definedArgs = getArguments( method.toString());
 		const returns = rule.returnTypes;
 
-		for( let i = 0; i < rule.arguments.length; i++ )
+		for( const [ i, argRule ] of rule.arguments.entries())
 		{
-			const argRule = rule.arguments[ i ];
 			const argNameInDefinition = definedArgs[ i ];
 			const required = argRule.isRequired;
 

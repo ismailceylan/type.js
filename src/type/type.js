@@ -1,6 +1,6 @@
 import Interface from "../interface/index.js";
 import { bindMagicalParentWord } from "./utils/index.js";
-import { rename, getPrototypeOf, setPrototypeOf, defineProp, setTag, clone }
+import { rename, getPrototypeOf, setPrototypeOf, defineProp, setTag, clone, each }
 	from "../utils/index.js";
 
 export default function Type( name )
@@ -140,12 +140,11 @@ export default function Type( name )
 	 */
 	this.prototype = function( context )
 	{
-		for( const key in context )
-		{
-			const value = context[ key ];
-
-			this[ value instanceof Function? "methods" : "properties" ][ key ] = value;
-		}
+		each( context, ( value, key ) =>
+			this
+				[ value instanceof Function? "methods" : "properties" ]
+				[ key ] = value
+		);
 
 		if( arguments[ 1 ] === undefined )
 		{
@@ -160,18 +159,10 @@ export default function Type( name )
 				iface.apply( this );
 			}
 
-			const missedProperties = this.getInheritedMissedProperties();
-			const missedMethods = this.getInheritedMissedMethods();
+			const revalidate = validator => validator( this );
 
-			for( const key in missedProperties )
-			{
-				missedProperties[ key ]( this );
-			}
-
-			for( const key in missedMethods )
-			{
-				missedMethods[ key ]( this );
-			}
+			each( this.getInheritedMissedProperties(), revalidate );
+			each( this.getInheritedMissedMethods(), revalidate );
 		}
 
 		return this;
@@ -361,10 +352,9 @@ export default function Type( name )
 
 		while( current )
 		{
-			for( const methodName in current.methods )
-			{
-				stack[ methodName ] = current.methods[ methodName ];
-			}
+			each( current.methods, ( method, methodName ) =>
+				stack[ methodName ] = method
+			);
 
 			current = current.parent;
 		}
@@ -385,10 +375,9 @@ export default function Type( name )
 
 		while( current )
 		{
-			for( const methodName in current.missedProperties )
-			{
-				stack[ methodName ] = current.missedProperties[ methodName ];
-			}
+			each( current.missedProperties, ( prop, propName ) =>
+				stack[ propName ] = prop
+			);
 
 			current = current.parent;
 		}
@@ -409,10 +398,9 @@ export default function Type( name )
 
 		while( current )
 		{
-			for( const methodName in current.missedMethods )
-			{
-				stack[ methodName ] = current.missedMethods[ methodName ];
-			}
+			each( current.missedMethods, ( method, methodName ) =>
+				stack[ methodName ] = method
+			)
 
 			current = current.parent;
 		}
