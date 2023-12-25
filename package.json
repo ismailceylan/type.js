@@ -7,7 +7,7 @@
   "scripts": {
     "test": "mocha --exit",
     "coverage": "c8 npm test",
-    "publish": "npm publish",
+    "publish": "npm publish --access public",
     "release": "standard-version",
     "dev": "vite",
     "build": "vite build",
@@ -28,6 +28,7 @@
     "mixins",
     "trait",
     "interface",
+    "inheritance",
     "multiple-inheritance",
     "interface-inheritance",
     "multiple-interfaces",
