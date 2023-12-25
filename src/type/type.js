@@ -1,5 +1,4 @@
 import Interface from "../interface/index.js";
-import { BreakSignal } from "../symbols.js";
 import { bindMagicalParentWord } from "./utils/index.js";
 import { rename, getPrototypeOf, setPrototypeOf, defineProp, setTag, clone, each, walkParents, inherit }
 	from "../utils/index.js";
@@ -20,14 +19,6 @@ export default function Type( name )
 	}
 
 	/**
-	 * Indicates whether the type body is defined or not.
-	 * 
-	 * @private
-	 * @type {Boolean}
-	 */
-	let hasBodyDefined = false;
-
-	/**
 	 * The key name of the object that holds original
 	 * values of the proxified properties by interfaces.
 	 * 
@@ -44,6 +35,14 @@ export default function Type( name )
 	 * @type {String}
 	 */
 	const PROXY_PROP_PREFIX = Type.PROXY_PROP_PREFIX = "$proxified_";
+
+	/**
+	 * Indicates whether the type body is defined or not.
+	 * 
+	 * @private
+	 * @type {Boolean}
+	 */
+	let hasBodyDefined = false;
 
 	/**
 	 * Type name.
@@ -134,12 +133,12 @@ export default function Type( name )
 	}
 
 	/**
-	 * Mixes a new context into the type's prototype.
+	 * Mixes a new object into the type's properties.
 	 * 
 	 * @param {Object} context
 	 * @return {this}
 	 */
-	this.prototype = function( context )
+	this.body = function( context )
 	{
 		if( hasBodyDefined )
 		{
@@ -148,7 +147,7 @@ export default function Type( name )
 			);
 		}
 
-		pushPrototype.call( this, context );
+		extendBody.call( this, context );
 
 		for( const iface of this.interfaces )
 		{
@@ -205,7 +204,7 @@ export default function Type( name )
 	 */
 	this.use = function( trait, renameMap )
 	{
-		pushPrototype.call(
+		extendBody.call(
 			this,
 			renameMap
 				? rename( trait.properties, renameMap, true )
@@ -447,7 +446,7 @@ export default function Type( name )
 	 * @private
 	 * @param {Object} context an object to push type's prototype
 	 */
-	function pushPrototype( context )
+	function extendBody( context )
 	{
 		each( context, ( value, key ) =>
 			this

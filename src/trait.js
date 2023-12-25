@@ -41,7 +41,7 @@ export default function Trait( name )
 	 */
 	this.use = function( trait, renameMap )
 	{
-		this.prototype(
+		this.body(
 			renameMap
 				? rename( trait.properties, renameMap, true )
 				: trait.properties
@@ -54,12 +54,12 @@ export default function Trait( name )
 
 	/**
 	 * Adds properties from the given object to the trait's
-	 * prototype stack.
+	 * properties stack.
 	 * 
 	 * @param {Object} context an object containing methods and properties
 	 * @return {this}
 	 */
-	this.prototype = function( context )
+	this.body = function( context )
 	{
 		Object.assign( this.properties, context );
 		return this;

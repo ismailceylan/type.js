@@ -88,7 +88,7 @@ export default function Interface( name, build )
 	 * @param {Function} build interface builder method
 	 * @returns {Interface}
 	 */
-	this.prototype = function( build )
+	this.body = function( build )
 	{
 		build( builder );
 		return this;
