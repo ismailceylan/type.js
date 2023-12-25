@@ -295,6 +295,8 @@ export default function Type( name )
 
 		defineProp( proto, "constructor", Type );
 
+		Object.seal( proto );
+
 		// instance ready let's call construct method
 		if( "construct" in instance )
 		{
