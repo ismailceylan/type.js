@@ -81,11 +81,11 @@ export default function Type( name )
 	this.interfaces = [];
 
 	/**
-	 * Constructor method to represent the type natively.
+	 * Shadow constructor to represent the type natively.
 	 * 
 	 * @type {Function}
 	 */
-	this.constructor = eval( "( function " + name + "(){})" );
+	this.constructor = ({ eval })[ "eval" ]( "( function " + encodeURIComponent( name ) + "(){})" );
 
 	/**
 	 * Methods of the type.
