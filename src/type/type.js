@@ -226,14 +226,12 @@ export default function Type( name )
 	{
 		const type = this;
 		const instance = new this.constructor;
-		let proto = {}
+		let proto = setPrototypeOf( instance, {});
 
 		clone( this.getInheritedProperties(), instance );
 
 		if( this.parent )
 		{
-			proto = setPrototypeOf( instance, {});
-
 			walkParents( this, "parent", currentType =>
 			{
 				defineProp( proto, "constructor", currentType.constructor );
@@ -265,9 +263,6 @@ export default function Type( name )
 			);
 		}
 
-		// let's make ready deepest proto
-		proto = setPrototypeOf( proto, {});
-
 		for( const key in instance )
 		{
 			if( key.startsWith( PROXY_PROP_PREFIX ))
@@ -282,6 +277,12 @@ export default function Type( name )
 				proto[ PROXY_KEY ][ unprefixedKey ] = instance[ key ];
 				delete instance[ key ];
 			}
+		}
+
+		if( ! this.parent )
+		{
+			// let's make ready deepest proto
+			proto = setPrototypeOf( proto, {});
 		}
 
 		defineProp( proto, "is", target =>
