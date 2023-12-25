@@ -202,7 +202,7 @@ export default function Type( name )
 	 * @param {Object} renameMap {target: "newName"} formatted renaming map
 	 * @return {Type}
 	 */
-	this.use = function( trait, renameMap )
+	this.uses = function( trait, renameMap )
 	{
 		extendBody.call(
 			this,

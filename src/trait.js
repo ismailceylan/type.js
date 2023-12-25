@@ -39,7 +39,7 @@ export default function Trait( name )
 	 * @param {Trait} ...parents traits to use
 	 * @return {this}
 	 */
-	this.use = function( trait, renameMap )
+	this.uses = function( trait, renameMap )
 	{
 		this.body(
 			renameMap
