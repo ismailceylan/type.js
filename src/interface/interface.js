@@ -132,12 +132,8 @@ export default function Interface( name, build )
 	function validateProperties( type )
 	{
 		each( this.properties, prop =>
-		{
-			if( validateProperty.call( this, type, prop ) === BreakSignal )
-			{
-				return BreakSignal;
-			}
-		});
+			validateProperty.call( this, type, prop )
+		);
 	}
 
 	function validateProperty( type, rule )
@@ -158,7 +154,7 @@ export default function Interface( name, build )
 				type.missedProperties[ name ] =
 					type => validateProperty.call( this, type, rule );
 
-				return BreakSignal;
+				return;
 			}
 
 			// prop not defined directly on type
@@ -209,12 +205,8 @@ export default function Interface( name, build )
 	function validateMethods( type )
 	{
 		each( this.methods, method =>
-		{
-			if( validateMethod.call( this, type, method ) === BreakSignal )
-			{
-				return BreakSignal;
-			}
-		});
+			validateMethod.call( this, type, method )
+		);
 	}
 
 	function validateMethod( type, rule )
@@ -235,7 +227,7 @@ export default function Interface( name, build )
 				type.missedMethods[ methodName ] =
 					type => validateMethod.call( this, type, rule );
 	
-				return BreakSignal;
+				return;
 			}
 
 			throw new MissingMethodError( this, type, rule );
