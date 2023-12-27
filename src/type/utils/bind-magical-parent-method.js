@@ -10,6 +10,7 @@ export default function bindMagicalParentWord(
 	const scope =
 	{
 		...method.dependencies,
+		...currentType.dependencies,
 
 		parent: ( methodName, args ) =>
 		{

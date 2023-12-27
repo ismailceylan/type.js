@@ -124,6 +124,25 @@ export default function Type( name )
 	this.properties = {}
 
 	/**
+	 * Dependencies list to inject method closure.
+	 * 
+	 * @type {Object}
+	 */
+	this.dependencies = {}
+
+	/**
+	 * Appends dependencies to the injection list.
+	 * 
+	 * @param {Object} context dependencies to add injection list
+	 * @returns {Type}
+	 */
+	this.inject = function( context )
+	{
+		Object.assign( this.dependencies, context );
+		return this;
+	}
+
+	/**
 	 * Marks represented type as abstract.
 	 */
 	this.abstract = function()
@@ -176,6 +195,8 @@ export default function Type( name )
 		this.types = [ ...this.types, ... parent.types ];
 		this.traits = [ ...this.traits, ...parent.traits ];
 
+		Object.assign( this.dependencies, parent.dependencies );
+
 		return this;
 	}
 
@@ -212,6 +233,8 @@ export default function Type( name )
 		);
 
 		this.traits = [ ...this.traits, ...trait.traits ];
+
+		Object.assign( this.dependencies, trait.dependencies );
 
 		return this;
 	}

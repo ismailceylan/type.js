@@ -28,9 +28,17 @@ export default function Trait( name )
 
 	/**
 	 * Methods and properties in the trait's own and inherited traits.
+	 * 
 	 * @type {Object}
 	 */
 	this.properties = {}
+
+	/**
+	 * Dependencies list to inject method closure.
+	 * 
+	 * @type {Object}
+	 */
+	this.dependencies = {}
 
 	/**
 	 * It copies the properties of the given parent trait(s) into
@@ -49,6 +57,8 @@ export default function Trait( name )
 
 		this.traits = [ ...this.traits, ...trait.traits ];
 
+		Object.assign( this.dependencies, trait.dependencies );
+
 		return this;
 	}
 
@@ -62,6 +72,18 @@ export default function Trait( name )
 	this.body = function( context )
 	{
 		Object.assign( this.properties, context );
+		return this;
+	}
+
+	/**
+	 * Appends to the dependencies list.
+	 * 
+	 * @param {Object} dependencies dependencies to add dependencies list
+	 * @return {Trait}
+	 */
+	this.inject = function( dependencies )
+	{
+		Object.assign( this.dependencies, dependencies );
 		return this;
 	}
 
