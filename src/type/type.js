@@ -252,7 +252,11 @@ export default function Type( name )
 
 		clone( this.getInheritedProperties(), instance );
 
-		if( this.parent )
+		if( ! this.parent )
+		{
+			defineProp( proto, "constructor", this.constructor );
+		}
+		else
 		{
 			walkParents( this, "parent", currentType =>
 			{
