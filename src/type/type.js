@@ -315,6 +315,7 @@ export default function Type( name )
 			type.behave( targetTrait )
 		);
 
+		defineProp( proto, Symbol.toStringTag, this.name );
 		defineProp( proto, "constructor", Type );
 
 		Object.seal( proto );
