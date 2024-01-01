@@ -4,9 +4,17 @@ import {
 	rename, getPrototypeOf, setPrototypeOf, defineProp, setTag,
 	clone, each, walkParents, inherit, deepClone
 } from "../utils/index.js";
+import {
+	add as watchDebts,
+	unwatch as unwatchDebts,
+	stop as stopWatchingAllDebts,
+	handle as revalidateDebts
+} from "../utils/queue.js";
 
 export default function Type( name )
 {
+	watchDebts( this );
+
 	if( ! ( this instanceof Type ))
 	{
 		return new Type( name );
@@ -175,10 +183,8 @@ export default function Type( name )
 			iface.apply( this );
 		}
 
-		const revalidate = validator => validator( this );
-
-		each( this.getInheritedMissedProperties(), revalidate );
-		each( this.getInheritedMissedMethods(), revalidate );
+		unwatchDebts( this );
+		revalidateDebts( this );
 
 		hasBodyDefined = true;
 
@@ -248,6 +254,11 @@ export default function Type( name )
 	 */
 	this.create = function()
 	{
+		if( this.isAbstract )
+		{
+			throw new TypeError( `${ this.name } is an abstract type and cannot be instantiated.` );
+		}
+
 		const type = this;
 		const instance = new this.constructor;
 		let proto = setPrototypeOf( instance, {});
