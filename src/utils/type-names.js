@@ -1,10 +1,12 @@
+import { typeName } from "./index.js";
+
 export default function typeNames( types )
 {
 	const stack = [];
 
 	for( const type of types )
 	{
-		if( type && type.prototype && type.prototype.constructor && type.prototype.constructor.name )
+		if( type?.prototype?.constructor?.name )
 		{
 			stack.push( type.prototype.constructor.name );
 		}
@@ -17,6 +19,10 @@ export default function typeNames( types )
 			else if( type === null )
 			{
 				stack.push( "null" );
+			}
+			else
+			{
+				stack.push( typeName( type ));
 			}
 		}
 	}
