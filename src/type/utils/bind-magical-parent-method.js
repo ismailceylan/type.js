@@ -5,7 +5,7 @@ export default function bindMagicalParentWord(
 	finalType, currentType, callerMethodName, root, proto
 )
 {
-	const filename = currentType.name + "." + callerMethodName;
+	const filename = currentType.name + "::" + callerMethodName;
 	const method = currentType.methods[ callerMethodName ];
 	const scope =
 	{
