@@ -28,23 +28,6 @@ export default function Type( name )
 		);
 	}
 
-	/**
-	 * The key name of the object that holds original
-	 * values of the proxified properties by interfaces.
-	 * 
-	 * @private
-	 * @type {String}
-	 */
-	const PROXY_KEY = Type.PROXY_KEY = "__proxifiedProperties__";
-	
-	/**
-	 * The prefix key for the proxyfied properties by
-	 * interfaces.
-	 * 
-	 * @private
-	 * @type {String}
-	 */
-	const PROXY_PROP_PREFIX = Type.PROXY_PROP_PREFIX = "$proxified_";
 
 	/**
 	 * Indicates whether the type body is defined or not.
@@ -125,6 +108,13 @@ export default function Type( name )
 	 * @type {Object}
 	 */
 	this.missedProperties = {}
+
+	/**
+	 * Interface validators for type properties.
+	 * 
+	 * @type {Object}
+	 */
+	this.propertyValidators = {}
 
 	/**
 	 * Properties of the type.
@@ -256,6 +246,7 @@ export default function Type( name )
 	{
 		if( this.isAbstract )
 		{
+			stopWatchingAllDebts();
 			throw new TypeError( `${ this.name } is an abstract type and cannot be instantiated.` );
 		}
 
@@ -302,27 +293,26 @@ export default function Type( name )
 			);
 		}
 
-		for( const key in instance )
-		{
-			if( key.startsWith( PROXY_PROP_PREFIX ))
-			{
-				const unprefixedKey = key.replace( PROXY_PROP_PREFIX, "" );
-
-				if( ! ( PROXY_KEY in proto ))
-				{
-					defineProp( proto, PROXY_KEY, {});
-				}
-
-				proto[ PROXY_KEY ][ unprefixedKey ] = instance[ key ];
-				delete instance[ key ];
-			}
-		}
-
 		if( ! this.parent )
 		{
 			// let's make ready deepest proto
 			proto = setPrototypeOf( proto, {});
 		}
+
+		each( this.getInheritedPropValidators(), ( validate, key ) =>
+		{
+			let value = instance[ key ];
+
+			Object.defineProperty( instance, key,
+			{
+				get: () => value,
+				set( newVal )
+				{
+					validate( newVal );
+					value = newVal;
+				}
+			});
+		});
 
 		defineProp( proto, "is", target =>
 			type.is( target, true )
@@ -404,6 +394,19 @@ export default function Type( name )
 	{
 		return inherit( this, "parent", current =>
 			current.missedMethods
+		);
+	}
+
+	/**
+	 * Returns all the property validators that required by
+	 * interfaces in inherited manner.
+	 *  
+	 * @returns {Object}
+	 */
+	this.getInheritedPropValidators = function()
+	{
+		return inherit( this, "parent", current =>
+			current.propertyValidators
 		);
 	}
 

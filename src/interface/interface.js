@@ -1,6 +1,5 @@
 import { Type } from "../index.js";
 import { Builder } from "./index.js";
-import { BreakSignal } from "../symbols.js";
 import { allowed, clone, each, getArguments, setTag } from "../utils/index.js";
 import {
 	MissingArgumentError, PropAssignTypeMismatchError,
@@ -136,7 +135,7 @@ export default function Interface( name, build )
 		);
 	}
 
-	function validateProperty( type, rule )
+	function validateProperty( type, rule, origin )
 	{
 		const name = rule.name;
 		const allows = rule.types;
@@ -152,8 +151,9 @@ export default function Interface( name, build )
 			if( isTypeAbstract )
 			{
 				type.missedProperties[ name ] =
-					type => validateProperty.call( this, type, rule );
-
+					childType => validateProperty.call( this, childType, rule, type );
+				
+				watchProp( this, type, rule );
 				return;
 			}
 
@@ -167,6 +167,13 @@ export default function Interface( name, build )
 			throw new PropTypeMismatchError( this, type, rule, value );
 		}
 
+		// currently there is no prop problem and if we are on a
+		// inherited debt we should remove it from debts list
+		if( origin && name in origin.missedProperties )
+		{
+			delete origin.missedProperties[ name ];
+		}
+
 		// if prop restricted for specific types
 		// we have to observe future writings
 		if( restricted )
@@ -177,29 +184,13 @@ export default function Interface( name, build )
 
 	function watchProp( iface, type, rule )
 	{
-		// type instantiator will collect these props and put
-		// them all into the latest level of [[Prototype]]
-		// so the $proxified_ will an indicator for it
-		type.properties[ Type.PROXY_PROP_PREFIX + rule.name ] =
-			type.properties[ rule.name ];
-
-		Object.defineProperty( type.properties, rule.name,
+		type.propertyValidators[ rule.name ] = function( value )
 		{
-			get: function()
+			if( ! allowed( value, rule.types ))
 			{
-				return this[ Type.PROXY_KEY ][ rule.name ];
-			},
-
-			set: function( v )
-			{
-				if( ! allowed( v, rule.types ))
-				{
-					throw new PropAssignTypeMismatchError( iface, type, rule, v );
-				}
-
-				this[ Type.PROXY_KEY ][ rule.name ] = v;
+				throw new PropAssignTypeMismatchError( iface, type, rule, value );
 			}
-		});
+		}
 	}
 
 	function validateMethods( type )
@@ -209,7 +200,7 @@ export default function Interface( name, build )
 		);
 	}
 
-	function validateMethod( type, rule )
+	function validateMethod( type, rule, origin )
 	{
 		const methodName = rule.name;
 		const defined = methodName in type.methods;
@@ -225,7 +216,7 @@ export default function Interface( name, build )
 				// but still child types have to define the method
 				// so this type is going to leave a debt to it's childs
 				type.missedMethods[ methodName ] =
-					type => validateMethod.call( this, type, rule );
+					childType => validateMethod.call( this, childType, rule, type );
 	
 				return;
 			}
@@ -247,6 +238,13 @@ export default function Interface( name, build )
 			{
 				throw new MissingArgumentError( this, type, rule, argRule, i );
 			}
+		}
+
+		// currently there is no method problem and if we are on a
+		// inherited debt we should remove it from debts list
+		if( origin && name in origin.missedMethods )
+		{
+			delete origin.missedMethods[ name ];
 		}
 
 		// to observe argument types on runtime we have to
