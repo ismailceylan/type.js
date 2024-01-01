@@ -7,6 +7,6 @@ export default class PropTypeMismatchError extends TypeError
 		super();
 
 		this.name = "PropTypeMismatchError";
-		this.message = `${ iface.name } interface requires the ${ type.name }.${ rule.name } property should ${ readableJoin( typeNames( rule.types ))} but the property is ${ typeName( propValue )}.`;
+		this.message = `${ iface.name } interface requires ${ type.name }.${ rule.name } property should ${ readableJoin( typeNames( rule.types ))} but it was ${ typeName( propValue )}.`;
 	}
 }
