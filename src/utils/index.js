@@ -8,6 +8,7 @@ export { default as allowed } from "./allowed.js";
 export { default as closured } from "./closured.js";
 export { default as typeName } from "./type-name.js";
 export { default as typeNames } from "./type-names.js";
+export { default as deepClone } from "./deep-clone.js";
 export { default as defineProp } from "./define-prop.js";
 export { default as walkParents } from "./walk-parents.js";
 export { default as getArguments } from "./get-arguments.js";

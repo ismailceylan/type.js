@@ -1,7 +1,9 @@
 import Interface from "../interface/index.js";
 import { bindMagicalParentWord } from "./utils/index.js";
-import { rename, getPrototypeOf, setPrototypeOf, defineProp, setTag, clone, each, walkParents, inherit }
-	from "../utils/index.js";
+import { 
+	rename, getPrototypeOf, setPrototypeOf, defineProp, setTag,
+	clone, each, walkParents, inherit, deepClone
+} from "../utils/index.js";
 
 export default function Type( name )
 {
@@ -250,7 +252,7 @@ export default function Type( name )
 		const instance = new this.constructor;
 		let proto = setPrototypeOf( instance, {});
 
-		clone( this.getInheritedProperties(), instance );
+		clone( deepClone( this.getInheritedProperties()), instance );
 
 		if( ! this.parent )
 		{
