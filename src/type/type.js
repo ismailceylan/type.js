@@ -13,21 +13,10 @@ import {
 
 export default function Type( name )
 {
-	watchDebts( this );
-
 	if( ! ( this instanceof Type ))
 	{
 		return new Type( name );
 	}
-
-	if( typeof( name ) !== "string" || /^[a-z_$]{1}[a-z0-9_$]*$/i.test( name ) === false )
-	{
-		throw TypeError(
-			"In order to create a type, you need to provide a valid value as a " + 
-			"string in the first parameter, which can also be a function name!"
-		);
-	}
-
 
 	/**
 	 * Indicates whether the type body is defined or not.
@@ -43,6 +32,26 @@ export default function Type( name )
 	 * @type {String}
 	 */
 	this.name = setTag( this, name );
+
+	/**
+	 * Shadow constructor to represent the type natively.
+	 * 
+	 * @type {Function}
+	 */
+	this.constructor = (() =>
+	{
+		try
+		{
+			return ({ eval })[ "eval" ]( "( function " + encodeURIComponent( name ) + "(){})" )
+		}
+		catch
+		{
+			throw TypeError(
+				"In order to create a type, you need to provide a valid value as a " + 
+				"string in the first parameter, which can also be a function name: '" + name + "'"
+			);
+		}
+	})();
 
 	/**
 	 * Parent type.
@@ -71,13 +80,6 @@ export default function Type( name )
 	 * @type {Array}
 	 */
 	this.interfaces = [];
-
-	/**
-	 * Shadow constructor to represent the type natively.
-	 * 
-	 * @type {Function}
-	 */
-	this.constructor = ({ eval })[ "eval" ]( "( function " + encodeURIComponent( name ) + "(){})" );
 
 	/**
 	 * Methods of the type.
@@ -498,4 +500,6 @@ export default function Type( name )
 				[ key ] = value
 		);
 	}
+
+	watchDebts( this );
 }
