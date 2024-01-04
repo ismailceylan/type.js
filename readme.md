@@ -9,7 +9,7 @@
 This javascript library allows us to define types, abstract types, interfaces and traits. Types can be extends by other types and can use multiple traits and interfaces. Also, interfaces and traits can extends their kinds.
 
 ## Mechanism
-Type.js uses chained `[[Prototype]]` mechanism. So this means that all inherited type and trait methods will collected according proto area and those proto objects will be chained. Type.js bakes almost the same object as you would get when you instantiate the `class X extends Y` structure, which is the syntactic sugar in Modern JavaScript.
+Type.js uses chained `[[Prototype]]` mechanism. So this means that all the inherited type and trait methods will collected according proto area and those proto objects will be chained. Type.js bakes almost the same object as you would get when you instantiate the `class X extends Y` structure, which is a syntactic sugar in Modern JavaScript.
 
 ## Traits
 Traits can be considered as reusable, small ability pieces that can be shared across types.
@@ -36,7 +36,7 @@ Yes, methods are required already and we can define required props if we wish in
 npm install @iceylan/type.js
 ```
 
-After installed the Type.js in your project, you can import the modules that you needed as ES modules. Currently requiring with commonjs doesn't supported.
+After installed the Type.js in your project, you can import the modules that you needed as ES modules. Currently `require`ing with commonjs doesn't supported.
 
 ```js
 import { Type, Trait, Interface } from "@iceylan/type.js";
@@ -47,7 +47,7 @@ const Foo = Type( "Foo" );
 ## Usage
 ### Creating Traits
 ```js
-const CanBreath = Trait( "CanBreath" ).prototype(
+const CanBreath = Trait( "CanBreath" ).body(
 {
     breath( perMinute )
     {
@@ -62,12 +62,12 @@ Trait methods are added to the prototype bags of the types that use it. Therefor
 ```js
 const CanBreathUnderwater = Trait( "CanBreathUnderwater" );
 
-CanBreathUnderwater.use( CanBreath,
+CanBreathUnderwater.uses( CanBreath,
 {
     breath: "baseBreath"
 });
 
-CanBreathUnderwater.prototype(
+CanBreathUnderwater.body(
 {
     breathUnderwater()
     {
@@ -76,13 +76,13 @@ CanBreathUnderwater.prototype(
     }
 });
 ```
-Traits can extend another trait with `use` method. If we want to inherit another one, we can put another use method at the end of the chain. We can also rename the inherited trait methods as we wish. In the future, when a type uses the final trait, the functions will be included in the type with their changed names.
+Traits can extend another trait with `uses` method. If we want to inherit another one, we can put another use method at the end of the chain. We can also rename the inherited trait methods as we wish. In the future, when a type uses the final trait, the functions will be included in the type with their changed names.
 
 ### Creating Types
 ```js
 const Creature = Type( "Creature" )
-    .use( CanBreathUnderwater, { breathUnderwater: "breath" })
-    .prototype(
+    .uses( CanBreathUnderwater, { breathUnderwater: "breath" })
+    .body(
     {
         construct()
         {
@@ -99,11 +99,11 @@ The `construct` method performs the constructive operations of the type. Each ti
 created an instance from a type, the method runs once, taking the given parameters. In this
 method, we can perform the initializations works, create initial values for properties of the type.
 
-The `use` method on the type objects allow us to use traits. If we want to use another trait we have to prepend another use method to the chain like `Type( ...something ).use( ...trait1, ...rename map).use( ...trait2, ...rename map)`.
+The `uses` method on the type objects allow us to use traits. If we want to use another trait we have to prepend another use method to the chain like `Type( ...something ).uses( ...trait1, ...rename map).uses( ...trait2, ...rename map)`.
 
 ### Renaming Trait Methods
 ```js
-const Creature = Type( "Creature" ).use( CanBreathUnderwater,
+const Creature = Type( "Creature" ).uses( CanBreathUnderwater,
 {
     breath: "exhale"
 });
@@ -134,19 +134,19 @@ const WarmBloodedCreatureContract = Interface( "WarmBloodedCreatureContract" );
 
 WarmBloodedCreatureContract
     .extends( AnimalContract )
-    .prototype( warmBloodeds =>
+    .body( warmBloodeds =>
     {
         warmBloodeds.property( "heartBeatSpeed", Number ).required();
     });
 ```
-We can declare rules as second argument of the `Interface` or use `prototype` method for it. Now the *WarmBloodedCreatureContract* declares two properties and one method.
+We can declare rules as second argument of the `Interface` or use `body` method for it. Now the *WarmBloodedCreatureContract* declares two properties and one method.
 
 ### Extending Types
 ```js
 const Animal = Type( "Animal" )
     .extends( Creature )
     .implements( WarmBloodedCreatureContract )
-    .prototype(
+    .body(
     {
         abilities: [],
         heartBeatSpeed: 10,
@@ -197,7 +197,7 @@ That will help us to easily access overloaded or any parent method and reuse the
 
 ### Creating Abilities As Traits
 ```js
-const CanSpeak = Trait( "CanSpeak" ).prototype(
+const CanSpeak = Trait( "CanSpeak" ).body(
 {
     speak( words )
     {
@@ -209,7 +209,7 @@ Nowadays, the only species that can speak is humans, but hey, who knows maybe in
 
 ### Creating Final Types
 ```js
-const Human = Type( "Human" ).extends( Animal ).use( CanSpeak, { speak: "talk" }).prototype(
+const Human = Type( "Human" ).extends( Animal ).uses( CanSpeak, { speak: "talk" }).body(
 {
     construct( name )
     {
@@ -251,7 +251,7 @@ ismail.talk( "Hello world!" );
 All parameters given to the `create` method are passed to the `construct` method of the type.
 
 ### Testing "Is A" Relations
-Type.js provide abilities to test "is a" relations. `instanceof` expression also supported.
+Type.js provide abilities to test "is a" and "can be" relations. `instanceof` expression also supported.
 
 #### Same Kind Relations
 ##### 1. relations between traits
@@ -283,7 +283,7 @@ Types also extends each other. So we can test it with `is` method. `instanceof` 
 Human.behave( CanBreath ); // true
 Human instanceof CanBreath; // true
 ```
-We know that types can use traits and we can test it with `behave` method or we can use `instanceof` expression. Please pay attention that there are no type used `CanBreath` trait directly in the inheritance chain. Instead the `Creature` type used the `CanBreathUnderwater` trait which it uses the `CanBreath` trait. All of these are means that the `Human` type uses `CanBreath` trait indirectly but testing the relation will give us a *true*, as it's supposed to be.
+We know that types can use traits and we can test it with `behave` method or we can just use `instanceof` expression. Please pay attention that there are no type used `CanBreath` trait directly in the inheritance chain. Instead the `Creature` type used the `CanBreathUnderwater` trait which it uses the `CanBreath` trait. All of these are means that the `Human` type uses `CanBreath` trait indirectly but testing the relation will give us a *true*, as it's supposed to be.
 
 ##### 2. relations between types and interfaces
 ```js
