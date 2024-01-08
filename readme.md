@@ -76,7 +76,7 @@ CanBreathUnderwater.body(
     }
 });
 ```
-Traits can extend another trait with `uses` method. If we want to inherit another one, we can put another use method at the end of the chain. We can also rename the inherited trait methods as we wish. In the future, when a type uses the final trait, the functions will be included in the type with their changed names.
+Traits can extend another trait with `uses` method. If we want to inherit another one, we can put another uses method at the end of the chain. We can also rename the inherited trait methods as we wish. In the future, when a type uses the final trait, the functions will be included in the type with their changed names.
 
 ### Creating Types
 ```js
@@ -169,10 +169,10 @@ const Animal = Type( "Animal" )
 ```
 We can use `implements` method to declare that we are going to follow rules of an interface. Method accepts multiple interfaces like `implements( iface1, iface2, ...)`.
 
-Also, type.js injects a magic `parent` word in every method we defined. This works same as the `super` that comes with ES6. But the super can be used only in constructor and static methods. You can use the parent in all methods of your types and access parent type's every method with it.
+Also, type.js injects a magic `parent` word in every method we defined. This works same as the `super` that comes with ES6. But the super can be used only in constructor and static methods. You can use the parent in all methods of your types, traits and access every parent method with it.
 
 ```js
-// ... type definitions going here
+// ... type or trait definitions going here
 
 foo()
 {
@@ -191,7 +191,7 @@ foo()
     parent( "foo", [ "a", "b" ]);
 },
 
-// ... type definitions are continues here
+// ... type or trait definitions continues here
 ```
 That will help us to easily access overloaded or any parent method and reuse their abilities.
 
