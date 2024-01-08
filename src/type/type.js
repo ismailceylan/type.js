@@ -89,6 +89,13 @@ export default function Type( name )
 	this.methods = {}
 
 	/**
+	 * Properties of the type.
+	 * 
+	 * @type {Object}
+	 */
+	this.properties = {}
+
+	/**
 	 * Abstract flag of the type.
 	 * 
 	 * @type {Boolean}
@@ -117,13 +124,6 @@ export default function Type( name )
 	 * @type {Object}
 	 */
 	this.propertyValidators = {}
-
-	/**
-	 * Properties of the type.
-	 * 
-	 * @type {Object}
-	 */
-	this.properties = {}
 
 	/**
 	 * Dependencies list to inject method closure.
@@ -164,7 +164,7 @@ export default function Type( name )
 		if( hasBodyDefined )
 		{
 			throw new SyntaxError(
-				`${ this.name }.prototype() method shouldn't be called more than once.`
+				`${ this.name }.body() method shouldn't be called more than once.`
 			);
 		}
 
