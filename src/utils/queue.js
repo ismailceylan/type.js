@@ -53,7 +53,7 @@ function eatAll()
 {
 	for( const type of queue )
 	{
-		handle( type )
+		handle( type );
 	}
 
 	empty();
