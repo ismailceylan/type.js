@@ -360,20 +360,6 @@ export default function Type( name )
 	}
 
 	/**
-	 * It collects and returns the methods of its own and all
-	 * parent types in a chained manner. The method of the last
-	 * defined type overrides the methods of the parent type.
-	 * 
-	 * @returns {Object}
-	 */
-	this.getInheritedMethods = function()
-	{
-		return inherit( this, "parent", current =>
-			current.methods
-		);
-	}
-
-	/**
 	 * Returns all the missed properties that required by
 	 * interfaces in inherited manner.
 	 *  
