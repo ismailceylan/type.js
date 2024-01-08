@@ -7,9 +7,7 @@ export default function parentalAccess(
 	if(( type = type.parent ) === null )
 	{
 		throw new ReferenceError(
-			"The " + currentType.name + " is a type that does not extend another " +
-			"type, the parent method cannot be used in the " + callerMethodName +
-			" method."
+			`Because of the ${ currentType.name } is a type that does not extend another type, the "parent" magic method shouldn't have been used in the ${ callerMethodName } method.`
 		);
 	}
 
@@ -40,6 +38,12 @@ export default function parentalAccess(
 			'"parent" method was called illegally in ' +
 			type.parent.name + "." + callerMethodName + " method. " +
 			"Within the parentless types, using parent method is ineffective."
+		);
+	}
+	else if( currentType.parent === null )
+	{
+		throw new ReferenceError(
+			`Because of the ${ currentType.name } is a type that does not extend another type, the "parent" magic method shouldn't have been used in the ${ callerMethodName } method.`
 		);
 	}
 	else
