@@ -1,111 +1,178 @@
 import { Type, Trait, Interface } from "./src/index.js";
 
-const CreatureContract = Interface( "CreatureContract", function( creatures )
+const Markdown = Type( "Markdown" ).body(
 {
-	creatures.property( "weight", Number ).required();
+	raw: "",
+	plugins: {},
+	renderers: {},
 
-	creatures.method( "live", function( live )
+	construct( raw, plugins, renderers )
 	{
-		live.argument( "life", Number ).required();
-		live.argument( "is" ).required();
-		live.returns( String );
-	});
-});
+		this.raw = raw.trim();
+		this.plugins = plugins;
+		this.renderers = renderers;
+	},
 
-const WarmBloodedCreatureContract = Interface( "WarmBloodedCreatureContract" )
-	.extends( CreatureContract )
-	.prototype( function( warmBlood )
+	render( renderers )
 	{
-		warmBlood.property( "beatSpeed", Number ).required();
-	});
-
-const CanBreath = Trait( "CanBreath" ).prototype(
-{
-	breath( perMinute )
-	{
-		console.log( "I'm breathing " + perMinute + " times per minute!" );
-	}
-});
-
-const CanBreathUnderwater = Trait( "CanBreathUnderwater" )
-	.use( CanBreath, { breath: "baseBreath" })
-	.prototype(
-	{
-		breathUnderwater()
+		for( const pluginName in this.plugins )
 		{
-			this.baseBreath( 10 );
-			console.log( "Whoa! I'm breathing underwater. Did you see how coool I am!!" );
+			const instance = this.plugins[ pluginName ].create( this );
+
+			console.log( instance );
+			this.raw = this.replace( 
+				this.raw,
+				instance,
+				( renderers || this.renderers )[ instance.name ]
+			);
 		}
-	});
 
-const Creature = Type( "Creature" ).implements( CreatureContract ).prototype(
-{
-	weight: 12,
-
-	live( life, is )
-	{
-		console.log( is, `I have ${ life } days to live.` );
-		return "3";
+		return this.raw;
 	},
 
-	foo()
+	replace( raw, plugin, renderer )
 	{
-		console.log(this,"foo creature");
+		return raw.replace( plugin.pattern, ( ...args ) =>
+			plugin.render( args, renderer )
+		);
 	}
 });
 
-const Animal = Type( "Animal" )
-	.abstract()
-	.extends( Creature )
-	.implements( WarmBloodedCreatureContract )
-	.use( CanBreathUnderwater, { breathUnderwater: "breath" })
-	.prototype(
-	{
-		weight: 50,
-		beatSpeed: 10,
-		
-		walk()
-		{
-			console.log( "walking" );
-		},
+const PluginContract = Interface( "PluginContract" ).body( plugins =>
+{
+	plugins.property( "args", Object ).required();
+	plugins.property( "markdown", [ null, Markdown ]).required();
+	plugins.property( "name", String ).required();
+	plugins.property( "pattern", RegExp ).required();
+	plugins.property( "matchNames", Array ).required();
 
-		foo()
+	plugins.method( "construct", construct =>
+	{
+		construct.argument( "md", Markdown ).required();
+	});
+});
+
+const Plugin = Type( "Plugin" ).abstract().implements( PluginContract ).body(
+{
+	args: {},
+	markdown: null,
+	matchNames: [ "full" ],
+
+	construct( md )
+	{
+		this.markdown = md;
+	},
+
+	arg( name, value )
+	{
+		this.args[ name ] = value;
+	},
+
+	render( matches, renderer )
+	{
+		this.fulfillMatches( matches );
+
+		if( "beforeReplace" in this )
 		{
-			console.log(this,"foo animal");
-			parent();
+			this.beforeReplace( this.args );
 		}
-	});
 
-const Human = Type( "Human" ).extends( Animal ).prototype(
-{
-	construct({ weight })
-	{
-		this.weight += weight;
-	
-		this.live( 43, false );
-		this.breath();
+		return renderer.call( this, this.args );
 	},
 
-	live( life, is )
+	fulfillMatches( values )
 	{
-		console.log( is, `I have ${ life } days to live.` );
-		return "3";
-	},
-	talk()
-	{
-		console.log( "talking" );
-	},
-
-	foo()
-	{
-		console.log(this,"foo human");
-		parent();
+		for( const [ i, name ] of this.matchNames.entries())
+		{
+			this.arg( name, values[ i ]);
+		}
 	}
 });
 
-const ismail = Human.create({ weight: 88 });
+const Header = Type( "Header" ).extends( Plugin ).body(
+{
+	name: "header",
+	pattern: /^(#{1,6})\s+(.*?)$/mg,
+	matchNames: [ "full", "sharps", "header" ],
+	beforeReplace({ sharps })
+	{
+		this.arg( "level", sharps.length );
+	}
+});
 
-ismail.foo();
+const UnderlinedTitle = Type( "UnderlinedTitle" ).extends( Plugin ).body(
+{
+	name: "underlinedTitle",
+	pattern: /^(.*?)\n([=-])+$/mg,
+	matchNames: [ "full", "title", "liner" ],
+	beforeReplace({ liner })
+	{
+		this.arg( "level", ({ "=": 1, "-": 2 })[ liner ]);
+	}
+});
 
-console.log( ismail instanceof Human );
-console.log( Creature instanceof Animal );
+const Italic = Type( "Italic" ).extends( Plugin ).body(
+{
+	name: "italic",
+	matchNames: [ "full", "inner" ],
+	pattern: /\*(.+)\*/g
+});
+
+const Bold = Type( "Bold" ).extends( Plugin ).body(
+{
+	name: "bold",
+	matchNames: [ "full", "inner" ],
+	pattern: /\*{2}(.+)\*{2}/g
+});
+
+const ItaBold = Type( "ItaBold" ).extends( Plugin ).body(
+{
+	name: "itabold",
+	matchNames: [ "full", "inner" ],
+	pattern: /\*{3}(.+)\*{3}/g
+});
+
+const Link = Type( "Link" ).extends( Plugin ).body(
+{
+	name: "link",
+	matchNames: [ "full", "inner", "link", "title" ],
+	pattern: /\[([\w\W]*?)\]\((.*?)(?:\s+"(.*?)")*\)/g
+});
+
+const Photo = Type( "Photo" ).extends( Plugin ).body(
+{
+	name: "photo",
+	matchNames: [ "full", "alt", "link", "title" ],
+	pattern: /\!\[([\w\W]*?)\]\((.*?)(?:\s+"(.*?)")*\)/g
+});
+
+const HTMLRenderers =
+{
+	header: ({ header, level }) => `<h${ level }>${ header }</h${ level }>`,
+	underlinedTitle: ({ title, level }) => `<h${ level }>${ title }</h${ level }>`,
+	italic: ({ inner }) => `<i>${ inner }</i>`,
+	bold: ({ inner }) => `<b>${ inner }</b>`,
+	itabold: ({ inner }) => `<b><i>${ inner }</i></b>`,
+	link({ inner, link, title, link: oLink })
+	{
+		if( title ) title = 'title="' + title + '"';
+		if( link ) link = 'href="' + link + '"';
+
+		return `<a target="_blank" ${[ title, link ].join( " ")}>${ inner || oLink }</a>`;
+	},
+	photo: ({ alt, link, title }) =>
+	{
+		if( title ) title = 'title="' + title + '"';
+		if( alt ) alt = 'alt="' + alt + '"';
+		if( link ) link = 'src="' + link + '"';
+
+		return `<img ${[ alt, title, link ].join( " " )}>`;
+	}
+}
+
+const article = document.querySelector( "article" );
+const Plugins = { Header, UnderlinedTitle, Photo, Link, ItaBold, Bold, Italic }
+
+article.innerHTML = Markdown
+	.create( article.innerHTML, Plugins, HTMLRenderers )
+	.render();
