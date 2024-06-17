@@ -169,7 +169,7 @@ const Animal = Type( "Animal" )
 ```
 We can use `implements` method to declare that we are going to follow rules of an interface. Method accepts multiple interfaces like `implements( iface1, iface2, ...)`.
 
-Also, type.js injects a magic `parent` word in every method we defined. This works same as the `super` that comes with ES6. But the super can be used only in constructor and static methods. You can use the parent in all methods of your types, traits and access every parent method with it.
+Also, type.js injects a magic `parent` word in every method we defined. This works same as the `super` that comes with ES6. You can use the parent in all methods of your types, traits and access every parent method with it.
 
 ```js
 // ... type or trait definitions going here
@@ -181,8 +181,7 @@ foo()
     // same as above
     parent( "foo" );
 
-    // accessing another parent method possible
-    // with type.js but not ES6 super
+    // we can access another parent method
     parent( "bar" );
 
     // passes arguments parent.foo( "a", "b" )
